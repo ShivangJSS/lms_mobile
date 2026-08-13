@@ -6,6 +6,7 @@ import '../../../core/theme/colors.dart';
 import '../../../core/widgets/custom_text_field.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../../viewmodels/login_view_model.dart';
+import '../../viewmodels/password_view_model.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -167,7 +168,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                         // Forgot Password
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            ref
+                                .read(passwordViewModelProvider.notifier)
+                                .reset();
+
+                            context.push(AppRoutes.forgotPassword);
+                          },
                           child: const Text(
                             'Forgot Password ?',
                             style: TextStyle(

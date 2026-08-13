@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/network/providers.dart';
-import '../../domain/entities/feedback_question.dart';
+import '../../domain/entities/assessment_question.dart';
 
 class AssessmentState {
   final bool isLoading;
   final String? error;
-  final List<FeedbackQuestion>? questions;
+  final List<AssessmentQuestion>? questions;
   final Map<String, String> answers;
   final bool isSubmitting;
   final bool isSubmitted;
@@ -22,7 +22,7 @@ class AssessmentState {
   AssessmentState copyWith({
     bool? isLoading,
     String? error,
-    List<FeedbackQuestion>? questions,
+    List<AssessmentQuestion>? questions,
     Map<String, String>? answers,
     bool? isSubmitting,
     bool? isSubmitted,
@@ -49,7 +49,7 @@ class AssessmentViewModel extends StateNotifier<AssessmentState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final repository = ref.read(assessmentRepositoryProvider);
-      final questions = await repository.getFeedbackQuestions();
+      final questions = await repository.getAssessmentQuestions();
       state = state.copyWith(isLoading: false, questions: questions);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
@@ -73,7 +73,7 @@ class AssessmentViewModel extends StateNotifier<AssessmentState> {
     state = state.copyWith(isSubmitting: true, error: null);
     try {
       final repository = ref.read(assessmentRepositoryProvider);
-      final success = await repository.submitFeedback(state.answers);
+      final success = await repository.submitAssessment(state.answers);
       state = state.copyWith(isSubmitting: false, isSubmitted: success);
     } catch (e) {
       state = state.copyWith(isSubmitting: false, error: e.toString());

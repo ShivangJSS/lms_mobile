@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/network/providers.dart';
+import '../../core/services/token_storage.dart';
 import '../../data/models/participant_model.dart';
 
 class LoginState {
@@ -114,6 +115,48 @@ class LoginViewModel extends StateNotifier<LoginState> {
         isLoading: false,
         error: e.toString(),
       );
+    }
+  }
+
+  /// Restores a previous session on launch.
+  ///
+  /// Returns true when the stored tokens still identify a participant, so the
+  /// app can go straight to the dashboard instead of asking to log in again.
+  Future<bool> restoreSession() async {
+    final accessToken = await TokenStorage.getAccessToken();
+
+    if (accessToken == null || accessToken.isEmpty) return false;
+
+    final repository = ref.read(authRepositoryProvider);
+
+    try {
+      final participant = await repository.getCurrentUser();
+
+      if (participant == null) return false;
+
+      state = LoginState(user: participant);
+
+      return true;
+    } on DioException catch (e) {
+      if (e.response?.statusCode != 401) return false;
+
+      // Access token expired — spend the refresh token before giving up.
+      try {
+        await repository.refreshToken();
+
+        final participant = await repository.getCurrentUser();
+
+        if (participant == null) return false;
+
+        state = LoginState(user: participant);
+
+        return true;
+      } catch (_) {
+        await TokenStorage.clear();
+        return false;
+      }
+    } catch (_) {
+      return false;
     }
   }
 

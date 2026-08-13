@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/network/media_url.dart';
 import '../../../core/theme/colors.dart';
 import '../../viewmodels/login_view_model.dart';
+
+String? _avatarUrl(String? stored) =>
+    mediaUrl(stored, folder: 'participants');
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -47,21 +51,27 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             CircleAvatar(
               radius: 50,
               backgroundColor: Colors.white,
-              child: participant.images != null &&
-                  participant.images!.isNotEmpty
-                  ? ClipOval(
-                child: Image.network(
-                  participant.images!,
-                  width: 100,
-                  height: 100,
-                  fit: BoxFit.cover,
-                ),
-              )
-                  : const Icon(
-                Icons.person,
-                size: 80,
-                color: AppColors.primary,
-              ),
+              child: _avatarUrl(participant.images) == null
+                  ? const Icon(
+                      Icons.person,
+                      size: 80,
+                      color: AppColors.primary,
+                    )
+                  : ClipOval(
+                      child: Image.network(
+                        _avatarUrl(participant.images)!,
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                        // The stored value is a path, not a URL, and the
+                        // legacy files are not on this server.
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.person,
+                          size: 80,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
             ),
 
             const SizedBox(height: 16),

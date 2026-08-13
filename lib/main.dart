@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'core/routes/app_routes.dart';
-import 'core/theme/app_theme.dart';
 
-void main() {
+import 'core/routes/app_routes.dart';
+import 'core/services/language_storage.dart';
+import 'core/theme/app_theme.dart';
+import 'presentation/viewmodels/language_view_model.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Read the saved language up front so every view model starts with it.
+  final languageId = await LanguageStorage.get();
+
   runApp(
-    const ProviderScope(
-      child: WomenWithWheelsApp(),
+    ProviderScope(
+      overrides: [
+        initialLanguageIdProvider.overrideWithValue(languageId),
+      ],
+      child: const WomenWithWheelsApp(),
     ),
   );
 }

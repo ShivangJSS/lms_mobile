@@ -1,14 +1,20 @@
 import '../../domain/entities/dashboard_stats.dart';
+import '../../domain/entities/dashboard_tip.dart';
 import '../../domain/repositories/dashboard_repository.dart';
-import '../datasource/local/dummy_dashboard_data_source.dart';
+import '../datasource/remote/dashboard_remote_datasource.dart';
 
 class DashboardRepositoryImpl implements DashboardRepository {
-  final DummyDashboardDataSource dataSource;
+  final DashboardRemoteDataSource dataSource;
 
   DashboardRepositoryImpl(this.dataSource);
 
   @override
-  Future<DashboardStats> getDashboardStats(String userId) async {
-    return await dataSource.getDashboardStats(userId);
+  Future<DashboardStats> getDashboardStats() async {
+    return await dataSource.getDashboardStats();
+  }
+
+  @override
+  Future<List<DashboardTip>> getTips({required int languageId}) async {
+    return await dataSource.getTips(languageId: languageId);
   }
 }

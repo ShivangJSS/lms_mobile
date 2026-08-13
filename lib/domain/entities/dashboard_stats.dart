@@ -5,7 +5,13 @@ class DashboardStats extends Equatable {
   final int totalModules;
   final double averageScore;
   final int timeInvestedMinutes;
+
+  /// 0.0 to 1.0
   final double overallProgress;
+
+  /// Assessment options the participant has selected so far. Used to tell
+  /// "no attempts yet" apart from "scored zero".
+  final int questionsAttempted;
 
   const DashboardStats({
     required this.modulesCompleted,
@@ -13,7 +19,10 @@ class DashboardStats extends Equatable {
     required this.averageScore,
     required this.timeInvestedMinutes,
     required this.overallProgress,
+    this.questionsAttempted = 0,
   });
+
+  bool get hasAttempts => questionsAttempted > 0;
 
   @override
   List<Object?> get props => [
@@ -22,5 +31,6 @@ class DashboardStats extends Equatable {
         averageScore,
         timeInvestedMinutes,
         overallProgress,
+        questionsAttempted,
       ];
 }

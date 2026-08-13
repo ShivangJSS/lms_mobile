@@ -1,6 +1,7 @@
-import '../entities/feedback_question.dart';
+import '../entities/assessment_question.dart';
 
 abstract class AssessmentRepository {
-  Future<List<FeedbackQuestion>> getFeedbackQuestions();
-  Future<bool> submitFeedback(Map<String, String> answers);
+  Future<List<AssessmentQuestion>> getAssessmentQuestions();
+
+  Future<bool> submitAssessment(Map<String, String> answers);
 }

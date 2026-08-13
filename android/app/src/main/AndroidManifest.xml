@@ -1,7 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required to reach the LMS API. Only the debug manifest declared this,
+         so release builds had no network access. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:label="women_with_wheels_refactor"
         android:name="${applicationName}"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

@@ -1,11 +1,17 @@
-import '../../../data/models/feedback_question_model.dart';
+import '../../../data/models/assessment_question_model.dart';
 
-class DummyFeedbackDataSource {
-  Future<List<FeedbackQuestionModel>> getFeedbackQuestions() async {
+/// PLACEHOLDER DATA.
+///
+/// The assessment screen has no backend yet — there is no mobile assessment
+/// endpoint. The dashboard, module and feedback screens all run on the real
+/// API now; this is the last remaining stub. Delete this file and its
+/// provider once /mobile/assessment exists.
+class DummyAssessmentDataSource {
+  Future<List<AssessmentQuestionModel>> getAssessmentQuestions() async {
     await Future.delayed(const Duration(seconds: 1));
 
     return const [
-      FeedbackQuestionModel(
+      AssessmentQuestionModel(
         id: 'q1',
         questionText: 'How are you feeling today?',
         questionType: 'single_choice',
@@ -16,7 +22,7 @@ class DummyFeedbackDataSource {
           '😟 Not in my best mood right now.',
         ],
       ),
-      FeedbackQuestionModel(
+      AssessmentQuestionModel(
         id: 'q2',
         questionText: 'What brings you here?',
         questionType: 'multiple_choice',
@@ -30,7 +36,7 @@ class DummyFeedbackDataSource {
     ];
   }
 
-  Future<bool> submitFeedback(Map<String, dynamic> answers) async {
+  Future<bool> submitAssessment(Map<String, dynamic> answers) async {
     await Future.delayed(const Duration(seconds: 1));
     return true;
   }

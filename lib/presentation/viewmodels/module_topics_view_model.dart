@@ -1,0 +1,75 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../core/network/providers.dart';
+import '../../domain/entities/learning_module.dart';
+import 'language_view_model.dart';
+
+class ModuleTopicsState {
+  final bool isLoading;
+  final String? error;
+  final List<ModuleTopic> topics;
+
+  const ModuleTopicsState({
+    this.isLoading = false,
+    this.error,
+    this.topics = const [],
+  });
+
+  ModuleTopicsState copyWith({
+    bool? isLoading,
+    String? error,
+    List<ModuleTopic>? topics,
+  }) {
+    return ModuleTopicsState(
+      isLoading: isLoading ?? this.isLoading,
+      error: error,
+      topics: topics ?? this.topics,
+    );
+  }
+}
+
+class ModuleTopicsViewModel extends StateNotifier<ModuleTopicsState> {
+  final Ref ref;
+  final int moduleId;
+
+  ModuleTopicsViewModel(this.ref, this.moduleId)
+      : super(const ModuleTopicsState()) {
+    load();
+  }
+
+  Future<void> load() async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final topics = await ref.read(moduleRepositoryProvider).getModuleTopics(
+            moduleId: moduleId,
+            languageId: ref.read(languageProvider).languageId,
+          );
+
+      state = state.copyWith(isLoading: false, topics: topics);
+    } on DioException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.response?.statusCode == 404
+            ? "This module has no content yet."
+            : (e.message ?? "Could not load this module"),
+      );
+    } on SocketException {
+      state = state.copyWith(
+        isLoading: false,
+        error: "No internet connection",
+      );
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+}
+
+/// Keyed by module id so each module keeps its own topic list.
+final moduleTopicsViewModelProvider = StateNotifierProvider.family<
+    ModuleTopicsViewModel, ModuleTopicsState, int>(
+  (ref, moduleId) => ModuleTopicsViewModel(ref, moduleId),
+);
