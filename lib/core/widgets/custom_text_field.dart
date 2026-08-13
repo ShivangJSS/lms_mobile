@@ -6,6 +6,10 @@ class CustomTextField extends StatelessWidget {
   final bool obscureText;
   final TextEditingController? controller;
   final Widget? suffixIcon;
+
+  /// Drawn inside the field, with a divider after it.
+  final IconData? prefixIcon;
+
   final String? Function(String?)? validator;
 
   const CustomTextField({
@@ -15,6 +19,7 @@ class CustomTextField extends StatelessWidget {
     this.obscureText = false,
     this.controller,
     this.suffixIcon,
+    this.prefixIcon,
     this.validator,
   });
 
@@ -38,6 +43,28 @@ class CustomTextField extends StatelessWidget {
           decoration: InputDecoration(
             hintText: hintText,
             suffixIcon: suffixIcon,
+            prefixIcon: prefixIcon == null
+                ? null
+                : Padding(
+                    padding: const EdgeInsets.only(left: 14, right: 10),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          prefixIcon,
+                          size: 20,
+                          color: Colors.grey.shade600,
+                        ),
+                        const SizedBox(width: 10),
+                        Container(
+                          width: 1,
+                          height: 22,
+                          color: Colors.grey.shade300,
+                        ),
+                      ],
+                    ),
+                  ),
+            prefixIconConstraints: const BoxConstraints(minWidth: 0),
           ),
         ),
       ],

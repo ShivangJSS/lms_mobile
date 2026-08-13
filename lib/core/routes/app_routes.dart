@@ -19,6 +19,10 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String settings = '/settings';
   static const String feedback = '/feedback';
+
+  /// The two mood questions asked straight after sign-in.
+  static const String moodCheck = '/mood-check';
+
   static const String modules = '/modules';
 
   static const String forgotPassword = '/forgot-password';
@@ -64,8 +68,16 @@ class AppRoutes {
         builder: (context, state) => const ProfileScreen(),
       ),
       GoRoute(
+        path: moodCheck,
+        builder: (context, state) => const FeedbackScreen(
+          mode: FeedbackMode.mood,
+        ),
+      ),
+      GoRoute(
         path: feedback,
-        builder: (context, state) => const FeedbackScreen(),
+        builder: (context, state) => const FeedbackScreen(
+          mode: FeedbackMode.full,
+        ),
       ),
       GoRoute(
         path: modules,

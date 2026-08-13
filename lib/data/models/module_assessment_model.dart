@@ -13,40 +13,75 @@ double _toDouble(dynamic v) {
   return 0.0;
 }
 
-class McqOptionModel extends McqOption {
-  const McqOptionModel({required super.optionId, required super.optionText});
+List<Map<String, dynamic>> _list(dynamic v) =>
+    (v as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
 
-  factory McqOptionModel.fromJson(Map<String, dynamic> json) {
-    return McqOptionModel(
-      optionId: _toInt(json['option_id']) ?? 0,
-      optionText: json['option_text'] as String? ?? '',
-    );
-  }
-}
-
-class McqQuestionModel extends McqQuestion {
-  const McqQuestionModel({
-    required super.mcqId,
+class AssessmentQuestionItemModel extends AssessmentQuestionItem {
+  const AssessmentQuestionItemModel({
+    required super.type,
+    required super.questionId,
     required super.questionTitle,
-    required super.allowsMultiple,
     super.questionDescription,
     super.imageUrl,
     super.marks,
+    super.allowsMultiple,
     super.options,
+    super.buckets,
+    super.items,
+    super.leftItems,
+    super.rightItems,
   });
 
-  factory McqQuestionModel.fromJson(Map<String, dynamic> json) {
-    final options = json['options'] as List<dynamic>? ?? [];
-
-    return McqQuestionModel(
-      mcqId: _toInt(json['mcq_id']) ?? 0,
+  factory AssessmentQuestionItemModel.fromJson(Map<String, dynamic> json) {
+    return AssessmentQuestionItemModel(
+      type: json['type'] as String? ?? 'MCQ',
+      questionId: _toInt(json['question_id']) ?? 0,
       questionTitle: json['question_title'] as String? ?? '',
       questionDescription: json['question_description'] as String?,
       imageUrl: json['image_url'] as String?,
       marks: _toDouble(json['marks']),
       allowsMultiple: json['allows_multiple'] == true,
-      options: options
-          .map((e) => McqOptionModel.fromJson(e as Map<String, dynamic>))
+      options: _list(json['options'])
+          .map(
+            (o) => ChoiceOption(
+              optionId: _toInt(o['option_id']) ?? 0,
+              optionText: o['option_text'] as String? ?? '',
+            ),
+          )
+          .toList(),
+      buckets: _list(json['buckets'])
+          .map(
+            (b) => Bucket(
+              bucketId: _toInt(b['bucket_id']) ?? 0,
+              name: b['bucket_name'] as String? ?? '',
+              image: b['bucket_image'] as String?,
+            ),
+          )
+          .toList(),
+      items: _list(json['items'])
+          .map(
+            (i) => DraggableItem(
+              itemId: _toInt(i['item_id']) ?? 0,
+              name: i['item_name'] as String? ?? '',
+              image: i['item_image'] as String?,
+            ),
+          )
+          .toList(),
+      leftItems: _list(json['left_items'])
+          .map(
+            (l) => MatchItem(
+              itemId: _toInt(l['item_id']) ?? 0,
+              text: l['text'] as String? ?? '',
+            ),
+          )
+          .toList(),
+      rightItems: _list(json['right_items'])
+          .map(
+            (r) => MatchItem(
+              itemId: _toInt(r['item_id']) ?? 0,
+              text: r['text'] as String? ?? '',
+            ),
+          )
           .toList(),
     );
   }
@@ -60,13 +95,11 @@ class ModuleAssessmentModel extends ModuleAssessment {
   });
 
   factory ModuleAssessmentModel.fromJson(Map<String, dynamic> json) {
-    final questions = json['questions'] as List<dynamic>? ?? [];
-
     return ModuleAssessmentModel(
       moduleId: _toInt(json['module_id']) ?? 0,
       passPercentage: _toDouble(json['pass_percentage']),
-      questions: questions
-          .map((e) => McqQuestionModel.fromJson(e as Map<String, dynamic>))
+      questions: _list(json['questions'])
+          .map(AssessmentQuestionItemModel.fromJson)
           .toList(),
     );
   }
@@ -80,14 +113,21 @@ class AssessmentResultModel extends AssessmentResult {
     required super.passPercentage,
     required super.passed,
     required super.moduleCompleted,
+    super.wrongAnswers,
+    super.partiallyCorrect,
     super.nextModuleId,
     super.nextModuleName,
   });
 
   factory AssessmentResultModel.fromJson(Map<String, dynamic> json) {
+    final total = _toInt(json['total_questions']) ?? 0;
+    final correct = _toInt(json['correct_answers']) ?? 0;
+
     return AssessmentResultModel(
-      totalQuestions: _toInt(json['total_questions']) ?? 0,
-      correctAnswers: _toInt(json['correct_answers']) ?? 0,
+      totalQuestions: total,
+      correctAnswers: correct,
+      wrongAnswers: _toInt(json['wrong_answers']) ?? (total - correct),
+      partiallyCorrect: _toInt(json['partially_correct']) ?? 0,
       scorePercentage: _toDouble(json['score_percentage']),
       passPercentage: _toDouble(json['pass_percentage']),
       passed: json['passed'] == true,

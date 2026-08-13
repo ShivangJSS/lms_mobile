@@ -35,13 +35,15 @@ class FeedbackState {
     this.formAnswers = const {},
   });
 
-  /// The mood questions are required; the longer questionnaire is optional so
-  /// a participant is never blocked from submitting.
-  bool get canSubmit =>
+  /// Post-sign-in mood check: every mood question must be answered.
+  bool get canSubmitMood =>
       questions.isNotEmpty &&
       questions.every(
         (question) => (answers[question.questionId] ?? const []).isNotEmpty,
       );
+
+  /// The longer questionnaire is optional, so one answer is enough to send.
+  bool get canSubmitForm => formAnswers.isNotEmpty;
 
   FeedbackState copyWith({
     bool? isLoading,
@@ -179,7 +181,9 @@ class FeedbackViewModel extends StateNotifier<FeedbackState> {
       (state.answers[questionId] ?? const []).contains(optionId);
 
   Future<void> submit() async {
-    if (!state.canSubmit || state.isSubmitting) return;
+    if (state.isSubmitting) return;
+
+    if (!state.canSubmitMood && !state.canSubmitForm) return;
 
     state = state.copyWith(isSubmitting: true, error: null);
 
@@ -190,7 +194,13 @@ class FeedbackViewModel extends StateNotifier<FeedbackState> {
             formAnswers: state.formAnswers,
           );
 
-      state = state.copyWith(isSubmitting: false, isSubmitted: true);
+      // Answers are cleared once stored, so reopening the form starts fresh
+      // rather than showing what was already submitted.
+      state = FeedbackState(
+        isSubmitted: true,
+        questions: state.questions,
+        formFields: state.formFields,
+      );
     } catch (e) {
       state = state.copyWith(isSubmitting: false, error: _messageFor(e));
     }

@@ -1,3 +1,4 @@
+import '../../domain/entities/assessment_answer.dart';
 import '../../domain/entities/module_assessment.dart';
 import '../../domain/repositories/module_assessment_repository.dart';
 import '../datasource/remote/assessment_remote_datasource.dart';
@@ -21,8 +22,13 @@ class ModuleAssessmentRepositoryImpl implements ModuleAssessmentRepository {
   @override
   Future<AssessmentResult> submit({
     required int moduleId,
-    required Map<int, List<int>> answers,
+    required int languageId,
+    required List<AssessmentAnswer> answers,
   }) async {
-    return await dataSource.submit(moduleId: moduleId, answers: answers);
+    return await dataSource.submit(
+      moduleId: moduleId,
+      languageId: languageId,
+      answers: answers,
+    );
   }
 }

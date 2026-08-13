@@ -10,7 +10,7 @@ abstract class ModuleRepository {
 
   Future<List<AppLanguage>> getLanguages();
 
-  Future<List<ModuleTopic>> getModuleTopics({
+  Future<ModuleContent> getModuleTopics({
     required int moduleId,
     required int languageId,
   });

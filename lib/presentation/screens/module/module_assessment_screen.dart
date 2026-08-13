@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/localization/app_strings.dart';
-import '../../../core/network/media_url.dart';
 import '../../../core/theme/colors.dart';
 import '../../../domain/entities/module_assessment.dart';
 import '../../viewmodels/dashboard_view_model.dart';
@@ -11,7 +10,13 @@ import '../../viewmodels/language_view_model.dart';
 import '../../viewmodels/module_assessment_view_model.dart';
 import '../../viewmodels/module_view_model.dart';
 import '../../widgets/assessment_result_view.dart';
+import '../../widgets/questions/assessment_header.dart';
+import '../../widgets/questions/choice_question_card.dart';
+import '../../widgets/questions/drop_bucket_card.dart';
+import '../../widgets/questions/match_making_card.dart';
 
+/// One question per page: instructions, then each question in turn, then the
+/// result.
 class ModuleAssessmentScreen extends ConsumerWidget {
   final int moduleId;
   final String moduleName;
@@ -31,9 +36,9 @@ class ModuleAssessmentScreen extends ConsumerWidget {
     final lang = ref.watch(languageProvider).languageId;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(AppStrings.of('assessment', lang)),
+        title: const Text('Women With Wheels'),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -49,7 +54,7 @@ class ModuleAssessmentScreen extends ConsumerWidget {
               languageId: lang,
               onRetry: viewModel.retry,
               onDone: () {
-                // The module list and dashboard both change when a module
+                // Module list and dashboard both change when a module
                 // completes, so they are refetched on the way out.
                 ref.invalidate(moduleViewModelProvider);
                 ref.invalidate(dashboardViewModelProvider);
@@ -59,62 +64,52 @@ class ModuleAssessmentScreen extends ConsumerWidget {
           }
 
           if (state.error != null && state.assessment == null) {
-            return _Message(text: state.error!, onRetry: viewModel.load);
-          }
-
-          final questions = state.assessment?.questions ?? const [];
-
-          if (questions.isEmpty) {
             return _Message(
-              text: 'No assessment has been set for this module yet.',
+              text: state.error!,
+              languageId: lang,
               onRetry: viewModel.load,
             );
           }
 
+          if (state.questions.isEmpty) {
+            return _Message(
+              text: 'No assessment has been set for this module yet.',
+              languageId: lang,
+              onRetry: viewModel.load,
+            );
+          }
+
+          if (state.onInstructions) {
+            return _InstructionsPage(
+              moduleName: moduleName,
+              onStart: viewModel.next,
+            );
+          }
+
+          final question = state.currentQuestion!;
+
           return Column(
             children: [
               Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: questions.length,
-                  itemBuilder: (context, index) => _QuestionCard(
-                    question: questions[index],
-                    index: index,
-                    moduleId: moduleId,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AssessmentHeader.forQuestion(question),
+                      const SizedBox(height: 22),
+                      _card(question, state.pageIndex + 1, lang),
+                    ],
                   ),
                 ),
               ),
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: ElevatedButton(
-                    onPressed: state.canSubmit && !state.isSubmitting
-                        ? viewModel.submit
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      disabledBackgroundColor: Colors.grey.shade400,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      minimumSize: const Size.fromHeight(52),
-                    ),
-                    child: state.isSubmitting
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : Text(
-                            AppStrings.of('submit', lang),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                            ),
-                          ),
-                  ),
-                ),
+              AssessmentNavBar(
+                onPrevious: state.pageIndex > 0 ? viewModel.previous : null,
+                onNext: state.onLastQuestion
+                    ? (state.canSubmit ? viewModel.submit : null)
+                    : (state.canAdvance ? viewModel.next : null),
+                nextLabel: state.onLastQuestion ? 'Submit' : 'Next',
+                isBusy: state.isSubmitting,
               ),
             ],
           );
@@ -122,111 +117,123 @@ class ModuleAssessmentScreen extends ConsumerWidget {
       ),
     );
   }
+
+  Widget _card(AssessmentQuestionItem question, int number, int lang) {
+    if (question.isDropBucket) {
+      return DropBucketCard(
+        question: question,
+        number: number,
+        moduleId: moduleId,
+        languageId: lang,
+      );
+    }
+
+    if (question.isMatchMaking) {
+      return MatchMakingCard(
+        question: question,
+        number: number,
+        moduleId: moduleId,
+        languageId: lang,
+      );
+    }
+
+    return ChoiceQuestionCard(
+      question: question,
+      number: number,
+      moduleId: moduleId,
+      languageId: lang,
+    );
+  }
 }
 
-class _QuestionCard extends ConsumerWidget {
-  final McqQuestion question;
-  final int index;
-  final int moduleId;
+class _InstructionsPage extends StatelessWidget {
+  final String moduleName;
+  final VoidCallback onStart;
 
-  const _QuestionCard({
-    required this.question,
-    required this.index,
-    required this.moduleId,
-  });
+  const _InstructionsPage({required this.moduleName, required this.onStart});
+
+  static const _points = [
+    'Read each question carefully.',
+    'Includes MCQ, Yes/No, Match, and Drop types. Answer all questions to '
+        'finish the test.',
+    'No negative marking — attempt all.',
+    'Tap Next & then Submit to save your responses.',
+    'View your score and correct answers after submission.',
+  ];
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final provider = moduleAssessmentViewModelProvider(moduleId);
-    final viewModel = ref.read(provider.notifier);
-
-    ref.watch(provider);
-
-    final image = mediaUrl(question.imageUrl);
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Q${index + 1}. ${question.questionTitle}',
-            style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AssessmentHeader(title: moduleName),
+                const SizedBox(height: 18),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEFEFEF),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Assessment Instructions',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      for (final point in _points)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('•  ',
+                                  style: TextStyle(fontSize: 17)),
+                              Expanded(
+                                child: Text(
+                                  point,
+                                  style: const TextStyle(
+                                    fontSize: 17,
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          if (question.allowsMultiple)
-            const Padding(
-              padding: EdgeInsets.only(top: 4),
-              child: Text(
-                'Select all that apply',
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
-            ),
-          if (image != null) ...[
-            const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                image,
-                height: 160,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-              ),
-            ),
-          ],
-          const SizedBox(height: 12),
-          for (final option in question.options)
-            question.allowsMultiple
-                ? CheckboxListTile(
-                    title: Text(option.optionText),
-                    value: viewModel.isSelected(
-                      question.mcqId,
-                      option.optionId,
-                    ),
-                    activeColor: AppColors.primary,
-                    contentPadding: EdgeInsets.zero,
-                    onChanged: (_) => viewModel.select(
-                      question,
-                      option.optionId,
-                    ),
-                  )
-                : RadioListTile<int>(
-                    title: Text(option.optionText),
-                    value: option.optionId,
-                    contentPadding: EdgeInsets.zero,
-                    // ignore: deprecated_member_use
-                    groupValue: viewModel.isSelected(
-                      question.mcqId,
-                      option.optionId,
-                    )
-                        ? option.optionId
-                        : null,
-                    activeColor: AppColors.primary,
-                    // ignore: deprecated_member_use
-                    onChanged: (_) => viewModel.select(
-                      question,
-                      option.optionId,
-                    ),
-                  ),
-        ],
-      ),
+        ),
+        AssessmentNavBar(nextLabel: 'Next', onNext: onStart),
+      ],
     );
   }
 }
 
 class _Message extends StatelessWidget {
   final String text;
+  final int languageId;
   final Future<void> Function() onRetry;
 
-  const _Message({required this.text, required this.onRetry});
+  const _Message({
+    required this.text,
+    required this.languageId,
+    required this.onRetry,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -242,7 +249,10 @@ class _Message extends StatelessWidget {
               style: const TextStyle(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 16),
-            TextButton(onPressed: onRetry, child: const Text('Retry')),
+            TextButton(
+              onPressed: onRetry,
+              child: Text(AppStrings.of('retry', languageId)),
+            ),
           ],
         ),
       ),

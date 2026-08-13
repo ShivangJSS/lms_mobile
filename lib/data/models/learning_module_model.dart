@@ -71,6 +71,34 @@ class AppLanguageModel extends AppLanguage {
   }
 }
 
+class ModuleOverviewInfoModel extends ModuleOverviewInfo {
+  const ModuleOverviewInfoModel({
+    required super.moduleId,
+    super.moduleName,
+    super.moduleDescription,
+    super.moduleOverview,
+    super.moduleObjective,
+    super.durationMinutes,
+    super.durationLabel,
+    super.hasMainContent,
+    super.hasPostAssessment,
+  });
+
+  factory ModuleOverviewInfoModel.fromJson(Map<String, dynamic> json) {
+    return ModuleOverviewInfoModel(
+      moduleId: LearningModuleModel._toInt(json['module_id']) ?? 0,
+      moduleName: json['module_name'] as String?,
+      moduleDescription: json['module_description'] as String?,
+      moduleOverview: json['module_overview'] as String?,
+      moduleObjective: json['module_objective'] as String?,
+      durationMinutes: LearningModuleModel._toInt(json['duration_minutes']),
+      durationLabel: json['duration_label'] as String?,
+      hasMainContent: json['has_main_content'] == true,
+      hasPostAssessment: json['has_post_assessment'] == true,
+    );
+  }
+}
+
 class ModuleTopicModel extends ModuleTopic {
   const ModuleTopicModel({
     required super.topicId,

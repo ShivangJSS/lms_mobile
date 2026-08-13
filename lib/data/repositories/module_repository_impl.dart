@@ -29,7 +29,7 @@ class ModuleRepositoryImpl implements ModuleRepository {
   }
 
   @override
-  Future<List<ModuleTopic>> getModuleTopics({
+  Future<ModuleContent> getModuleTopics({
     required int moduleId,
     required int languageId,
   }) async {

@@ -1,3 +1,4 @@
+import '../entities/assessment_answer.dart';
 import '../entities/module_assessment.dart';
 
 abstract class ModuleAssessmentRepository {
@@ -8,6 +9,7 @@ abstract class ModuleAssessmentRepository {
 
   Future<AssessmentResult> submit({
     required int moduleId,
-    required Map<int, List<int>> answers,
+    required int languageId,
+    required List<AssessmentAnswer> answers,
   });
 }

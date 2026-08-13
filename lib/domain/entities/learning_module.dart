@@ -111,6 +111,63 @@ class AppLanguage extends Equatable {
   List<Object?> get props => [languageId, languageCode, languageName];
 }
 
+/// The module's own content — what the LMS calls the main content of the
+/// module — shown above its topic list.
+class ModuleOverviewInfo extends Equatable {
+  final int moduleId;
+  final String? moduleName;
+  final String? moduleDescription;
+  final String? moduleOverview;
+  final String? moduleObjective;
+
+  final int? durationMinutes;
+  final String? durationLabel;
+
+  final bool hasMainContent;
+  final bool hasPostAssessment;
+
+  const ModuleOverviewInfo({
+    required this.moduleId,
+    this.moduleName,
+    this.moduleDescription,
+    this.moduleOverview,
+    this.moduleObjective,
+    this.durationMinutes,
+    this.durationLabel,
+    this.hasMainContent = false,
+    this.hasPostAssessment = false,
+  });
+
+  bool get hasAnyText =>
+      (moduleDescription?.isNotEmpty ?? false) ||
+      (moduleOverview?.isNotEmpty ?? false) ||
+      (moduleObjective?.isNotEmpty ?? false);
+
+  @override
+  List<Object?> get props => [
+        moduleId,
+        moduleName,
+        moduleDescription,
+        moduleOverview,
+        moduleObjective,
+        durationMinutes,
+        durationLabel,
+        hasMainContent,
+        hasPostAssessment,
+      ];
+}
+
+/// Topic list plus the module's own content.
+class ModuleContent extends Equatable {
+  final ModuleOverviewInfo? overview;
+  final List<ModuleTopic> topics;
+
+  const ModuleContent({this.overview, this.topics = const []});
+
+  @override
+  List<Object?> get props => [overview, topics];
+}
+
 /// A single topic inside a module, with the document attached to it.
 class ModuleTopic extends Equatable {
   final int topicId;

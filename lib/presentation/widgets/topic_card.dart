@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import '../../core/theme/colors.dart';
 import '../../domain/entities/learning_module.dart';
 
-/// Row in the module detail list: one topic and the document attached to it.
+/// A topic row: type icon, title, chevron. Matches the reference list where
+/// each topic is a plain row rather than a boxed card.
 class TopicCard extends StatelessWidget {
   final ModuleTopic topic;
   final int index;
@@ -18,95 +19,78 @@ class TopicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(12),
-        leading: _TypeBadge(topic: topic),
-        title: Text(
-          topic.topicName ?? 'Untitled topic',
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+        child: Row(
+          children: [
+            TopicTypeIcon(topic: topic),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                topic.topicName ?? 'Untitled topic',
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right,
+              color: AppColors.primary,
+              size: 28,
+            ),
+          ],
         ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 4.0),
-          child: Text(
-            _subtitle,
-            style: const TextStyle(color: Colors.grey),
-          ),
-        ),
-        trailing: Icon(
-          topic.hasContent ? Icons.chevron_right : Icons.hourglass_empty,
-          color: topic.hasContent ? AppColors.primary : Colors.grey,
-        ),
-        onTap: onTap,
       ),
     );
   }
-
-  String get _subtitle {
-    final parts = <String>[
-      '${index + 1}',
-      if (topic.docType != null) topic.docType!,
-      if (topic.durationMinutes != null) '${topic.durationMinutes} min',
-    ];
-
-    return parts.join('  •  ');
-  }
 }
 
-class _TypeBadge extends StatelessWidget {
+/// Play circle for video, PDF and PPT badges for documents.
+class TopicTypeIcon extends StatelessWidget {
   final ModuleTopic topic;
+  final double size;
 
-  const _TypeBadge({required this.topic});
+  const TopicTypeIcon({super.key, required this.topic, this.size = 40});
 
   @override
   Widget build(BuildContext context) {
-    late final IconData icon;
-    late final Color color;
-    late final Color background;
-
     if (topic.isVideo) {
-      icon = Icons.play_circle_fill;
-      color = const Color(0xFFD32F2F);
-      background = const Color(0xFFFFEBEE);
-    } else if (topic.isPdf) {
-      icon = Icons.picture_as_pdf;
-      color = const Color(0xFFE64A19);
-      background = const Color(0xFFFBE9E7);
-    } else if (topic.isPpt) {
-      icon = Icons.slideshow;
-      color = const Color(0xFFF57C00);
-      background = const Color(0xFFFFF3E0);
-    } else {
-      icon = Icons.article;
-      color = AppColors.primary;
-      background = const Color(0xFFF3E5F5);
+      return Container(
+        width: size,
+        height: size,
+        decoration: const BoxDecoration(
+          color: AppColors.primary,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          Icons.play_arrow,
+          color: Colors.white,
+          size: size * 0.6,
+        ),
+      );
     }
 
+    final isPdf = topic.isPdf;
+
     return Container(
-      width: 50,
-      height: 50,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
-        color: background,
-        shape: BoxShape.circle,
-        border: Border.all(color: color, width: 2),
+        color: isPdf ? const Color(0xFFE53935) : const Color(0xFFE64A19),
+        borderRadius: BorderRadius.circular(6),
       ),
-      child: Icon(icon, color: color),
+      alignment: Alignment.center,
+      child: Text(
+        isPdf ? 'PDF' : 'PPT',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: size * 0.26,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 }

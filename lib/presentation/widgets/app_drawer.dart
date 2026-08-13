@@ -22,7 +22,12 @@ class AppDrawer extends ConsumerWidget {
     final avatar = mediaUrl(participant?.images, folder: 'participants');
 
     return Drawer(
-      child: Column(
+      // SafeArea + a scrollable middle section keep Logout reachable on
+      // short screens; a plain Column with a Spacer pushed it off-screen
+      // once the header and menu items grew.
+      child: SafeArea(
+        bottom: true,
+        child: Column(
         children: [
           UserAccountsDrawerHeader(
             decoration: const BoxDecoration(color: AppColors.primary),
@@ -65,35 +70,55 @@ class AppDrawer extends ConsumerWidget {
               ),
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.dashboard),
-            title: Text(AppStrings.of('dashboard', lang)),
-            onTap: () => Navigator.pop(context),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.dashboard),
+                  title: Text(AppStrings.of('dashboard', lang)),
+                  onTap: () => Navigator.pop(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.menu_book),
+                  title: Text(AppStrings.of('view_all_modules', lang)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.push(AppRoutes.modules);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.language),
+                  title: Text(AppStrings.of('change_language', lang)),
+                  subtitle: languageState.currentName.isEmpty
+                      ? null
+                      : Text(languageState.currentName),
+                  onTap: () {
+                    Navigator.pop(context);
+                    showLanguagePicker(context, ref);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.feedback),
+                  title: Text(AppStrings.of('feedback', lang)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.push(AppRoutes.feedback);
+                  },
+                ),
+              ],
+            ),
           ),
-          ListTile(
-            leading: const Icon(Icons.language),
-            title: Text(AppStrings.of('change_language', lang)),
-            subtitle: languageState.currentName.isEmpty
-                ? null
-                : Text(languageState.currentName),
-            onTap: () {
-              Navigator.pop(context);
-              showLanguagePicker(context, ref);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.feedback),
-            title: Text(AppStrings.of('feedback', lang)),
-            onTap: () {
-              Navigator.pop(context);
-              context.push(AppRoutes.feedback);
-            },
-          ),
-          const Spacer(),
           const Divider(height: 1),
           ListTile(
-            leading: const Icon(Icons.logout),
-            title: Text(AppStrings.of('logout', lang)),
+            leading: const Icon(Icons.logout, color: AppColors.error),
+            title: Text(
+              AppStrings.of('logout', lang),
+              style: const TextStyle(
+                color: AppColors.error,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             onTap: () async {
               Navigator.pop(context);
 
@@ -102,8 +127,9 @@ class AppDrawer extends ConsumerWidget {
               if (context.mounted) context.go(AppRoutes.login);
             },
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
         ],
+        ),
       ),
     );
   }

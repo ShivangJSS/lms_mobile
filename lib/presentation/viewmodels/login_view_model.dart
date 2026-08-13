@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/network/providers.dart';
+import '../../core/network/session_reset.dart';
 import '../../core/services/token_storage.dart';
 import '../../data/models/participant_model.dart';
 
@@ -53,6 +54,10 @@ class LoginViewModel extends StateNotifier<LoginState> {
         password,
       );
 
+      // Start this participant clean: any answers or dashboard data left in
+      // memory from a previous session must not carry over.
+      resetParticipantStateFromRef(ref);
+
       state = LoginState(
         isLoading: false,
         user: participant,
@@ -60,19 +65,30 @@ class LoginViewModel extends StateNotifier<LoginState> {
 
       return true;
     } on DioException catch (e) {
+      // Never surface Dio's own text — it explains validateStatus and HTTP
+      // codes, which means nothing to a participant.
       String message;
 
       switch (e.response?.statusCode) {
+        case 400:
         case 401:
+        case 404:
+        case 422:
           message = "Invalid username or password";
           break;
 
         case 500:
+        case 502:
+        case 503:
           message = "Server error. Please try again.";
           break;
 
         default:
-          message = e.message ?? "Network error";
+          message = e.type == DioExceptionType.connectionError ||
+                  e.type == DioExceptionType.connectionTimeout ||
+                  e.type == DioExceptionType.receiveTimeout
+              ? "Cannot reach the server. Check your connection."
+              : "Something went wrong. Please try again.";
       }
 
       state = LoginState(
@@ -109,6 +125,8 @@ class LoginViewModel extends StateNotifier<LoginState> {
 
       await repository.logout();
 
+      resetParticipantStateFromRef(ref);
+
       state = const LoginState();
     } catch (e) {
       state = LoginState(
@@ -123,7 +141,16 @@ class LoginViewModel extends StateNotifier<LoginState> {
   /// Returns true when the stored tokens still identify a participant, so the
   /// app can go straight to the dashboard instead of asking to log in again.
   Future<bool> restoreSession() async {
-    final accessToken = await TokenStorage.getAccessToken();
+    // Reading the keystore can fail on its own (locked device, wiped
+    // credentials). Left unguarded that exception escaped the splash screen
+    // and the app never navigated anywhere.
+    String? accessToken;
+
+    try {
+      accessToken = await TokenStorage.getAccessToken();
+    } catch (_) {
+      return false;
+    }
 
     if (accessToken == null || accessToken.isEmpty) return false;
 

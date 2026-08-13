@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/network/api_constants.dart';
+import '../../../domain/entities/assessment_answer.dart';
 import '../../models/module_assessment_model.dart';
 
 class ModuleAssessmentRemoteDataSource {
@@ -25,19 +26,14 @@ class ModuleAssessmentRemoteDataSource {
   /// POST /mobile/module/assessment/{module_id}/submit
   Future<AssessmentResultModel> submit({
     required int moduleId,
-    required Map<int, List<int>> answers,
+    required int languageId,
+    required List<AssessmentAnswer> answers,
   }) async {
     final response = await _dio.post(
       ApiConstants.moduleAssessmentSubmit(moduleId),
+      queryParameters: {'language_id': languageId},
       data: {
-        'answers': answers.entries
-            .map(
-              (entry) => {
-                'mcq_id': entry.key,
-                'selected_options': entry.value,
-              },
-            )
-            .toList(),
+        'answers': answers.map((answer) => answer.toJson()).toList(),
       },
     );
 

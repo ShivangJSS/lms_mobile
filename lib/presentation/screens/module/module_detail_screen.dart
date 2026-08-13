@@ -8,6 +8,7 @@ import '../../../core/theme/colors.dart';
 import '../../../domain/entities/learning_module.dart';
 import '../../viewmodels/language_view_model.dart';
 import '../../viewmodels/module_topics_view_model.dart';
+import '../../widgets/module_overview_card.dart';
 import '../../widgets/topic_card.dart';
 
 class ModuleDetailScreen extends ConsumerWidget {
@@ -25,11 +26,12 @@ class ModuleDetailScreen extends ConsumerWidget {
     final state = ref.watch(moduleTopicsViewModelProvider(moduleId));
     final viewModel =
         ref.read(moduleTopicsViewModelProvider(moduleId).notifier);
+    final lang = ref.watch(languageProvider).languageId;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(moduleName.isEmpty ? 'Module' : moduleName),
+        title: const Text('Women With Wheels'),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -40,12 +42,9 @@ class ModuleDetailScreen extends ConsumerWidget {
           }
 
           if (state.error != null) {
-            return _Message(text: state.error!, onRetry: viewModel.load);
-          }
-
-          if (state.topics.isEmpty) {
             return _Message(
-              text: 'No topics have been published for this module yet.',
+              text: state.error!,
+              languageId: lang,
               onRetry: viewModel.load,
             );
           }
@@ -55,22 +54,52 @@ class ModuleDetailScreen extends ConsumerWidget {
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: viewModel.load,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: state.topics.length,
-                    itemBuilder: (context, index) {
-                      final topic = state.topics[index];
-
-                      return TopicCard(
-                        topic: topic,
-                        index: index,
-                        onTap: () => _showTopic(context, topic),
-                      );
-                    },
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    children: [
+                      if (state.overview != null)
+                        ModuleOverviewCard(
+                          overview: state.overview!,
+                          languageId: lang,
+                        )
+                      else
+                        SectionBanner(title: moduleName),
+                      const SizedBox(height: 22),
+                      SectionBanner(
+                        title: AppStrings.of('topics', lang),
+                      ),
+                      const SizedBox(height: 10),
+                      if (state.topics.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 28),
+                          child: Center(
+                            child: Text(
+                              'No topics have been published yet.',
+                              style: TextStyle(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ),
+                        )
+                      else
+                        for (var i = 0; i < state.topics.length; i++) ...[
+                          TopicCard(
+                            topic: state.topics[i],
+                            index: i,
+                            onTap: () => _showTopic(context, state.topics[i]),
+                          ),
+                          if (i != state.topics.length - 1)
+                            const Divider(height: 1),
+                        ],
+                      const SizedBox(height: 12),
+                    ],
                   ),
                 ),
               ),
-              _AssessmentBar(moduleId: moduleId, moduleName: moduleName),
+              _PostAssessmentBar(
+                moduleId: moduleId,
+                moduleName: state.overview?.moduleName ?? moduleName,
+              ),
             ],
           );
         },
@@ -88,14 +117,22 @@ class ModuleDetailScreen extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              topic.topicName ?? 'Untitled topic',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              children: [
+                TopicTypeIcon(topic: topic, size: 34),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    topic.topicName ?? 'Untitled topic',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             if (topic.docTitle != null)
               _Row(label: 'Document', value: topic.docTitle!),
             if (topic.docType != null)
@@ -115,60 +152,45 @@ class ModuleDetailScreen extends ConsumerWidget {
   }
 }
 
-/// Sits under the topic list: the participant works through the content and
-/// then takes the MCQ, which is what completes the module.
-class _AssessmentBar extends ConsumerWidget {
+/// Teal Post Assessment button pinned under the topic list. Completing it is
+/// what finishes the module and opens the next one.
+class _PostAssessmentBar extends ConsumerWidget {
   final int moduleId;
   final String moduleName;
 
-  const _AssessmentBar({required this.moduleId, required this.moduleName});
+  const _PostAssessmentBar({
+    required this.moduleId,
+    required this.moduleName,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final lang = ref.watch(languageProvider).languageId;
-
     return SafeArea(
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.15),
-              blurRadius: 8,
-              offset: const Offset(0, -2),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
+        child: SizedBox(
+          height: 56,
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () => context.push(
+              AppRoutes.moduleAssessmentPath(moduleId),
+              extra: moduleName,
             ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              AppStrings.of('unlock_note', lang),
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 12,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.assessmentAction,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
-            const SizedBox(height: 10),
-            ElevatedButton.icon(
-              onPressed: () => context.push(
-                AppRoutes.moduleAssessmentPath(moduleId),
-                extra: moduleName,
-              ),
-              icon: const Icon(Icons.quiz, color: Colors.white),
-              label: Text(
-                AppStrings.of('start_assessment', lang),
-                style: const TextStyle(color: Colors.white, fontSize: 16),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                minimumSize: const Size.fromHeight(52),
+            child: const Text(
+              'Post Assessment',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -207,9 +229,14 @@ class _Row extends StatelessWidget {
 
 class _Message extends StatelessWidget {
   final String text;
+  final int languageId;
   final Future<void> Function() onRetry;
 
-  const _Message({required this.text, required this.onRetry});
+  const _Message({
+    required this.text,
+    required this.languageId,
+    required this.onRetry,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -225,7 +252,10 @@ class _Message extends StatelessWidget {
               style: const TextStyle(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 16),
-            TextButton(onPressed: onRetry, child: const Text('Retry')),
+            TextButton(
+              onPressed: onRetry,
+              child: Text(AppStrings.of('retry', languageId)),
+            ),
           ],
         ),
       ),

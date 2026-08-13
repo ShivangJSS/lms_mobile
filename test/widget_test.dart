@@ -1,30 +1,69 @@
-// This is a basic Flutter widget test.
+// Routing configuration test.
 //
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// This replaces the counter test left over from `flutter create`, which
+// referenced a `MyApp` class that never existed in this project and so failed
+// on every run.
+//
+// Pumping the whole app is not useful here: the splash screen starts a timer
+// and reads secure storage, neither of which exist under test. Checking the
+// route table catches the thing that actually breaks — a screen losing its
+// route — without any of that.
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:women_with_wheels_refactor/main.dart';
+import 'package:go_router/go_router.dart';
+import 'package:women_with_wheels_refactor/core/routes/app_routes.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  Set<String> collect(List<RouteBase> routes, [String prefix = '']) {
+    final paths = <String>{};
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    for (final route in routes) {
+      if (route is GoRoute) {
+        final full = route.path.startsWith('/')
+            ? route.path
+            : '$prefix/${route.path}';
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+        paths.add(full);
+        paths.addAll(collect(route.routes, full));
+      }
+    }
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    return paths;
+  }
+
+  test('every screen is reachable by route', () {
+    final paths = collect(AppRoutes.router.configuration.routes);
+
+    for (final expected in [
+      '/',
+      AppRoutes.login,
+      AppRoutes.forgotPassword,
+      AppRoutes.resetPassword,
+      AppRoutes.home,
+      AppRoutes.profile,
+      AppRoutes.feedback,
+      AppRoutes.moodCheck,
+      AppRoutes.modules,
+    ]) {
+      expect(paths, contains(expected), reason: '$expected is not routed');
+    }
+  });
+
+  test('module detail and its assessment are nested under modules', () {
+    final paths = collect(AppRoutes.router.configuration.routes);
+
+    expect(paths, contains('/modules/:moduleId'));
+    expect(paths, contains('/modules/:moduleId/assessment'));
+  });
+
+  test('path builders produce the nested routes', () {
+    expect(AppRoutes.moduleDetailPath(9), '/modules/9');
+    expect(AppRoutes.moduleAssessmentPath(9), '/modules/9/assessment');
+  });
+
+  test('the mood check is a separate route from full feedback', () {
+    // Straight after sign-in only the two mood questions are asked; the
+    // longer questionnaire lives behind Feedback in the side navigation.
+    expect(AppRoutes.moodCheck, isNot(AppRoutes.feedback));
   });
 }

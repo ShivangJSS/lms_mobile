@@ -24,4 +24,12 @@ class AppColors {
   static const Color progressGreen = Color(0xFF8BC34A);
   
   static const Color cardBackground = Color(0xFFFFFFFF);
+
+  // Assessment screens
+  static const Color assessmentAction = Color(0xFF0E9F6E); // teal buttons
+  static const Color assessmentHeader = Color(0xFFC9AFCB); // muted purple bar
+  static const Color optionTile = Color(0xFFE7DAEA); // option pill
+  static const Color optionTileSelected = Color(0xFF6A1B9A);
+  static const Color resultFail = Color(0xFFF4402D);
+  static const Color resultPass = Color(0xFF0E9F6E);
 }

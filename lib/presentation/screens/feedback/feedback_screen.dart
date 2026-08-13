@@ -2,20 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/localization/app_strings.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../core/theme/colors.dart';
 import '../../../domain/entities/feedback_question.dart';
 import '../../viewmodels/feedback_view_model.dart';
+import '../../viewmodels/language_view_model.dart';
 import '../../viewmodels/login_view_model.dart';
 import '../../widgets/feedback_form_card.dart';
 
+/// Which half of the feedback is being shown.
+///
+/// [mood] runs straight after sign-in and asks only the two mood questions.
+/// [full] is opened from the side navigation and holds the rest of the
+/// trainee questionnaire.
+enum FeedbackMode { mood, full }
+
 class FeedbackScreen extends ConsumerWidget {
-  const FeedbackScreen({super.key});
+  final FeedbackMode mode;
+
+  const FeedbackScreen({super.key, this.mode = FeedbackMode.full});
+
+  bool get _isMood => mode == FeedbackMode.mood;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(feedbackViewModelProvider);
     final viewModel = ref.read(feedbackViewModelProvider.notifier);
+    final lang = ref.watch(languageProvider).languageId;
 
     final userName =
         ref.watch(loginViewModelProvider).user?.participantName ?? '';
@@ -29,7 +43,7 @@ class FeedbackScreen extends ConsumerWidget {
           ),
         );
 
-        context.go(AppRoutes.home);
+        _leave(context);
       }
 
       if (next.error != null && previous?.error != next.error) {
@@ -42,18 +56,25 @@ class FeedbackScreen extends ConsumerWidget {
       }
     });
 
+    final items = _isMood ? state.questions : state.formFields;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: Text(userName.isEmpty ? 'Feedback' : 'Welcome $userName'),
+        title: Text(
+          _isMood
+              ? (userName.isEmpty ? 'Welcome' : 'Welcome $userName')
+              : AppStrings.of('feedback', lang),
+        ),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
+        automaticallyImplyLeading: !_isMood,
         actions: [
           TextButton(
-            onPressed: () => context.go(AppRoutes.home),
-            child: const Text(
-              'Skip',
-              style: TextStyle(
+            onPressed: () => _leave(context),
+            child: Text(
+              _isMood ? 'Skip' : 'Close',
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
               ),
@@ -63,10 +84,11 @@ class FeedbackScreen extends ConsumerWidget {
       ),
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : state.questions.isEmpty
-              ? _EmptyOrError(
-                  message: state.error ??
-                      'No feedback questions are available right now.',
+          : items.isEmpty
+              ? _Message(
+                  text: state.error ??
+                      'No questions are available right now.',
+                  languageId: lang,
                   onRetry: viewModel.load,
                 )
               : SingleChildScrollView(
@@ -74,43 +96,17 @@ class FeedbackScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFEBEAEA),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const Text(
-                          "Hello and welcome!\n\nWe're excited to have you "
-                          "here. Before we get started, let's get to know you "
-                          "a little better.",
-                          style: TextStyle(fontSize: 16, height: 1.5),
-                        ),
-                      ),
+                      _Intro(isMood: _isMood),
                       const SizedBox(height: 20),
-                      for (final question in state.questions)
-                        _QuestionCard(question: question),
-                      if (state.formFields.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Tell us more',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Optional — it helps us improve the training.',
-                          style: TextStyle(color: AppColors.textSecondary),
-                        ),
-                        const SizedBox(height: 16),
+                      if (_isMood)
+                        for (final question in state.questions)
+                          _MoodCard(question: question)
+                      else
                         for (final field in state.formFields)
                           FeedbackFormCard(field: field),
-                      ],
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 24),
                       ElevatedButton(
-                        onPressed: state.canSubmit && !state.isSubmitting
+                        onPressed: _canSubmit(state) && !state.isSubmitting
                             ? viewModel.submit
                             : null,
                         style: ElevatedButton.styleFrom(
@@ -127,25 +123,64 @@ class FeedbackScreen extends ConsumerWidget {
                                   color: Colors.white,
                                 ),
                               )
-                            : const Text(
-                                'Submit Feedback',
-                                style: TextStyle(
+                            : Text(
+                                AppStrings.of('submit', lang),
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
                                 ),
                               ),
                       ),
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
     );
   }
+
+  bool _canSubmit(FeedbackState state) =>
+      _isMood ? state.canSubmitMood : state.canSubmitForm;
+
+  void _leave(BuildContext context) {
+    if (_isMood) {
+      context.go(AppRoutes.home);
+    } else if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go(AppRoutes.home);
+    }
+  }
 }
 
-class _QuestionCard extends ConsumerWidget {
+class _Intro extends StatelessWidget {
+  final bool isMood;
+
+  const _Intro({required this.isMood});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEBEAEA),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Text(
+        isMood
+            ? "Hello and welcome!\n\nBefore we get started, let's get to know "
+                "you a little better."
+            : 'Your answers help us improve the training. Nothing here is '
+                'compulsory — answer what you like.',
+        style: const TextStyle(fontSize: 16, height: 1.5),
+      ),
+    );
+  }
+}
+
+class _MoodCard extends ConsumerWidget {
   final FeedbackQuestion question;
 
-  const _QuestionCard({required this.question});
+  const _MoodCard({required this.question});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -179,7 +214,7 @@ class _QuestionCard extends ConsumerWidget {
               style: const TextStyle(color: AppColors.textSecondary),
             ),
           ],
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           for (final option in question.options)
             question.allowsMultiple
                 ? CheckboxListTile(
@@ -189,6 +224,7 @@ class _QuestionCard extends ConsumerWidget {
                       option.optionId,
                     ),
                     activeColor: AppColors.primary,
+                    contentPadding: EdgeInsets.zero,
                     onChanged: (_) => viewModel.toggleMultiple(
                       question.questionId,
                       option.optionId,
@@ -197,6 +233,7 @@ class _QuestionCard extends ConsumerWidget {
                 : RadioListTile<int>(
                     title: Text(option.optionName),
                     value: option.optionId,
+                    contentPadding: EdgeInsets.zero,
                     // ignore: deprecated_member_use
                     groupValue: viewModel.isSelected(
                       question.questionId,
@@ -217,11 +254,16 @@ class _QuestionCard extends ConsumerWidget {
   }
 }
 
-class _EmptyOrError extends StatelessWidget {
-  final String message;
+class _Message extends StatelessWidget {
+  final String text;
+  final int languageId;
   final Future<void> Function() onRetry;
 
-  const _EmptyOrError({required this.message, required this.onRetry});
+  const _Message({
+    required this.text,
+    required this.languageId,
+    required this.onRetry,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -232,12 +274,15 @@ class _EmptyOrError extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              message,
+              text,
               textAlign: TextAlign.center,
               style: const TextStyle(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 16),
-            TextButton(onPressed: onRetry, child: const Text('Retry')),
+            TextButton(
+              onPressed: onRetry,
+              child: Text(AppStrings.of('retry', languageId)),
+            ),
           ],
         ),
       ),

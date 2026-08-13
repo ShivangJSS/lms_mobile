@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/network/api_constants.dart';
+import '../../../domain/entities/learning_module.dart';
 import '../../models/learning_module_model.dart';
 
 class ModuleRemoteDataSource {
@@ -69,7 +70,9 @@ class ModuleRemoteDataSource {
   }
 
   /// GET /mobile/module/{module_id}/topics
-  Future<List<ModuleTopicModel>> getModuleTopics({
+  ///
+  /// Returns the module's own content alongside its topic list.
+  Future<ModuleContent> getModuleTopics({
     required int moduleId,
     required int languageId,
   }) async {
@@ -78,14 +81,23 @@ class ModuleRemoteDataSource {
       queryParameters: {'language_id': languageId},
     );
 
-    final topics = response.data['topics'] as List<dynamic>? ?? [];
+    final data = response.data as Map<String, dynamic>;
 
-    return topics
-        .map(
-          (item) => ModuleTopicModel.fromJson(
-            item as Map<String, dynamic>,
-          ),
-        )
-        .toList();
+    final module = data['module'];
+
+    final topics = data['topics'] as List<dynamic>? ?? [];
+
+    return ModuleContent(
+      overview: module is Map<String, dynamic>
+          ? ModuleOverviewInfoModel.fromJson(module)
+          : null,
+      topics: topics
+          .map(
+            (item) => ModuleTopicModel.fromJson(
+              item as Map<String, dynamic>,
+            ),
+          )
+          .toList(),
+    );
   }
 }

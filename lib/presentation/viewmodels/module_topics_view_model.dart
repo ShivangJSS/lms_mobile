@@ -12,21 +12,27 @@ class ModuleTopicsState {
   final String? error;
   final List<ModuleTopic> topics;
 
+  /// The module's own content, shown above the topic list.
+  final ModuleOverviewInfo? overview;
+
   const ModuleTopicsState({
     this.isLoading = false,
     this.error,
     this.topics = const [],
+    this.overview,
   });
 
   ModuleTopicsState copyWith({
     bool? isLoading,
     String? error,
     List<ModuleTopic>? topics,
+    ModuleOverviewInfo? overview,
   }) {
     return ModuleTopicsState(
       isLoading: isLoading ?? this.isLoading,
       error: error,
       topics: topics ?? this.topics,
+      overview: overview ?? this.overview,
     );
   }
 }
@@ -44,12 +50,16 @@ class ModuleTopicsViewModel extends StateNotifier<ModuleTopicsState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final topics = await ref.read(moduleRepositoryProvider).getModuleTopics(
+      final content = await ref.read(moduleRepositoryProvider).getModuleTopics(
             moduleId: moduleId,
             languageId: ref.read(languageProvider).languageId,
           );
 
-      state = state.copyWith(isLoading: false, topics: topics);
+      state = state.copyWith(
+        isLoading: false,
+        topics: content.topics,
+        overview: content.overview,
+      );
     } on DioException catch (e) {
       state = state.copyWith(
         isLoading: false,
