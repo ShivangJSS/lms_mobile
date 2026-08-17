@@ -6,8 +6,11 @@ import 'api_constants.dart';
 ///   "app/uploads/English/images/x.png"  -> legacy Laravel path
 ///   "uploads/module_icons/x.png"        -> current upload path
 ///   "x.jpeg"                            -> bare file name
-/// The server mounts everything under /uploads, so the leading "app/" is
-/// dropped and a bare name is assumed to sit in the given [folder].
+///
+/// All three are handed to the media endpoint as-is; the server searches the
+/// storage folder and the API's own uploads folder, with and without the
+/// "app/" prefix, and streams whatever it finds. A bare name is assumed to
+/// sit in [folder].
 String? mediaUrl(String? path, {String folder = ''}) {
   if (path == null) return null;
 
@@ -19,11 +22,12 @@ String? mediaUrl(String? path, {String folder = ''}) {
     return trimmed;
   }
 
-  var relative = trimmed.replaceFirst(RegExp(r'^app/'), '');
+  var relative = trimmed.replaceAll('\\', '/').replaceFirst(RegExp(r'^/+'), '');
 
-  if (!relative.startsWith('uploads/')) {
-    final prefix = folder.isEmpty ? '' : '$folder/';
-    relative = 'uploads/$prefix$relative';
+  // A bare file name carries no folder of its own, so the caller supplies it.
+  if (folder.isNotEmpty && !relative.contains('/')) {
+    relative = '$folder/$relative';
   }
-  return '${ApiConstants.baseUrl}/$relative';
+
+  return '${ApiConstants.baseUrl}${ApiConstants.media}/$relative';
 }

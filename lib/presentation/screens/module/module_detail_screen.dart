@@ -4,10 +4,12 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/localization/app_strings.dart';
 import '../../../core/routes/app_routes.dart';
+import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
 import '../../../domain/entities/learning_module.dart';
 import '../../viewmodels/language_view_model.dart';
 import '../../viewmodels/module_topics_view_model.dart';
+import '../viewer/topic_viewer_screen.dart';
 import '../../widgets/module_overview_card.dart';
 import '../../widgets/topic_card.dart';
 
@@ -55,7 +57,8 @@ class ModuleDetailScreen extends ConsumerWidget {
                 child: RefreshIndicator(
                   onRefresh: viewModel.load,
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.sm),
                     children: [
                       if (state.overview != null)
                         ModuleOverviewCard(
@@ -64,11 +67,11 @@ class ModuleDetailScreen extends ConsumerWidget {
                         )
                       else
                         SectionBanner(title: moduleName),
-                      const SizedBox(height: 22),
+                      const SizedBox(height: AppSpacing.lg),
                       SectionBanner(
                         title: AppStrings.of('topics', lang),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: AppSpacing.sm),
                       if (state.topics.isEmpty)
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 28),
@@ -86,7 +89,7 @@ class ModuleDetailScreen extends ConsumerWidget {
                           TopicCard(
                             topic: state.topics[i],
                             index: i,
-                            onTap: () => _showTopic(context, state.topics[i]),
+                            onTap: () => _openTopic(context, state.topics[i]),
                           ),
                           if (i != state.topics.length - 1)
                             const Divider(height: 1),
@@ -107,46 +110,11 @@ class ModuleDetailScreen extends ConsumerWidget {
     );
   }
 
-  void _showTopic(BuildContext context, ModuleTopic topic) {
-    showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      builder: (_) => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                TopicTypeIcon(topic: topic, size: 34),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    topic.topicName ?? 'Untitled topic',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            if (topic.docTitle != null)
-              _Row(label: 'Document', value: topic.docTitle!),
-            if (topic.docType != null)
-              _Row(label: 'Type', value: topic.docType!),
-            if (topic.durationMinutes != null)
-              _Row(label: 'Duration', value: '${topic.durationMinutes} min'),
-            _Row(
-              label: 'File',
-              value: topic.youtubeUrl?.isNotEmpty == true
-                  ? topic.youtubeUrl!
-                  : (topic.contentPath ?? 'Not uploaded yet'),
-            ),
-          ],
-        ),
+  /// Opens the document itself rather than describing where it lives.
+  void _openTopic(BuildContext context, ModuleTopic topic) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => TopicViewerScreen(topic: topic),
       ),
     );
   }
@@ -169,7 +137,7 @@ class _PostAssessmentBar extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
         child: SizedBox(
-          height: 56,
+          height: AppButton.height,
           width: double.infinity,
           child: ElevatedButton(
             onPressed: () => context.push(
@@ -182,46 +150,9 @@ class _PostAssessmentBar extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text(
-              'Post Assessment',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            child: const Text('Post Assessment'),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _Row extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _Row({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 90,
-            child: Text(
-              label,
-              style: const TextStyle(
-                color: AppColors.textSecondary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Expanded(child: Text(value)),
-        ],
       ),
     );
   }

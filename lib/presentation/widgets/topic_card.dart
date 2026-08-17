@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_text.dart';
 import '../../core/theme/colors.dart';
 import '../../domain/entities/learning_module.dart';
 
@@ -22,24 +23,26 @@ class TopicCard extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+        padding: const EdgeInsets.symmetric(
+          vertical: AppSpacing.sm,
+          horizontal: AppSpacing.xs,
+        ),
         child: Row(
           children: [
             TopicTypeIcon(topic: topic),
-            const SizedBox(width: 16),
+            const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Text(
                 topic.topicName ?? 'Untitled topic',
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
+                style: AppText.bodySmall.copyWith(
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
             const Icon(
               Icons.chevron_right,
               color: AppColors.primary,
-              size: 28,
+              size: 22,
             ),
           ],
         ),
@@ -53,7 +56,7 @@ class TopicTypeIcon extends StatelessWidget {
   final ModuleTopic topic;
   final double size;
 
-  const TopicTypeIcon({super.key, required this.topic, this.size = 40});
+  const TopicTypeIcon({super.key, required this.topic, this.size = 32});
 
   @override
   Widget build(BuildContext context) {
@@ -73,21 +76,33 @@ class TopicTypeIcon extends StatelessWidget {
       );
     }
 
-    final isPdf = topic.isPdf;
+    // A topic with no doc_type is not a presentation — it gets its own
+    // neutral badge rather than being mislabelled PPT.
+    final label = topic.isPdf
+        ? 'PDF'
+        : topic.isPpt
+            ? 'PPT'
+            : 'DOC';
+
+    final colour = topic.isPdf
+        ? const Color(0xFFE53935)
+        : topic.isPpt
+            ? const Color(0xFFE64A19)
+            : AppColors.primaryLight;
 
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: isPdf ? const Color(0xFFE53935) : const Color(0xFFE64A19),
+        color: colour,
         borderRadius: BorderRadius.circular(6),
       ),
       alignment: Alignment.center,
       child: Text(
-        isPdf ? 'PDF' : 'PPT',
+        label,
         style: TextStyle(
           color: Colors.white,
-          fontSize: size * 0.26,
+          fontSize: size * 0.28,
           fontWeight: FontWeight.bold,
         ),
       ),

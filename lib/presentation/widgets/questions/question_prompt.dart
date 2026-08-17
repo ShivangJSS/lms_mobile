@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/network/media_url.dart';
+import '../../../core/theme/app_text.dart';
 
 /// "Q3 : <title>" plus the question image, shared by all four types.
 class QuestionPrompt extends StatelessWidget {
@@ -24,37 +25,27 @@ class QuestionPrompt extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Q$number : $title',
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            height: 1.3,
-          ),
-        ),
+        Text('Q$number : $title', style: AppText.h3),
         if (hint != null) ...[
-          const SizedBox(height: 6),
-          Text(
-            hint!,
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(hint!, style: AppText.caption),
         ],
         if (image != null) ...[
-          const SizedBox(height: 18),
+          const SizedBox(height: AppSpacing.md),
           Center(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: Image.network(
                 image,
-                height: 200,
-                width: 200,
+                height: 140,
+                width: 140,
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => const SizedBox.shrink(),
               ),
             ),
           ),
         ],
-        const SizedBox(height: 22),
+        const SizedBox(height: AppSpacing.md),
       ],
     );
   }

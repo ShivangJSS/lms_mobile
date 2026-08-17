@@ -13,10 +13,18 @@ class ApiConstants {
   static const String logout = "/mobile/auth/logout";
   static const String me = "/mobile/auth/me";
 
+  /// Multipart upload of the participant's profile photo.
+  static const String profilePhoto = "/mobile/module/profile/photo";
+
   // Password APIs
   static const String forgotPassword = "/mobile/auth/forgot-password";
   static const String resetPassword = "/mobile/auth/reset-password";
   static const String changePassword = "/mobile/auth/change-password";
+
+  /// Streams stored videos, pdfs, ppts and images. Supports byte ranges, so
+  /// video players can seek. Unauthenticated by design — image and video
+  /// widgets cannot attach the bearer token.
+  static const String media = "/mobile/module/media";
 
   // Dashboard APIs
   static const String dashboardStats = "/mobile/dashboard/stats";

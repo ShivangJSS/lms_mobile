@@ -44,10 +44,11 @@ class MatchMakingCard extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // No imageUrl: these types have their own visuals below, and the
+        // question-level image on these records is a shared placeholder.
         QuestionPrompt(
           number: number,
           title: question.questionTitle,
-          imageUrl: question.imageUrl,
         ),
         Container(
           color: const Color(0xFFE9E9E9),

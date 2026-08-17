@@ -71,15 +71,21 @@ class ModuleViewModel extends StateNotifier<ModuleListState> {
           ? state.categories
           : await repository.getModuleTypes();
 
+      // Open on the first category rather than every module at once, so the
+      // list is already filtered instead of re-sorting after the first tap.
+      final selectedTypeId = state.selectedTypeId ??
+          (categories.isNotEmpty ? categories.first.moduleTypeId : null);
+
       final modules = await repository.getModules(
         languageId: state.languageId,
-        moduleType: state.selectedTypeId,
+        moduleType: selectedTypeId,
       );
 
       state = state.copyWith(
         isLoading: false,
         modules: modules,
         categories: categories,
+        selectedTypeId: selectedTypeId,
       );
     } on DioException catch (e) {
       state = state.copyWith(

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/routes/app_routes.dart';
+import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
 import '../../viewmodels/module_view_model.dart';
 import '../../widgets/module_card.dart';
@@ -17,7 +18,7 @@ class ModuleListScreen extends ConsumerWidget {
     final viewModel = ref.read(moduleViewModelProvider.notifier);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Women With Wheels'),
         backgroundColor: AppColors.primary,
@@ -38,7 +39,7 @@ class ModuleListScreen extends ConsumerWidget {
             onSelected: viewModel.selectType,
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(
@@ -46,20 +47,13 @@ class ModuleListScreen extends ConsumerWidget {
                 horizontal: 16,
               ),
               decoration: BoxDecoration(
-                color: const Color(0xFF8A6C8C),
-                borderRadius: BorderRadius.circular(8),
+                color: AppColors.sectionHeader,
+                borderRadius: BorderRadius.circular(AppSpacing.radius),
               ),
-              child: const Text(
-                'Module List',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              child: const Text('Module List', style: AppText.headingOnColor),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           Expanded(
             child: _ModuleListBody(
               onRefresh: viewModel.load,
@@ -101,7 +95,7 @@ class _ModuleListBody extends ConsumerWidget {
     return RefreshIndicator(
       onRefresh: onRefresh,
       child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.xl),
         itemCount: state.modules.length,
         itemBuilder: (context, index) {
           final module = state.modules[index];
@@ -129,16 +123,16 @@ class _Message extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(AppSpacing.xxl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               text,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: AppText.muted,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
             TextButton(
               onPressed: onRetry,
               child: const Text('Retry'),

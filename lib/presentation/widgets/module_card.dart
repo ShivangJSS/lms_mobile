@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_text.dart';
 import '../../core/theme/colors.dart';
 import '../../domain/entities/learning_module.dart';
 
@@ -17,49 +18,37 @@ class ModuleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.divider),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: AppColors.primary.withValues(alpha: 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.all(12),
+        contentPadding: const EdgeInsets.all(AppSpacing.md),
         leading: Container(
           width: 50,
           height: 50,
           decoration: BoxDecoration(
-            color: const Color(0xFFFFECCC),
+            color: AppColors.tintedPanel,
             shape: BoxShape.circle,
-            border: Border.all(
-              color: const Color(0xFFFFB74D),
-              width: 2,
-            ),
+            border: Border.all(color: AppColors.primary, width: 2),
           ),
-          child: const Icon(
-            Icons.article,
-            color: Color(0xFFFFB74D),
-          ),
+          child: const Icon(Icons.article, color: AppColors.primary),
         ),
-        title: Text(
-          module.moduleName,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
-        ),
+        title: Text(module.moduleName, style: AppText.h4),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 4.0),
           child: Text(
             'Duration : ${module.durationText}',
-            style: const TextStyle(color: Colors.grey),
+            style: AppText.muted,
           ),
         ),
         trailing: _StatusIcon(status: module.status),

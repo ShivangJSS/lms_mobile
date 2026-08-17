@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
 import '../../../domain/entities/module_assessment.dart';
 
@@ -26,18 +27,17 @@ class AssessmentHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.md,
+      ),
       decoration: BoxDecoration(
-        color: AppColors.assessmentHeader,
-        borderRadius: BorderRadius.circular(14),
+        color: AppColors.sectionHeader,
+        borderRadius: BorderRadius.circular(AppSpacing.radius),
       ),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-        ),
+        style: AppText.sectionTitle,
       ),
     );
   }
@@ -61,7 +61,7 @@ class AssessmentNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final next = SizedBox(
-      height: 56,
+      height: AppButton.height,
       child: ElevatedButton(
         onPressed: isBusy ? null : onNext,
         style: ElevatedButton.styleFrom(
@@ -80,27 +80,21 @@ class AssessmentNavBar extends StatelessWidget {
                   color: Colors.white,
                 ),
               )
-            : Text(
-                nextLabel,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+            : Text(nextLabel),
       ),
     );
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.md),
         child: onPrevious == null
             ? SizedBox(width: double.infinity, child: next)
             : Row(
                 children: [
                   Expanded(
                     child: SizedBox(
-                      height: 56,
+                      height: AppButton.height,
                       child: ElevatedButton(
                         onPressed: isBusy ? null : onPrevious,
                         style: ElevatedButton.styleFrom(
@@ -109,18 +103,11 @@ class AssessmentNavBar extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text(
-                          'Previous',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        child: const Text('Previous'),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: AppSpacing.md),
                   Expanded(child: next),
                 ],
               ),

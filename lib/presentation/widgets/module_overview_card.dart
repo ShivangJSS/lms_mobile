@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_text.dart';
 import '../../core/theme/colors.dart';
 import '../../domain/entities/learning_module.dart';
 
@@ -35,42 +36,39 @@ class _ModuleOverviewCardState extends State<ModuleOverviewCard> {
       children: [
         SectionBanner(title: overview.moduleName ?? ''),
         if (overviewText.isNotEmpty) ...[
-          const SizedBox(height: 14),
+          const SizedBox(height: AppSpacing.md),
           Container(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(AppSpacing.radius),
+              border: Border.all(color: AppColors.divider),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withValues(alpha: 0.12),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
+                  color: AppColors.primary.withValues(alpha: 0.06),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Module Overview',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
-                  ),
+                  style: AppText.h3.copyWith(color: AppColors.primary),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.md),
                 Text(
                   overviewText,
-                  style: const TextStyle(fontSize: 16, height: 1.5),
+                  style: AppText.body,
                 ),
               ],
             ),
           ),
         ],
         if (overview.moduleObjective?.trim().isNotEmpty == true) ...[
-          const SizedBox(height: 14),
+          const SizedBox(height: AppSpacing.md),
           _Collapsible(
             title: 'Learning Objective',
             open: _objectiveOpen,
@@ -93,19 +91,15 @@ class SectionBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.md,
+      ),
       decoration: BoxDecoration(
-        color: AppColors.assessmentHeader,
-        borderRadius: BorderRadius.circular(14),
+        color: AppColors.sectionHeader,
+        borderRadius: BorderRadius.circular(AppSpacing.radius),
       ),
-      child: Text(
-        title,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      child: Text(title, style: AppText.sectionTitle),
     );
   }
 }
@@ -129,26 +123,22 @@ class _Collapsible extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Material(
-          color: AppColors.assessmentHeader,
-          borderRadius: BorderRadius.circular(14),
+          color: AppColors.sectionHeader,
+          borderRadius: BorderRadius.circular(AppSpacing.radius),
           child: InkWell(
             onTap: onToggle,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(AppSpacing.radius),
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 20,
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.md,
               ),
               child: Row(
                 children: [
                   Expanded(
                     child: Text(
                       title,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: AppText.sectionTitle,
                     ),
                   ),
                   Icon(
@@ -165,10 +155,15 @@ class _Collapsible extends StatelessWidget {
           crossFadeState:
               open ? CrossFadeState.showFirst : CrossFadeState.showSecond,
           firstChild: Padding(
-            padding: const EdgeInsets.fromLTRB(4, 16, 4, 4),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.md,
+              AppSpacing.lg,
+              AppSpacing.md,
+            ),
             child: Text(
               body,
-              style: const TextStyle(fontSize: 16, height: 1.5),
+              style: AppText.body,
             ),
           ),
           secondChild: const SizedBox(width: double.infinity),

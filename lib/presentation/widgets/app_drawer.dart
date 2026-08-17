@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/localization/app_strings.dart';
 import '../../core/network/media_url.dart';
 import '../../core/routes/app_routes.dart';
+import '../../core/theme/app_text.dart';
 import '../../core/theme/colors.dart';
 import '../viewmodels/language_view_model.dart';
 import '../viewmodels/login_view_model.dart';
@@ -72,7 +73,10 @@ class AppDrawer extends ConsumerWidget {
           ),
           Expanded(
             child: ListView(
-              padding: EdgeInsets.zero,
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.sm,
+              ),
               children: [
                 ListTile(
                   leading: const Icon(Icons.dashboard),
@@ -110,7 +114,12 @@ class AppDrawer extends ConsumerWidget {
             ),
           ),
           const Divider(height: 1),
-          ListTile(
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.xs,
+            ),
+            child: ListTile(
             leading: const Icon(Icons.logout, color: AppColors.error),
             title: Text(
               AppStrings.of('logout', lang),
@@ -126,8 +135,9 @@ class AppDrawer extends ConsumerWidget {
 
               if (context.mounted) context.go(AppRoutes.login);
             },
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
         ],
         ),
       ),

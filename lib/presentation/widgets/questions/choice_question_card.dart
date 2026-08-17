@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/localization/app_strings.dart';
+import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
 import '../../../domain/entities/module_assessment.dart';
 import '../../viewmodels/module_assessment_view_model.dart';
@@ -66,28 +67,27 @@ class _OptionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Material(
         color: selected ? AppColors.optionTileSelected : AppColors.optionTile,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppSpacing.md),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppSpacing.md),
           child: Container(
             width: double.infinity,
-            constraints: const BoxConstraints(minHeight: 62),
+            constraints: const BoxConstraints(minHeight: 46),
             padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
             ),
             alignment: Alignment.center,
             child: Text(
               text,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
+              style: AppText.bodySmall.copyWith(
                 fontWeight: FontWeight.w600,
-                color: selected ? Colors.white : Colors.black87,
+                color: selected ? AppColors.textWhite : Colors.black87,
               ),
             ),
           ),

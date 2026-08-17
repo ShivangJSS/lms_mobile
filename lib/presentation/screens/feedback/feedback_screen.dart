@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/localization/app_strings.dart';
 import '../../../core/routes/app_routes.dart';
+import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
 import '../../../domain/entities/feedback_question.dart';
 import '../../viewmodels/feedback_view_model.dart';
@@ -59,7 +60,7 @@ class FeedbackScreen extends ConsumerWidget {
     final items = _isMood ? state.questions : state.formFields;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
           _isMood
@@ -92,28 +93,28 @@ class FeedbackScreen extends ConsumerWidget {
                   onRetry: viewModel.load,
                 )
               : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                    AppSpacing.xxl,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _Intro(isMood: _isMood),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: AppSpacing.xl),
                       if (_isMood)
                         for (final question in state.questions)
                           _MoodCard(question: question)
                       else
                         for (final field in state.formFields)
                           FeedbackFormCard(field: field),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppSpacing.sm),
                       ElevatedButton(
                         onPressed: _canSubmit(state) && !state.isSubmitting
                             ? viewModel.submit
                             : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          disabledBackgroundColor: Colors.grey.shade400,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
                         child: state.isSubmitting
                             ? const SizedBox(
                                 height: 20,
@@ -123,15 +124,9 @@ class FeedbackScreen extends ConsumerWidget {
                                   color: Colors.white,
                                 ),
                               )
-                            : Text(
-                                AppStrings.of('submit', lang),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                              ),
+                            : Text(AppStrings.of('submit', lang)),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppSpacing.lg),
                     ],
                   ),
                 ),
@@ -160,10 +155,10 @@ class _Intro extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppSpacing.xl),
       decoration: BoxDecoration(
-        color: const Color(0xFFEBEAEA),
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.tintedPanel,
+        borderRadius: BorderRadius.circular(AppSpacing.radius),
       ),
       child: Text(
         isMood
@@ -171,7 +166,7 @@ class _Intro extends StatelessWidget {
                 "you a little better."
             : 'Your answers help us improve the training. Nothing here is '
                 'compulsory — answer what you like.',
-        style: const TextStyle(fontSize: 16, height: 1.5),
+        style: AppText.body,
       ),
     );
   }
@@ -190,31 +185,26 @@ class _MoodCard extends ConsumerWidget {
     ref.watch(feedbackViewModelProvider);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.xl),
       decoration: BoxDecoration(
-        color: const Color(0xFFEBEAEA),
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppSpacing.radius),
+        border: Border.all(color: AppColors.divider),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             question.questionName,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppText.h4,
           ),
           if (question.questionDescription != null &&
               question.questionDescription!.isNotEmpty) ...[
             const SizedBox(height: 4),
-            Text(
-              question.questionDescription!,
-              style: const TextStyle(color: AppColors.textSecondary),
-            ),
+            Text(question.questionDescription!, style: AppText.muted),
           ],
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           for (final option in question.options)
             question.allowsMultiple
                 ? CheckboxListTile(
@@ -269,16 +259,16 @@ class _Message extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(AppSpacing.xxl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               text,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: AppText.muted,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
             TextButton(
               onPressed: onRetry,
               child: Text(AppStrings.of('retry', languageId)),

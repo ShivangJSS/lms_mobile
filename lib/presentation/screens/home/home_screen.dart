@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/localization/app_strings.dart';
 import '../../../core/routes/app_routes.dart';
+import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
 import '../../viewmodels/dashboard_view_model.dart';
 import '../../viewmodels/language_view_model.dart';
@@ -28,7 +29,7 @@ class HomeScreen extends ConsumerWidget {
     final userName = loginState.user?.participantName ?? 'User';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(AppStrings.of('dashboard', lang)),
         leading: Builder(
@@ -66,10 +67,11 @@ class HomeScreen extends ConsumerWidget {
                       .read(dashboardViewModelProvider.notifier)
                       .loadDashboard(),
                   child: ListView(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.md),
                     children: [
                       _WelcomeCard(userName: userName, languageId: lang),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: AppSpacing.md),
                       if (dashboardState.stats != null) ...[
                         Row(
                           children: [
@@ -80,7 +82,7 @@ class HomeScreen extends ConsumerWidget {
                                   '${dashboardState.stats!.totalModules}',
                               backgroundColor: AppColors.dashboardCard1,
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: AppSpacing.sm),
                             DashboardStatsCard(
                               title: AppStrings.of('average_score', lang),
                               value: dashboardState.stats!.hasAttempts
@@ -88,7 +90,7 @@ class HomeScreen extends ConsumerWidget {
                                   : '-',
                               backgroundColor: AppColors.dashboardCard2,
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: AppSpacing.sm),
                             DashboardStatsCard(
                               title: AppStrings.of('time_invested', lang),
                               value:
@@ -97,7 +99,7 @@ class HomeScreen extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: AppSpacing.md),
                         ProgressCard(
                           progress: dashboardState.stats!.overallProgress,
                           progressText:
@@ -105,12 +107,12 @@ class HomeScreen extends ConsumerWidget {
                           message: AppStrings.of('keep_going', lang),
                         ),
                       ],
-                      const SizedBox(height: 20),
+                      const SizedBox(height: AppSpacing.md),
                       _PrimaryAction(
                         label: AppStrings.of('start_journey', lang),
                         onTap: () => context.push(AppRoutes.modules),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: AppSpacing.sm),
                       Align(
                         alignment: Alignment.centerRight,
                         child: InkWell(
@@ -125,18 +127,17 @@ class HomeScreen extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppSpacing.md),
                       Text(
                         AppStrings.of('unlock_note', lang),
-                        style: const TextStyle(
-                          color: Colors.grey,
+                        style: AppText.caption.copyWith(
                           fontStyle: FontStyle.italic,
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: AppSpacing.md),
                       for (final tip in dashboardState.tips) ...[
                         DidYouKnowCard(tip: tip, languageId: lang),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: AppSpacing.md),
                       ],
                     ],
                   ),
@@ -194,26 +195,22 @@ class _WelcomeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: const Color(0xFF8A6C8C),
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.sectionHeader,
+        borderRadius: BorderRadius.circular(AppSpacing.radius),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             '${AppStrings.of('welcome', languageId)} $userName',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppText.sectionTitle,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.xs),
           Text(
             AppStrings.of('welcome_subtitle', languageId),
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+            style: AppText.bodySmall.copyWith(color: AppColors.textWhite),
           ),
         ],
       ),
@@ -232,19 +229,15 @@ class _PrimaryAction extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
         decoration: BoxDecoration(
-          color: const Color(0xFF8A6C8C),
+          color: AppColors.sectionHeader,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Center(
           child: Text(
             label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppText.headingOnColor,
           ),
         ),
       ),

@@ -464,22 +464,50 @@ void main() {
   });
 
   group('mediaUrl', () {
-    test('strips the legacy app/ prefix', () {
+    // The server resolves the "app/" prefix against both storage roots, so
+    // the stored path is handed over untouched.
+    test('points a legacy path at the media endpoint', () {
       expect(
         mediaUrl('app/uploads/English/videos/x.mp4'),
-        '${ApiConstants.baseUrl}/uploads/English/videos/x.mp4',
+        '${ApiConstants.baseUrl}${ApiConstants.media}'
+        '/app/uploads/English/videos/x.mp4',
+      );
+    });
+
+    test('passes a current upload path through unchanged', () {
+      expect(
+        mediaUrl('uploads/module_icons/x.png'),
+        '${ApiConstants.baseUrl}${ApiConstants.media}'
+        '/uploads/module_icons/x.png',
       );
     });
 
     test('places a bare file name in its folder', () {
       expect(
         mediaUrl('tip.jpeg', folder: 'didyouknow'),
-        '${ApiConstants.baseUrl}/uploads/didyouknow/tip.jpeg',
+        '${ApiConstants.baseUrl}${ApiConstants.media}/didyouknow/tip.jpeg',
+      );
+    });
+
+    test('a path with folders ignores the folder hint', () {
+      expect(
+        mediaUrl('app/uploads/participants/2026/05/x.png', folder: 'participants'),
+        '${ApiConstants.baseUrl}${ApiConstants.media}'
+        '/app/uploads/participants/2026/05/x.png',
+      );
+    });
+
+    test('normalises windows separators and leading slashes', () {
+      expect(
+        mediaUrl(r'\app\uploads\English\pdfs\x.pdf'),
+        '${ApiConstants.baseUrl}${ApiConstants.media}'
+        '/app/uploads/English/pdfs/x.pdf',
       );
     });
 
     test('leaves absolute URLs alone and rejects empties', () {
       expect(mediaUrl('https://example.com/a.png'), 'https://example.com/a.png');
+      expect(mediaUrl('http://example.com/a.mp4'), 'http://example.com/a.mp4');
       expect(mediaUrl(null), isNull);
       expect(mediaUrl('   '), isNull);
     });

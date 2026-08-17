@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/localization/app_strings.dart';
+import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
 import '../../../domain/entities/module_assessment.dart';
 import '../../viewmodels/dashboard_view_model.dart';
@@ -92,12 +93,13 @@ class ModuleAssessmentScreen extends ConsumerWidget {
             children: [
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.sm),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       AssessmentHeader.forQuestion(question),
-                      const SizedBox(height: 22),
+                      const SizedBox(height: AppSpacing.lg),
                       _card(question, state.pageIndex + 1, lang),
                     ],
                   ),
@@ -167,46 +169,36 @@ class _InstructionsPage extends StatelessWidget {
       children: [
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AssessmentHeader(title: moduleName),
-                const SizedBox(height: 18),
+                const SizedBox(height: AppSpacing.md),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(AppSpacing.lg),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEFEFEF),
-                    borderRadius: BorderRadius.circular(14),
+                    color: AppColors.tintedPanel,
+                    borderRadius: BorderRadius.circular(AppSpacing.radius),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         'Assessment Instructions',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: AppText.h3,
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: AppSpacing.md),
                       for (final point in _points)
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('•  ',
-                                  style: TextStyle(fontSize: 17)),
+                              const Text('•  ', style: AppText.body),
                               Expanded(
-                                child: Text(
-                                  point,
-                                  style: const TextStyle(
-                                    fontSize: 17,
-                                    height: 1.4,
-                                  ),
-                                ),
+                                child: Text(point, style: AppText.body),
                               ),
                             ],
                           ),

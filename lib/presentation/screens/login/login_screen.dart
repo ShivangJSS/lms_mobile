@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/routes/app_routes.dart';
+import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/widgets/custom_text_field.dart';
 import '../../viewmodels/login_view_model.dart';
@@ -65,58 +66,62 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F2F7),
+      backgroundColor: AppColors.background,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          // Renders as one page when it fits; only scrolls on a screen too
-          // short to hold the card, banner and footer together.
-          //
-          // IntrinsicHeight is what gives the Column a bounded height inside
-          // the scroll view. Without it the Spacer below has no constraint to
-          // work against, the layout throws, and the screen paints blank.
-          return SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: IntrinsicHeight(
-                child: Column(
-                  children: [
-                    const _Header(),
-                    Transform.translate(
-                      offset: const Offset(0, -26),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 18),
-                        child: Column(
-                          children: [
-                            _SignInCard(
-                              formKey: _formKey,
-                              usernameController: _usernameController,
-                              passwordController: _passwordController,
-                              obscurePassword: _obscurePassword,
-                              isLoading: loginState.isLoading,
-                              onToggleObscure: () => setState(
-                                () => _obscurePassword = !_obscurePassword,
-                              ),
-                              onForgot: () {
-                                ref
-                                    .read(passwordViewModelProvider.notifier)
-                                    .reset();
+          final height = constraints.maxHeight;
 
-                                context.push(AppRoutes.forgotPassword);
-                              },
-                              onSubmit: _handleLogin,
-                            ),
-                            const SizedBox(height: 18),
-                            const WomenInActionCard(),
-                            const SizedBox(height: 16),
-                          ],
-                        ),
-                      ),
+          // The banner is dropped only when the screen is genuinely too
+          // short to hold it; below that the header and card compact instead.
+          final showBanner = height >= 780;
+          final compact = height < 680;
+
+          // A share of the screen rather than "whatever is left over", so
+          // the banner stays a sensible size and the free space can be
+          // distributed between the sections instead of piling up under it.
+          final slideHeight = (height * 0.20).clamp(110.0, 220.0);
+
+          // No scroll view: the page is pinned to the viewport and the
+          // leftover height is shared out by the flexible gaps below.
+          return SizedBox(
+            height: height,
+            child: Column(
+              children: [
+                _Header(compact: compact),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
                     ),
-                    const Spacer(),
-                    const _Footer(),
-                  ],
+                    child: Column(
+                      children: [
+                        // Breathing room under the heading block.
+                        const Spacer(flex: 3),
+                        _SignInCard(
+                          formKey: _formKey,
+                          usernameController: _usernameController,
+                          passwordController: _passwordController,
+                          obscurePassword: _obscurePassword,
+                          isLoading: loginState.isLoading,
+                          compact: compact,
+                          onToggleObscure: () => setState(
+                            () => _obscurePassword = !_obscurePassword,
+                          ),
+                          onSubmit: _handleLogin,
+                        ),
+                        if (showBanner) ...[
+                          const Spacer(flex: 3),
+                          WomenInActionCard(slideHeight: slideHeight),
+                        ],
+                        // Smaller share, so the footer sits near the bottom
+                        // without a wide empty band above it.
+                        const Spacer(flex: 2),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+                const _Footer(),
+              ],
             ),
           );
         },
@@ -126,19 +131,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 }
 
 class _Header extends StatelessWidget {
-  const _Header();
+  final bool compact;
+
+  const _Header({this.compact = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 52),
+      padding: EdgeInsets.fromLTRB(24, 0, 24, compact ? 26 : 32),
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [Color(0xFF7B1F86), Color(0xFF4A0D52)],
-        ),
+        gradient: AppColors.headerGradient,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(34),
           bottomRight: Radius.circular(34),
@@ -148,17 +151,17 @@ class _Header extends StatelessWidget {
         bottom: false,
         child: Column(
           children: [
-            const SizedBox(height: 18),
-            const Text(
+            SizedBox(height: compact ? 6 : 10),
+            Text(
               'E-Learning @ WWW',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 30,
+                fontSize: compact ? 22 : 26,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Container(
               height: 3,
               width: 110,
@@ -167,7 +170,7 @@ class _Header extends StatelessWidget {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: compact ? 6 : 8),
             const Text(
               'Learn · Grow · Lead',
               style: TextStyle(
@@ -190,8 +193,8 @@ class _SignInCard extends StatelessWidget {
   final TextEditingController passwordController;
   final bool obscurePassword;
   final bool isLoading;
+  final bool compact;
   final VoidCallback onToggleObscure;
-  final VoidCallback onForgot;
   final VoidCallback onSubmit;
 
   const _SignInCard({
@@ -200,15 +203,15 @@ class _SignInCard extends StatelessWidget {
     required this.passwordController,
     required this.obscurePassword,
     required this.isLoading,
+    this.compact = false,
     required this.onToggleObscure,
-    required this.onForgot,
     required this.onSubmit,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
+      padding: EdgeInsets.fromLTRB(20, compact ? 14 : 18, 20, compact ? 10 : 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -226,32 +229,16 @@ class _SignInCard extends StatelessWidget {
           children: [
             Image.asset(
               'assets/images/app_logo.png',
-              height: 46,
+              height: compact ? 32 : 40,
               errorBuilder: (context, error, stackTrace) => const Icon(
                 Icons.school,
                 size: 46,
                 color: AppColors.primary,
               ),
             ),
-            const SizedBox(height: 18),
-            const Text(
-              'Sign In',
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
-                decoration: TextDecoration.underline,
-                decorationThickness: 2,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Welcome back, please login to continue',
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-            ),
-            const SizedBox(height: 20),
+            SizedBox(height: compact ? 10 : 16),
+            SizedBox(height: compact ? 10 : 14),
             CustomTextField(
-              labelText: 'Username',
               hintText: 'Enter your username',
               controller: usernameController,
               prefixIcon: Icons.person_outline,
@@ -259,9 +246,8 @@ class _SignInCard extends StatelessWidget {
                   ? 'Please enter username'
                   : null,
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
             CustomTextField(
-              labelText: 'Password',
               hintText: 'Enter your password',
               controller: passwordController,
               obscureText: obscurePassword,
@@ -277,21 +263,9 @@ class _SignInCard extends StatelessWidget {
                   ? 'Please enter password'
                   : null,
             ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: onForgot,
-                child: const Text(
-                  'Forgot Password?',
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
+            const SizedBox(height: AppSpacing.lg),
             SizedBox(
-              height: 54,
+              height: AppButton.height,
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: isLoading ? null : onSubmit,
@@ -315,12 +289,7 @@ class _SignInCard extends StatelessWidget {
                         children: [
                           Text(
                             'LOGIN',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.1,
-                            ),
+                            style: AppText.button,
                           ),
                           SizedBox(width: 10),
                           Icon(
@@ -347,11 +316,10 @@ class _Footer extends StatelessWidget {
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 4, 24, 10),
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 6),
         child: Column(
           children: [
-            Divider(color: Colors.grey.shade300),
-            const SizedBox(height: 8),
+            const Divider(color: AppColors.divider, height: 12),
             RichText(
               textAlign: TextAlign.center,
               text: TextSpan(
@@ -365,7 +333,7 @@ class _Footer extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             Text(
               'App version 1.0',
               style: TextStyle(color: Colors.grey.shade500, fontSize: 11),

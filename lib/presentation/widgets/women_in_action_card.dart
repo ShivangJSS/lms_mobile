@@ -11,8 +11,14 @@ class _Slide {
 }
 
 /// The "Women in Action" carousel under the sign-in card.
+///
+/// [slideHeight] is set by the caller from the space actually left on screen.
+/// It cannot be an Expanded: a PageView is a viewport and cannot be measured
+/// intrinsically, and the login page sizes itself with IntrinsicHeight.
 class WomenInActionCard extends StatefulWidget {
-  const WomenInActionCard({super.key});
+  final double slideHeight;
+
+  const WomenInActionCard({super.key, this.slideHeight = 120});
 
   @override
   State<WomenInActionCard> createState() => _WomenInActionCardState();
@@ -60,8 +66,8 @@ class _WomenInActionCardState extends State<WomenInActionCard> {
               Container(
                 color: AppColors.primary,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 10,
+                  horizontal: 12,
+                  vertical: 7,
                 ),
                 child: const Row(
                   children: [
@@ -89,7 +95,7 @@ class _WomenInActionCardState extends State<WomenInActionCard> {
                 ),
               ),
               SizedBox(
-                height: 150,
+                height: widget.slideHeight,
                 child: PageView.builder(
                   controller: _controller,
                   itemCount: _slides.length,
@@ -102,7 +108,7 @@ class _WomenInActionCardState extends State<WomenInActionCard> {
             ],
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 6),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -172,11 +178,11 @@ class _SlideView extends StatelessWidget {
                 slide.title,
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 17,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 1),
               Text(
                 slide.subtitle,
                 style: const TextStyle(color: Colors.white70, fontSize: 12),

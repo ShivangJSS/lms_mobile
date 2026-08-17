@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_text.dart';
 import '../../core/theme/colors.dart';
 import '../../domain/entities/learning_module.dart';
 
@@ -21,7 +22,7 @@ class ModuleTypeTabs extends StatelessWidget {
     if (categories.isEmpty) return const SizedBox.shrink();
 
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.md),
       child: Row(
         children: [
           for (final category in categories) ...[
@@ -56,19 +57,18 @@ class _Tab extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
         decoration: BoxDecoration(
           color: isActive ? AppColors.primary : Colors.white,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppSpacing.md),
           border: Border.all(color: AppColors.primary),
         ),
         alignment: Alignment.center,
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: TextStyle(
-            color: isActive ? Colors.white : AppColors.primary,
-            fontWeight: FontWeight.bold,
+          style: AppText.label.copyWith(
+            color: isActive ? AppColors.textWhite : AppColors.primary,
           ),
         ),
       ),

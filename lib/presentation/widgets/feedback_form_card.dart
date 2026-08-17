@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/theme/app_text.dart';
 import '../../core/theme/colors.dart';
 import '../../domain/entities/feedback_question.dart';
 import '../viewmodels/feedback_view_model.dart';
@@ -46,32 +47,28 @@ class _FeedbackFormCardState extends ConsumerState<FeedbackFormCard> {
     ref.watch(feedbackViewModelProvider);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.xl),
       decoration: BoxDecoration(
-        color: const Color(0xFFEBEAEA),
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppSpacing.radius),
+        border: Border.all(color: AppColors.divider),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             widget.field.question,
-            style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppText.h4,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           if (widget.field.isText)
             TextField(
               controller: _controller,
               maxLines: 3,
+              style: AppText.body,
               decoration: const InputDecoration(
                 hintText: 'Type your answer',
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(),
               ),
               onChanged: (value) => viewModel.setFormAnswer(
                 widget.field.field,
