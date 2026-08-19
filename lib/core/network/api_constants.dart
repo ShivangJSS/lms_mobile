@@ -1,9 +1,18 @@
 class ApiConstants {
   ApiConstants._();
 
-  // Physical Device on same Wi-Fi as the laptop running the FastAPI backend.
-  // Laptop LAN IP (en0) + backend port (uvicorn on 0.0.0.0:8090).
-  static const String baseUrl = 'http://10.154.22.71:8090';
+  // Physical device on the same Wi-Fi as the laptop running the FastAPI
+  // backend: the laptop's LAN address plus the uvicorn port.
+
+  // This has to be re-checked whenever the laptop changes network — the
+  // address is handed out by DHCP and does not follow the machine. Confirm the
+  // laptop's current one (`ipconfig` on Windows, `ifconfig` on macOS) and that
+  // uvicorn is bound to 0.0.0.0 rather than 127.0.0.1, or the phone cannot see
+  // it. When it is wrong every call sits out Dio's 30 second connect timeout
+  // instead of failing fast.
+
+
+  static const String baseUrl = 'http://10.250.153.122:8000';
 
   // Previous values:
   // static const String baseUrl = 'http://10.147.155.61:8000';

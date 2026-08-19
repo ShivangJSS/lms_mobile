@@ -1,89 +1,122 @@
 import 'package:flutter/material.dart';
 
-/// One palette for the whole app, taken from the login screen.
+/// One palette for the whole app.
+///
+/// The named values are the design system's own hex codes; everything else on
+/// this page is derived from them, so retinting is a one-file change.
 class AppColors {
   AppColors._();
 
-  // Brand
-  static const Color primary = Color(0xFF6A1B9A);
-  static const Color primaryLight = Color(0xFF9C4DCC);
-  static const Color primaryDark = Color(0xFF38006B);
+  // ---------------------------------------------------------------------------
+  // Design system
+  // ---------------------------------------------------------------------------
 
-  /// The two ends of the login header gradient, reused for every header.
-  static const Color gradientStart = Color(0xFF7B1F86);
-  static const Color gradientEnd = Color(0xFF4A0D52);
+  /// Primary purple.
+  static const Color primary = Color(0xFF6D28D9);
+
+  /// Secondary purple.
+  static const Color secondary = Color(0xFF7C3AED);
+
+  /// Accent purple.
+  static const Color accentPurple = Color(0xFF9333EA);
+
+  /// Light purple, used behind icons and for tinted panels.
+  static const Color lightPurple = Color(0xFFEDE9FE);
+
+  /// The deepest brand surface.
+  static const Color backgroundPurple = Color(0xFF5B21B6);
+
+  /// One step darker again, anchoring the hero gradient and the button.
+  static const Color deepPurple = Color(0xFF4C1D95);
+
+  /// The wash inside a text field's icon well.
+  static const Color fieldWell = Color(0xFFF5F3FF);
+
+  /// The circular badge above "Welcome Back!".
+  static const Color badgeWash = Color(0xFFF3E8FF);
+
+  static const Color white = Color(0xFFFFFFFF);
+
+  // Kept as aliases so screens written against the old names still resolve.
+  static const Color primaryLight = secondary;
+  static const Color primaryDark = backgroundPurple;
+  static const Color gradientStart = primary;
+  static const Color gradientEnd = accentPurple;
 
   static const LinearGradient headerGradient = LinearGradient(
-    begin: Alignment.topRight,
-    end: Alignment.bottomLeft,
-    colors: [gradientStart, gradientEnd],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [deepPurple, backgroundPurple, primary],
   );
 
   // ---------------------------------------------------------------------------
-  // Glossy / depth tokens — shared "glossy finish" language used across every
-  // screen. See AppGloss (core/theme/glossy.dart) for the decoration recipes.
+  // Surfaces and depth
   // ---------------------------------------------------------------------------
 
-  /// Richer three-stop brand gradient for headers and hero surfaces. Reads as
-  /// lit from the top-left, which is what gives headers their glossy sheen.
+  /// The header / hero gradient.
   static const LinearGradient brandGradientRich = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF9C27B0), Color(0xFF6A1B9A), Color(0xFF3F0A57)],
+    colors: [deepPurple, backgroundPurple, primary],
     stops: [0.0, 0.55, 1.0],
   );
 
-  /// Top-lit gradient for glossy primary buttons.
+  /// The primary button's gradient.
   static const LinearGradient buttonGloss = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [Color(0xFFA145C7), Color(0xFF6A1B9A)],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [secondary, deepPurple],
   );
 
   /// Disabled button gradient (kept a gradient so the shape stays consistent).
   static const LinearGradient buttonGlossDisabled = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [Color(0xFFC9C0D1), Color(0xFFB4A9BF)],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [Color(0xFFCFC4E4), Color(0xFFB4A6CE)],
   );
 
-  /// Subtle full-page background wash, replacing the flat [background].
+  /// Subtle full-page background wash, resolving to [background].
   static const LinearGradient pageWash = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFFFBF8FD), Color(0xFFEFE7F5)],
+    colors: [Color(0xFFFCFBFF), background],
   );
 
-  /// Faint diagonal sheen for white cards, so they catch light like glass.
+  /// Faint sheen for white cards, so they catch light like glass.
   static const LinearGradient cardSheen = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFFFFFFFF), Color(0xFFF7F1FB)],
+    colors: [white, Color(0xFFFDFCFF)],
   );
 
   /// Hairline edge on light surfaces.
-  static const Color hairline = Color(0xFFEADFF1);
+  static const Color hairline = Color(0xFFE9D5FF);
 
-  /// Brand-tinted shadow colour used by the AppGloss shadow recipes.
-  static const Color shadowBrand = Color(0x1A4A0D52);
+  /// The design system's shadow: rgba(109, 40, 217, 0.12).
+  static const Color shadowBrand = Color(0x1F6D28D9);
 
-  // Surfaces — the login page background is the app background everywhere.
-  static const Color background = Color(0xFFF5F2F7);
-  static const Color surface = Color(0xFFFFFFFF);
-  static const Color cardBackground = Color(0xFFFFFFFF);
+  // Surfaces
+  static const Color background = Color(0xFFF7F4FE);
+  static const Color surface = white;
+  static const Color cardBackground = white;
 
-  /// Muted purple bar used for section headings.
-  static const Color sectionHeader = Color(0xFFC9AFCB);
+  /// Purple bar used for section headings.
+  static const Color sectionHeader = primary;
 
-  /// Tinted panel used for cards and option tiles.
-  static const Color tintedPanel = Color(0xFFE7DAEA);
+  /// Tinted panel used for cards, option tiles and icon wells.
+  static const Color tintedPanel = lightPurple;
 
-  static const Color divider = Color(0xFFE3DCE8);
+  static const Color divider = Color(0xFFE9D5FF);
 
   // Text
-  static const Color textPrimary = Color(0xFF212121);
-  static const Color textSecondary = Color(0xFF6B6B72);
-  static const Color textWhite = Color(0xFFFFFFFF);
+  static const Color textPrimary = Color(0xFF1F1147);
+  static const Color textSecondary = Color(0xFF6B7280);
+  static const Color inputText = Color(0xFF374151);
+  static const Color textWhite = white;
+
+  // Carousel pagination
+  static const Color dotActive = secondary;
+  static const Color dotInactive = Color(0xFFD8B4FE);
 
   // Status
   static const Color accent = Color(0xFF0E9F6E);
@@ -98,10 +131,9 @@ class AppColors {
   static const Color resultFail = Color(0xFFF4402D);
   static const Color resultPass = accent;
 
-  // Dashboard stat cards — tints of the brand purple rather than the old
-  // washed-out teals, so they read as part of the same palette.
-  static const Color dashboardCard1 = Color(0xFFF3E7F7);
-  static const Color dashboardCard2 = Color(0xFFEBDCF2);
-  static const Color dashboardCard3 = Color(0xFFE3D2EC);
+  // Dashboard stat cards — tints of the brand purple.
+  static const Color dashboardCard1 = Color(0xFFF5F1FE);
+  static const Color dashboardCard2 = lightPurple;
+  static const Color dashboardCard3 = Color(0xFFE0D6FB);
   static const Color progressGreen = Color(0xFF8BC34A);
 }

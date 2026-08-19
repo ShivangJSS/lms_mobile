@@ -1,23 +1,25 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../core/theme/colors.dart';
-import '../../core/theme/glossy.dart';
 
-class _Slide {
-  final String image;
-  final String title;
-  final String subtitle;
-
-  const _Slide(this.image, this.title, this.subtitle);
-}
-
-/// The "Women in Action" carousel under the sign-in card.
+/// The photo carousel under the sign-in card: a full-bleed image with its own
+/// arrows and page dots underneath, and nothing written over it. It advances on
+/// its own every few seconds.
 ///
-/// [slideHeight] is set by the caller from the space actually left on screen.
-/// It cannot be an Expanded: a PageView is a viewport and cannot be measured
-/// intrinsically, and the login page sizes itself with IntrinsicHeight.
+/// [slideHeight] is the height of the photo only, set by the caller from the
+/// space actually left on screen. It cannot be an Expanded: a PageView is a
+/// viewport and cannot be measured intrinsically.
 class WomenInActionCard extends StatefulWidget {
   final double slideHeight;
+
+  /// Everything this widget draws other than the photo — the dots and the gap
+  /// above them. Callers add this to [slideHeight] to decide whether the
+  /// section is worth showing at all. It only has to be close: the photo is
+  /// laid out loosely, so an out-of-date estimate costs a few pixels of photo
+  /// rather than an overflow.
+  static const double chrome = 16;
 
   const WomenInActionCard({super.key, this.slideHeight = 120});
 
@@ -26,32 +28,55 @@ class WomenInActionCard extends StatefulWidget {
 }
 
 class _WomenInActionCardState extends State<WomenInActionCard> {
+  static const _dwell = Duration(seconds: 5);
+  static const _glide = Duration(milliseconds: 450);
+
   final _controller = PageController();
 
+  Timer? _timer;
   int _page = 0;
 
   static const _slides = [
-    _Slide(
-      'assets/images/traffic_signal.png',
-      'Green Signal for Every Woman',
-      'Driving change on the road — one licence at a time',
-    ),
-    _Slide(
-      'assets/images/steering_wheel.png',
-      'Hands on the Wheel',
-      'Skills that turn into independence',
-    ),
-    _Slide(
-      'assets/images/license.png',
-      'Licence to Lead',
-      'From learner to professional driver',
-    ),
+    'assets/images/driver_1.jpg',
+    'assets/images/driver_2.jpg',
+    'assets/images/driver_3.jpg',
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _restartTimer();
+  }
+
+  @override
   void dispose() {
+    _timer?.cancel();
     _controller.dispose();
     super.dispose();
+  }
+
+  /// Auto-advance, restarted on every manual move so a tap is never fighting
+  /// the timer.
+  void _restartTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(_dwell, (_) => _step(1, manual: false));
+  }
+
+  void _step(int delta, {bool manual = true}) {
+    if (!mounted || !_controller.hasClients) return;
+
+    var next = _page + delta;
+
+    if (next < 0) next = _slides.length - 1;
+    if (next >= _slides.length) next = 0;
+
+    _controller.animateToPage(
+      next,
+      duration: _glide,
+      curve: Curves.easeOutCubic,
+    );
+
+    if (manual) _restartTimer();
   }
 
   @override
@@ -59,85 +84,78 @@ class _WomenInActionCardState extends State<WomenInActionCard> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          decoration: AppGloss.card(r: AppGloss.radius),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Stack(
-                children: [
-                  Container(
-                    decoration: const BoxDecoration(
-                      gradient: AppColors.brandGradientRich,
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.person_outline,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 8),
-                        const Expanded(
-                          child: Text(
-                            'Women in Action',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: AppGloss.glass(r: AppGloss.radiusSm),
-                          child: const Text(
-                            'View all ›',
-                            style: TextStyle(color: Colors.white, fontSize: 12),
-                          ),
+        // Loose, so a photo taller than the room left shrinks to fit instead
+        // of overflowing the page.
+        Flexible(
+          child: SizedBox(
+            height: widget.slideHeight,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: AppColors.shadowBrand,
+                          blurRadius: 20,
+                          offset: Offset(0, 8),
                         ),
                       ],
                     ),
-                  ),
-                  AppGloss.sheen(r: 0),
-                ],
-              ),
-              SizedBox(
-                height: widget.slideHeight,
-                child: PageView.builder(
-                  controller: _controller,
-                  itemCount: _slides.length,
-                  onPageChanged: (index) => setState(() => _page = index),
-                  itemBuilder: (context, index) => _SlideView(
-                    slide: _slides[index],
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: PageView.builder(
+                        controller: _controller,
+                        itemCount: _slides.length,
+                        onPageChanged: (index) =>
+                            setState(() => _page = index),
+                        itemBuilder: (context, index) => Image.asset(
+                          _slides[index],
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: AppColors.brandGradientRich,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ],
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: _Arrow(
+                    icon: Icons.chevron_left_rounded,
+                    onTap: () => _step(-1),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: _Arrow(
+                    icon: Icons.chevron_right_rounded,
+                    onTap: () => _step(1),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             for (var i = 0; i < _slides.length; i++)
               AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
+                duration: const Duration(milliseconds: 280),
+                curve: Curves.easeOut,
                 margin: const EdgeInsets.symmetric(horizontal: 3),
                 height: 6,
-                width: i == _page ? 18 : 6,
+                width: i == _page ? 20 : 6,
                 decoration: BoxDecoration(
                   color: i == _page
-                      ? AppColors.primary
-                      : AppColors.primary.withValues(alpha: 0.25),
+                      ? AppColors.dotActive
+                      : AppColors.dotInactive,
                   borderRadius: BorderRadius.circular(3),
                 ),
               ),
@@ -148,65 +166,29 @@ class _WomenInActionCardState extends State<WomenInActionCard> {
   }
 }
 
-class _SlideView extends StatelessWidget {
-  final _Slide slide;
+class _Arrow extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
 
-  const _SlideView({required this.slide});
+  const _Arrow({required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Image.asset(
-          slide.image,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Container(
-            color: Colors.grey.shade300,
-            child: const Center(
-              child: Icon(Icons.image, size: 40, color: Colors.grey),
-            ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Material(
+        color: Colors.white.withValues(alpha: 0.92),
+        shape: const CircleBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: SizedBox(
+            height: 34,
+            width: 34,
+            child: Icon(icon, size: 24, color: AppColors.secondary),
           ),
         ),
-        // Keeps the caption legible whatever the photo behind it.
-        Positioned.fill(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.center,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withValues(alpha: 0.65),
-                ],
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          left: 14,
-          right: 14,
-          bottom: 12,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                slide.title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 1),
-              Text(
-                slide.subtitle,
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
-              ),
-            ],
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

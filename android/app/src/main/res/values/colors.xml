@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The paper tone behind the splash artwork. The Android 12+ system
+         splash is painted in this too, so the two run together as one screen
+         rather than reading as a flash then a picture. -->
+    <color name="splash_background">#ECE8E7</color>
+</resources>
