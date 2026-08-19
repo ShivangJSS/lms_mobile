@@ -13,13 +13,11 @@ class _Slide {
 
 /// The "Women in Action" carousel under the sign-in card.
 ///
-/// [slideHeight] is set by the caller from the space actually left on screen.
-/// It cannot be an Expanded: a PageView is a viewport and cannot be measured
-/// intrinsically, and the login page sizes itself with IntrinsicHeight.
+/// The card fills whatever height its parent gives it (place it inside an
+/// [Expanded]/[Flexible]); the slide viewport takes all the room left after
+/// the header strip and the page dots.
 class WomenInActionCard extends StatefulWidget {
-  final double slideHeight;
-
-  const WomenInActionCard({super.key, this.slideHeight = 120});
+  const WomenInActionCard({super.key});
 
   @override
   State<WomenInActionCard> createState() => _WomenInActionCardState();
@@ -57,34 +55,48 @@ class _WomenInActionCardState extends State<WomenInActionCard> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          decoration: AppGloss.card(r: AppGloss.radius),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Stack(
-                children: [
-                  Container(
-                    decoration: const BoxDecoration(
-                      gradient: AppColors.brandGradientRich,
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.person_outline,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 8),
-                        const Expanded(
-                          child: Text(
+        Expanded(
+          child: Container(
+            // Lifted, layered shadow to match the 3D depth of the sign-in card.
+            decoration: AppGloss.card(
+              r: AppGloss.radius,
+              shadow: const [
+                BoxShadow(
+                  color: Color(0x2E000000),
+                  blurRadius: 26,
+                  offset: Offset(0, 14),
+                ),
+                BoxShadow(
+                  color: Color(0x1F4A1444),
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              children: [
+                // Purple header strip — "View all" removed per request.
+                Stack(
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        gradient: AppColors.brandGradientRich,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(
+                            Icons.person_outline,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
                             'Women in Action',
                             style: TextStyle(
                               color: Colors.white,
@@ -92,39 +104,27 @@ class _WomenInActionCardState extends State<WomenInActionCard> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: AppGloss.glass(r: AppGloss.radiusSm),
-                          child: const Text(
-                            'View all ›',
-                            style: TextStyle(color: Colors.white, fontSize: 12),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
+                    ),
+                    AppGloss.sheen(r: 0),
+                  ],
+                ),
+                Expanded(
+                  child: PageView.builder(
+                    controller: _controller,
+                    itemCount: _slides.length,
+                    onPageChanged: (index) => setState(() => _page = index),
+                    itemBuilder: (context, index) => _SlideView(
+                      slide: _slides[index],
                     ),
                   ),
-                  AppGloss.sheen(r: 0),
-                ],
-              ),
-              SizedBox(
-                height: widget.slideHeight,
-                child: PageView.builder(
-                  controller: _controller,
-                  itemCount: _slides.length,
-                  onPageChanged: (index) => setState(() => _page = index),
-                  itemBuilder: (context, index) => _SlideView(
-                    slide: _slides[index],
-                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -189,16 +189,17 @@ class _SlideView extends StatelessWidget {
           bottom: 12,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 slide.title,
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 15,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 1),
+              const SizedBox(height: 2),
               Text(
                 slide.subtitle,
                 style: const TextStyle(color: Colors.white70, fontSize: 12),

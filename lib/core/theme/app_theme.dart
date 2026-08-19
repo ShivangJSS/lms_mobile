@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'app_text.dart';
 import 'colors.dart';
@@ -28,6 +29,13 @@ class AppTheme {
         foregroundColor: AppColors.textWhite,
         elevation: 0,
         centerTitle: true,
+        // Transparent status bar with light icons so the plum app-bar gradient
+        // shows behind it instead of a black system scrim.
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
+        ),
         titleTextStyle: TextStyle(
           fontFamily: AppText.family,
           fontSize: 20,

@@ -4,14 +4,15 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // Brand
-  static const Color primary = Color(0xFF6A1B9A);
-  static const Color primaryLight = Color(0xFF9C4DCC);
-  static const Color primaryDark = Color(0xFF38006B);
+  // Brand — taken from the Azad logo (#702068), a deep plum. Kept rich; no
+  // pale/washed purples.
+  static const Color primary = Color(0xFF702068);
+  static const Color primaryLight = Color(0xFF8A3082);
+  static const Color primaryDark = Color(0xFF4A1444);
 
   /// The two ends of the login header gradient, reused for every header.
-  static const Color gradientStart = Color(0xFF7B1F86);
-  static const Color gradientEnd = Color(0xFF4A0D52);
+  static const Color gradientStart = Color(0xFF7E2676);
+  static const Color gradientEnd = Color(0xFF46123F);
 
   static const LinearGradient headerGradient = LinearGradient(
     begin: Alignment.topRight,
@@ -29,7 +30,7 @@ class AppColors {
   static const LinearGradient brandGradientRich = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF9C27B0), Color(0xFF6A1B9A), Color(0xFF3F0A57)],
+    colors: [Color(0xFF8A2A80), Color(0xFF702068), Color(0xFF4A1444)],
     stops: [0.0, 0.55, 1.0],
   );
 
@@ -37,7 +38,7 @@ class AppColors {
   static const LinearGradient buttonGloss = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFFA145C7), Color(0xFF6A1B9A)],
+    colors: [Color(0xFF853180), Color(0xFF6A1E62)],
   );
 
   /// Disabled button gradient (kept a gradient so the shape stays consistent).
@@ -65,7 +66,7 @@ class AppColors {
   static const Color hairline = Color(0xFFEADFF1);
 
   /// Brand-tinted shadow colour used by the AppGloss shadow recipes.
-  static const Color shadowBrand = Color(0x1A4A0D52);
+  static const Color shadowBrand = Color(0x1A4A1444);
 
   // Surfaces — the login page background is the app background everywhere.
   static const Color background = Color(0xFFF5F2F7);

@@ -12,7 +12,6 @@ import '../../viewmodels/dashboard_view_model.dart';
 import '../../viewmodels/language_view_model.dart';
 import '../../viewmodels/login_view_model.dart';
 import '../../widgets/app_drawer.dart';
-import '../../widgets/dashboard_stats_card.dart';
 import '../../widgets/did_you_know_card.dart';
 import '../../widgets/progress_card.dart';
 
@@ -95,34 +94,35 @@ class HomeScreen extends ConsumerWidget {
                       _WelcomeCard(userName: userName, languageId: lang),
                       const SizedBox(height: AppSpacing.md),
                       if (dashboardState.stats != null) ...[
-                        Row(
-                          children: [
-                            DashboardStatsCard(
-                              title: AppStrings.of('modules_completed', lang),
-                              value:
-                                  '${dashboardState.stats!.modulesCompleted}/'
-                                  '${dashboardState.stats!.totalModules}',
-                              backgroundColor: AppColors.dashboardCard1,
-                              icon: Icons.check_circle_outline,
-                            ),
-                            const SizedBox(width: AppSpacing.sm),
-                            DashboardStatsCard(
-                              title: AppStrings.of('average_score', lang),
-                              value: dashboardState.stats!.hasAttempts
-                                  ? '${dashboardState.stats!.averageScore.round()}%'
-                                  : '-',
-                              backgroundColor: AppColors.dashboardCard2,
-                              icon: Icons.emoji_events_outlined,
-                            ),
-                            const SizedBox(width: AppSpacing.sm),
-                            DashboardStatsCard(
-                              title: AppStrings.of('time_invested', lang),
-                              value:
-                                  '${dashboardState.stats!.timeInvestedMinutes} min',
-                              backgroundColor: AppColors.dashboardCard3,
-                              icon: Icons.schedule_outlined,
-                            ),
-                          ],
+                        IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _StatTile(
+                                title:
+                                    AppStrings.of('modules_completed', lang),
+                                value:
+                                    '${dashboardState.stats!.modulesCompleted}/'
+                                    '${dashboardState.stats!.totalModules}',
+                                icon: Icons.check_circle_outline,
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              _StatTile(
+                                title: AppStrings.of('average_score', lang),
+                                value: dashboardState.stats!.hasAttempts
+                                    ? '${dashboardState.stats!.averageScore.round()}%'
+                                    : '-',
+                                icon: Icons.emoji_events_outlined,
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              _StatTile(
+                                title: AppStrings.of('time_invested', lang),
+                                value:
+                                    '${dashboardState.stats!.timeInvestedMinutes} min',
+                                icon: Icons.schedule_outlined,
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: AppSpacing.md),
                         ProgressCard(
@@ -138,17 +138,44 @@ class HomeScreen extends ConsumerWidget {
                         trailingIcon: Icons.arrow_forward_rounded,
                         onPressed: () => context.push(AppRoutes.modules),
                       ),
-                      const SizedBox(height: AppSpacing.sm),
+                      const SizedBox(height: AppSpacing.md),
                       Align(
                         alignment: Alignment.centerRight,
-                        child: InkWell(
-                          onTap: () => context.push(AppRoutes.modules),
-                          child: Text(
-                            AppStrings.of('view_all_modules', lang),
-                            style: const TextStyle(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold,
-                              decoration: TextDecoration.underline,
+                        child: Material(
+                          color: Colors.transparent,
+                          borderRadius:
+                              BorderRadius.circular(AppGloss.radiusSm),
+                          child: InkWell(
+                            onTap: () => context.push(AppRoutes.modules),
+                            borderRadius:
+                                BorderRadius.circular(AppGloss.radiusSm),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 8,
+                              ),
+                              decoration: AppGloss.panel(
+                                color: AppColors.dashboardCard1,
+                                r: AppGloss.radiusSm,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    AppStrings.of('view_all_modules', lang),
+                                    style: const TextStyle(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  const Icon(
+                                    Icons.chevron_right_rounded,
+                                    color: AppColors.primary,
+                                    size: 20,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -195,6 +222,11 @@ class HomeScreen extends ConsumerWidget {
             type: BottomNavigationBarType.fixed,
             selectedItemColor: Colors.white,
             unselectedItemColor: Colors.white70,
+            selectedFontSize: 12,
+            unselectedFontSize: 12,
+            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700),
+            unselectedLabelStyle:
+                const TextStyle(fontWeight: FontWeight.w500),
             onTap: (index) {
               ref.read(bottomNavIndexProvider.notifier).state = index;
               if (index == 1) context.push(AppRoutes.modules);
@@ -235,31 +267,141 @@ class _WelcomeCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: AppColors.brandGradientRich,
-        borderRadius: BorderRadius.circular(AppGloss.radius),
-        boxShadow: AppGloss.soft,
+        borderRadius: BorderRadius.circular(AppGloss.radiusLg),
+        boxShadow: AppGloss.lifted,
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
-          AppGloss.sheen(r: AppGloss.radius),
+          // Soft decorative circles bleeding off the edges for depth.
+          Positioned(top: -34, right: -26, child: _circle(130)),
+          Positioned(bottom: -46, left: -30, child: _circle(120)),
+          AppGloss.sheen(r: AppGloss.radiusLg),
           Padding(
             padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  '${AppStrings.of('welcome', languageId)} $userName',
-                  style: AppText.sectionTitle,
+                // Frosted glass avatar badge.
+                Container(
+                  height: 54,
+                  width: 54,
+                  alignment: Alignment.center,
+                  decoration: AppGloss.glass(r: 40, opacity: 0.22),
+                  child: const Icon(
+                    Icons.waving_hand_rounded,
+                    color: Colors.white,
+                    size: 26,
+                  ),
                 ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  AppStrings.of('welcome_subtitle', languageId),
-                  style: AppText.bodySmall.copyWith(color: AppColors.textWhite),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${AppStrings.of('welcome', languageId)} $userName',
+                        style: AppText.sectionTitle,
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        AppStrings.of('welcome_subtitle', languageId),
+                        style: AppText.bodySmall.copyWith(
+                          color: Colors.white.withValues(alpha: 0.88),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  static Widget _circle(double size) {
+    return Container(
+      height: size,
+      width: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white.withValues(alpha: 0.07),
+      ),
+    );
+  }
+}
+
+/// Raised white glossy stat tile: a plum-tinted circular icon badge over a
+/// bold value and a muted caption. Sits in the dashboard's three-up row.
+class _StatTile extends StatelessWidget {
+  final String title;
+  final String value;
+  final IconData icon;
+
+  const _StatTile({
+    required this.title,
+    required this.value,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        decoration: AppGloss.card(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              height: 46,
+              width: 46,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppColors.primary.withValues(alpha: 0.18),
+                    AppColors.primary.withValues(alpha: 0.08),
+                  ],
+                ),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.9)),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.14),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(icon, color: AppColors.primary, size: 22),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: AppColors.primaryDark,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondary,
+                height: 1.3,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
