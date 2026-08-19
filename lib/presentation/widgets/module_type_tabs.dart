@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_text.dart';
 import '../../core/theme/colors.dart';
+import '../../core/theme/glossy.dart';
 import '../../domain/entities/learning_module.dart';
 
 /// One tab per module_type returned by GET /mobile/module/types.
@@ -54,21 +55,39 @@ class _Tab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-        decoration: BoxDecoration(
-          color: isActive ? AppColors.primary : Colors.white,
-          borderRadius: BorderRadius.circular(AppSpacing.md),
-          border: Border.all(color: AppColors.primary),
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: AppText.label.copyWith(
-            color: isActive ? AppColors.textWhite : AppColors.primary,
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(AppGloss.radius),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppGloss.radius),
+        child: DecoratedBox(
+          decoration: isActive
+              ? AppGloss.button(r: AppGloss.radius)
+              : BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(AppGloss.radius),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.35),
+                  ),
+                  boxShadow: AppGloss.soft,
+                ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              if (isActive) AppGloss.sheen(r: AppGloss.radius),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                alignment: Alignment.center,
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: AppText.label.copyWith(
+                    color: isActive ? AppColors.textWhite : AppColors.primary,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

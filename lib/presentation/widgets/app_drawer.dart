@@ -7,6 +7,7 @@ import '../../core/network/media_url.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/theme/colors.dart';
+import '../../core/theme/glossy.dart';
 import '../viewmodels/language_view_model.dart';
 import '../viewmodels/login_view_model.dart';
 import 'language_picker_dialog.dart';
@@ -23,88 +24,56 @@ class AppDrawer extends ConsumerWidget {
     final avatar = mediaUrl(participant?.images, folder: 'participants');
 
     return Drawer(
+      backgroundColor: AppColors.surface,
       // SafeArea + a scrollable middle section keep Logout reachable on
       // short screens; a plain Column with a Spacer pushed it off-screen
       // once the header and menu items grew.
-      child: SafeArea(
-        bottom: true,
-        child: Column(
+      child: Column(
         children: [
-          UserAccountsDrawerHeader(
-            decoration: const BoxDecoration(color: AppColors.primary),
-            currentAccountPicture: CircleAvatar(
-              backgroundColor: Colors.white,
-              child: avatar == null
-                  ? const Icon(
-                      Icons.person,
-                      color: AppColors.primary,
-                      size: 40,
-                    )
-                  : ClipOval(
-                      child: Image.network(
-                        avatar,
-                        width: 72,
-                        height: 72,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const Icon(
-                          Icons.person,
-                          color: AppColors.primary,
-                          size: 40,
-                        ),
-                      ),
-                    ),
-            ),
-            accountName: Text(
-              participant?.participantName ?? 'User',
-              style: const TextStyle(fontSize: 18),
-            ),
-            accountEmail: GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-                context.push(AppRoutes.profile);
-              },
-              child: Text(
-                AppStrings.of('view_profile', lang),
-                style: const TextStyle(
-                  decoration: TextDecoration.underline,
-                ),
-              ),
-            ),
+          _GlossyDrawerHeader(
+            avatar: avatar,
+            name: participant?.participantName ?? 'User',
+            viewProfileLabel: AppStrings.of('view_profile', lang),
+            onViewProfile: () {
+              Navigator.pop(context);
+              context.push(AppRoutes.profile);
+            },
           ),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.md,
-                vertical: AppSpacing.sm,
+                vertical: AppSpacing.md,
               ),
               children: [
-                ListTile(
-                  leading: const Icon(Icons.dashboard),
-                  title: Text(AppStrings.of('dashboard', lang)),
+                _DrawerItem(
+                  icon: Icons.dashboard,
+                  label: AppStrings.of('dashboard', lang),
+                  selected: true,
                   onTap: () => Navigator.pop(context),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.menu_book),
-                  title: Text(AppStrings.of('view_all_modules', lang)),
+                _DrawerItem(
+                  icon: Icons.menu_book,
+                  label: AppStrings.of('view_all_modules', lang),
                   onTap: () {
                     Navigator.pop(context);
                     context.push(AppRoutes.modules);
                   },
                 ),
-                ListTile(
-                  leading: const Icon(Icons.language),
-                  title: Text(AppStrings.of('change_language', lang)),
+                _DrawerItem(
+                  icon: Icons.language,
+                  label: AppStrings.of('change_language', lang),
                   subtitle: languageState.currentName.isEmpty
                       ? null
-                      : Text(languageState.currentName),
+                      : languageState.currentName,
                   onTap: () {
                     Navigator.pop(context);
                     showLanguagePicker(context, ref);
                   },
                 ),
-                ListTile(
-                  leading: const Icon(Icons.feedback),
-                  title: Text(AppStrings.of('feedback', lang)),
+                _DrawerItem(
+                  icon: Icons.feedback,
+                  label: AppStrings.of('feedback', lang),
                   onTap: () {
                     Navigator.pop(context);
                     context.push(AppRoutes.feedback);
@@ -113,32 +82,179 @@ class AppDrawer extends ConsumerWidget {
               ],
             ),
           ),
-          const Divider(height: 1),
+          const Divider(height: 1, color: AppColors.hairline),
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: AppSpacing.xs,
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              AppSpacing.sm,
+              AppSpacing.md,
+              AppSpacing.sm,
             ),
-            child: ListTile(
-            leading: const Icon(Icons.logout, color: AppColors.error),
-            title: Text(
-              AppStrings.of('logout', lang),
-              style: const TextStyle(
-                color: AppColors.error,
-                fontWeight: FontWeight.w600,
+            child: SafeArea(
+              top: false,
+              child: _DrawerItem(
+                icon: Icons.logout,
+                label: AppStrings.of('logout', lang),
+                danger: true,
+                onTap: () async {
+                  Navigator.pop(context);
+
+                  await ref.read(loginViewModelProvider.notifier).logout();
+
+                  if (context.mounted) context.go(AppRoutes.login);
+                },
               ),
             ),
-            onTap: () async {
-              Navigator.pop(context);
+          ),
+        ],
+      ),
+    );
+  }
+}
 
-              await ref.read(loginViewModelProvider.notifier).logout();
+/// Glossy brand-gradient drawer header with a wet sheen and glass avatar badge.
+class _GlossyDrawerHeader extends StatelessWidget {
+  final String? avatar;
+  final String name;
+  final String viewProfileLabel;
+  final VoidCallback onViewProfile;
 
-              if (context.mounted) context.go(AppRoutes.login);
-            },
+  const _GlossyDrawerHeader({
+    required this.avatar,
+    required this.name,
+    required this.viewProfileLabel,
+    required this.onViewProfile,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: AppGloss.header(r: AppGloss.radiusLg),
+      child: Stack(
+        children: [
+          AppGloss.sheen(r: AppGloss.radiusLg),
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 76,
+                    width: 76,
+                    padding: const EdgeInsets.all(4),
+                    decoration: AppGloss.glass(r: 40, opacity: 0.18),
+                    child: ClipOval(
+                      child: avatar == null
+                          ? Container(
+                              color: Colors.white,
+                              child: const Icon(
+                                Icons.person,
+                                color: AppColors.primary,
+                                size: 40,
+                              ),
+                            )
+                          : Image.network(
+                              avatar!,
+                              width: 68,
+                              height: 68,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(
+                                color: Colors.white,
+                                child: const Icon(
+                                  Icons.person,
+                                  color: AppColors.primary,
+                                  size: 40,
+                                ),
+                              ),
+                            ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  GestureDetector(
+                    onTap: onViewProfile,
+                    child: Text(
+                      viewProfileLabel,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.92),
+                        decoration: TextDecoration.underline,
+                        decorationColor: Colors.white.withValues(alpha: 0.92),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: AppSpacing.sm),
         ],
+      ),
+    );
+  }
+}
+
+/// A clean rounded drawer row with a subtle selected/hover tint.
+class _DrawerItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String? subtitle;
+  final bool selected;
+  final bool danger;
+  final VoidCallback onTap;
+
+  const _DrawerItem({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.subtitle,
+    this.selected = false,
+    this.danger = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final Color accent = danger ? AppColors.error : AppColors.primary;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+      child: Material(
+        color: selected
+            ? AppColors.primary.withValues(alpha: 0.08)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+          hoverColor: AppColors.primary.withValues(alpha: 0.05),
+          child: ListTile(
+            dense: subtitle == null,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+              side: selected
+                  ? BorderSide(color: AppColors.primary.withValues(alpha: 0.18))
+                  : BorderSide.none,
+            ),
+            leading: Icon(icon, color: accent),
+            title: Text(
+              label,
+              style: TextStyle(
+                color: danger ? AppColors.error : AppColors.textPrimary,
+                fontWeight:
+                    (selected || danger) ? FontWeight.w600 : FontWeight.w500,
+              ),
+            ),
+            subtitle: subtitle == null ? null : Text(subtitle!),
+          ),
         ),
       ),
     );

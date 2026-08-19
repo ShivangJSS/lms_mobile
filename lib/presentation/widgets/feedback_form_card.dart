@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_text.dart';
 import '../../core/theme/colors.dart';
+import '../../core/theme/glossy.dart';
 import '../../domain/entities/feedback_question.dart';
 import '../viewmodels/feedback_view_model.dart';
 
@@ -49,11 +50,7 @@ class _FeedbackFormCardState extends ConsumerState<FeedbackFormCard> {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.lg),
       padding: const EdgeInsets.all(AppSpacing.xl),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSpacing.radius),
-        border: Border.all(color: AppColors.divider),
-      ),
+      decoration: AppGloss.card(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

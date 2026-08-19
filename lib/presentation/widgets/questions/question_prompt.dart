@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/network/media_url.dart';
 import '../../../core/theme/app_text.dart';
+import '../../../core/theme/glossy.dart';
 
 /// "Q3 : <title>" plus the question image, shared by all four types.
 class QuestionPrompt extends StatelessWidget {
@@ -33,14 +34,18 @@ class QuestionPrompt extends StatelessWidget {
         if (image != null) ...[
           const SizedBox(height: AppSpacing.md),
           Center(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.network(
-                image,
-                height: 140,
-                width: 140,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: AppGloss.card(r: 20),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.network(
+                  image,
+                  height: 140,
+                  width: 140,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                ),
               ),
             ),
           ),

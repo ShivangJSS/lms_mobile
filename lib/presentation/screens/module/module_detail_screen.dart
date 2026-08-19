@@ -6,6 +6,7 @@ import '../../../core/localization/app_strings.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/glossy.dart';
 import '../../../domain/entities/learning_module.dart';
 import '../../viewmodels/language_view_model.dart';
 import '../../viewmodels/module_topics_view_model.dart';
@@ -31,13 +32,19 @@ class ModuleDetailScreen extends ConsumerWidget {
     final lang = ref.watch(languageProvider).languageId;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Women With Wheels'),
-        backgroundColor: AppColors.primary,
+        backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
+        elevation: 0,
+        flexibleSpace: const DecoratedBox(
+          decoration: BoxDecoration(gradient: AppColors.brandGradientRich),
+        ),
       ),
-      body: Builder(
+      body: DecoratedBox(
+        decoration: const BoxDecoration(gradient: AppColors.pageWash),
+        child: Builder(
         builder: (context) {
           if (state.isLoading && state.topics.isEmpty) {
             return const Center(child: CircularProgressIndicator());
@@ -85,15 +92,12 @@ class ModuleDetailScreen extends ConsumerWidget {
                           ),
                         )
                       else
-                        for (var i = 0; i < state.topics.length; i++) ...[
+                        for (var i = 0; i < state.topics.length; i++)
                           TopicCard(
                             topic: state.topics[i],
                             index: i,
                             onTap: () => _openTopic(context, state.topics[i]),
                           ),
-                          if (i != state.topics.length - 1)
-                            const Divider(height: 1),
-                        ],
                       const SizedBox(height: 12),
                     ],
                   ),
@@ -106,6 +110,7 @@ class ModuleDetailScreen extends ConsumerWidget {
             ],
           );
         },
+        ),
       ),
     );
   }
@@ -136,21 +141,46 @@ class _PostAssessmentBar extends ConsumerWidget {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
-        child: SizedBox(
-          height: AppButton.height,
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () => context.push(
-              AppRoutes.moduleAssessmentPath(moduleId),
-              extra: moduleName,
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.assessmentAction,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.assessmentAction.withValues(alpha: 0.35),
+                blurRadius: 18,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+            child: InkWell(
+              onTap: () => context.push(
+                AppRoutes.moduleAssessmentPath(moduleId),
+                extra: moduleName,
+              ),
+              borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+              child: Container(
+                height: AppButton.height,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0xFF12B981), AppColors.assessmentAction],
+                  ),
+                  borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    AppGloss.sheen(r: AppGloss.radiusSm),
+                    const Text('Post Assessment', style: AppText.button),
+                  ],
+                ),
               ),
             ),
-            child: const Text('Post Assessment'),
           ),
         ),
       ),

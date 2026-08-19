@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/colors.dart';
+import '../../core/theme/glossy.dart';
 import '../../domain/entities/module_assessment.dart';
 
 /// Result screen: a coloured banner, then the Total / Correct / Wrong /
@@ -23,6 +24,7 @@ class AssessmentResultView extends StatelessWidget {
   Widget build(BuildContext context) {
     final passed = result.passed;
     final accent = passed ? AppColors.resultPass : AppColors.resultFail;
+    final heroTop = Color.lerp(accent, Colors.white, 0.18) ?? accent;
 
     return Column(
       children: [
@@ -30,49 +32,75 @@ class AssessmentResultView extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.fromLTRB(24, 32, 24, 36),
           decoration: BoxDecoration(
-            color: accent,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [heroTop, accent],
+            ),
             borderRadius: const BorderRadius.only(
               bottomLeft: Radius.circular(28),
               bottomRight: Radius.circular(28),
             ),
+            boxShadow: [
+              BoxShadow(
+                color: accent.withValues(alpha: 0.38),
+                blurRadius: 26,
+                offset: const Offset(0, 12),
+              ),
+            ],
           ),
-          child: Column(
+          child: Stack(
             children: [
-              Image.asset(
-                passed
-                    ? 'assets/images/pass_assessment.png'
-                    : 'assets/images/fail_assessment.png',
-                height: 150,
-                errorBuilder: (_, __, ___) => Icon(
-                  passed ? Icons.thumb_up : Icons.thumb_down,
-                  size: 110,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 18),
-              Text(
-                passed ? 'Well Done!' : 'Keep Trying!',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                passed
-                    ? 'You scored ${result.passPercentage.round()}% or above. '
-                        'The next module is now open.'
-                    : 'You scored below ${result.passPercentage.round()}%. We '
-                        'recommend revisiting the module to strengthen your '
-                        'understanding before attempting the assessment again.',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  height: 1.4,
-                ),
+              AppGloss.sheen(r: 28),
+              Column(
+                children: [
+                  Image.asset(
+                    passed
+                        ? 'assets/images/pass_assessment.png'
+                        : 'assets/images/fail_assessment.png',
+                    height: 150,
+                    errorBuilder: (_, __, ___) => Icon(
+                      passed ? Icons.thumb_up : Icons.thumb_down,
+                      size: 110,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    passed ? 'Well Done!' : 'Keep Trying!',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${result.scorePercentage.toStringAsFixed(1)}%',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      height: 1.1,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    passed
+                        ? 'You scored ${result.passPercentage.round()}% or above. '
+                            'The next module is now open.'
+                        : 'You scored below ${result.passPercentage.round()}%. We '
+                            'recommend revisiting the module to strengthen your '
+                            'understanding before attempting the assessment again.',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -80,7 +108,10 @@ class AssessmentResultView extends StatelessWidget {
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(24, 28, 24, 12),
-            child: Column(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              decoration: AppGloss.card(),
+              child: Column(
               children: [
                 _Row(label: 'Total', value: '${result.totalQuestions}'),
                 _Row(
@@ -110,9 +141,9 @@ class AssessmentResultView extends StatelessWidget {
                   const SizedBox(height: 20),
                   Container(
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
+                    decoration: AppGloss.panel(
                       color: const Color(0xFFE8F5E9),
-                      borderRadius: BorderRadius.circular(12),
+                      r: AppGloss.radiusSm,
                     ),
                     child: Row(
                       children: [
@@ -134,6 +165,7 @@ class AssessmentResultView extends StatelessWidget {
                   ),
                 ],
               ],
+              ),
             ),
           ),
         ),
@@ -147,20 +179,42 @@ class AssessmentResultView extends StatelessWidget {
                 SizedBox(
                   height: 56,
                   width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: passed ? onDone : onRetry,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: accent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [heroTop, accent],
                       ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: accent.withValues(alpha: 0.38),
+                          blurRadius: 18,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
                     ),
-                    child: Text(
-                      passed ? 'Continue' : 'Try Again',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+                    child: Material(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                      child: InkWell(
+                        onTap: passed ? onDone : onRetry,
+                        borderRadius: BorderRadius.circular(12),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            AppGloss.sheen(),
+                            Text(
+                              passed ? 'Continue' : 'Try Again',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

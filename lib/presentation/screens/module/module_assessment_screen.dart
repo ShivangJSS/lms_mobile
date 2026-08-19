@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/localization/app_strings.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/glossy.dart';
 import '../../../domain/entities/module_assessment.dart';
 import '../../viewmodels/dashboard_view_model.dart';
 import '../../viewmodels/language_view_model.dart';
@@ -37,13 +38,15 @@ class ModuleAssessmentScreen extends ConsumerWidget {
     final lang = ref.watch(languageProvider).languageId;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Women With Wheels'),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
-      body: Builder(
+      body: DecoratedBox(
+        decoration: const BoxDecoration(gradient: AppColors.pageWash),
+        child: Builder(
         builder: (context) {
           if (state.isLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -117,6 +120,7 @@ class ModuleAssessmentScreen extends ConsumerWidget {
           );
         },
       ),
+      ),
     );
   }
 
@@ -178,10 +182,7 @@ class _InstructionsPage extends StatelessWidget {
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(AppSpacing.lg),
-                  decoration: BoxDecoration(
-                    color: AppColors.tintedPanel,
-                    borderRadius: BorderRadius.circular(AppSpacing.radius),
-                  ),
+                  decoration: AppGloss.card(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

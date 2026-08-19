@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/network/media_url.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/glossy.dart';
 import '../../../domain/entities/module_assessment.dart';
 
 /// Shared frame around every question: number, title, hint and image.
@@ -26,26 +27,22 @@ class QuestionShell extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: AppGloss.card(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 14,
-                backgroundColor: AppColors.primary,
+              Container(
+                height: 28,
+                width: 28,
+                alignment: Alignment.center,
+                decoration: const BoxDecoration(
+                  gradient: AppColors.buttonGloss,
+                  shape: BoxShape.circle,
+                  boxShadow: AppGloss.buttonGlow,
+                ),
                 child: Text(
                   '${index + 1}',
                   style: const TextStyle(

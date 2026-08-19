@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/theme/app_text.dart';
 import '../../core/theme/colors.dart';
+import '../../core/theme/glossy.dart';
 import '../viewmodels/dashboard_view_model.dart';
 import '../viewmodels/feedback_view_model.dart';
 import '../viewmodels/language_view_model.dart';
@@ -28,48 +30,85 @@ class _LanguagePickerDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(languageProvider);
 
-    return AlertDialog(
-      title: const Text('Change Language'),
-      contentPadding: const EdgeInsets.symmetric(vertical: 12),
-      content: SizedBox(
-        width: double.maxFinite,
-        child: state.languages.isEmpty
-            ? const Padding(
-                padding: EdgeInsets.all(24),
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xl,
+        vertical: AppSpacing.xxl,
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        decoration: AppGloss.card(r: AppGloss.radiusLg, shadow: AppGloss.lifted),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.xs,
+                AppSpacing.xs,
+                AppSpacing.xs,
+                AppSpacing.md,
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.sm),
+                    decoration: AppGloss.panel(
+                      color: AppColors.tintedPanel,
+                      r: AppGloss.radiusSm,
+                    ),
+                    child: const Icon(
+                      Icons.translate_rounded,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  const Text('Change Language', style: AppText.h4),
+                ],
+              ),
+            ),
+            if (state.languages.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(AppSpacing.lg),
                 child: Text(
                   'Languages could not be loaded. Please check your '
                   'connection and try again.',
                   textAlign: TextAlign.center,
+                  style: AppText.muted,
                 ),
               )
-            : ListView(
-                shrinkWrap: true,
-                children: [
-                  for (final language in state.languages)
-                    RadioListTile<int>(
-                      title: Text(language.languageName),
-                      value: language.languageId,
-                      // ignore: deprecated_member_use
-                      groupValue: state.languageId,
-                      activeColor: AppColors.primary,
-                      // ignore: deprecated_member_use
-                      onChanged: (value) async {
-                        if (value == null) return;
+            else
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  padding: EdgeInsets.zero,
+                  children: [
+                    for (final language in state.languages)
+                      _LanguageTile(
+                        name: language.languageName,
+                        selected: language.languageId == state.languageId,
+                        onTap: () async {
+                          await _apply(ref, language.languageId);
 
-                        await _apply(ref, value);
-
-                        if (context.mounted) Navigator.of(context).pop();
-                      },
-                    ),
-                ],
+                          if (context.mounted) Navigator.of(context).pop();
+                        },
+                      ),
+                  ],
+                ),
               ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
+            const SizedBox(height: AppSpacing.sm),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Close'),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -83,5 +122,66 @@ class _LanguagePickerDialog extends ConsumerWidget {
     ref.invalidate(moduleViewModelProvider);
     ref.invalidate(dashboardViewModelProvider);
     ref.invalidate(feedbackViewModelProvider);
+  }
+}
+
+class _LanguageTile extends StatelessWidget {
+  final String name;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _LanguageTile({
+    required this.name,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(AppGloss.radius),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppGloss.radius),
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.md,
+            ),
+            decoration: selected
+                ? BoxDecoration(
+                    gradient: AppColors.brandGradientRich,
+                    borderRadius: BorderRadius.circular(AppGloss.radius),
+                    boxShadow: AppGloss.buttonGlow,
+                  )
+                : AppGloss.panel(),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    name,
+                    style: AppText.label.copyWith(
+                      color: selected
+                          ? Colors.white
+                          : AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+                Icon(
+                  selected
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
+                  color: selected ? Colors.white : AppColors.textSecondary,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

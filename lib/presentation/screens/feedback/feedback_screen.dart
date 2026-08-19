@@ -6,6 +6,8 @@ import '../../../core/localization/app_strings.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/glossy.dart';
+import '../../../core/widgets/primary_button.dart';
 import '../../../domain/entities/feedback_question.dart';
 import '../../viewmodels/feedback_view_model.dart';
 import '../../viewmodels/language_view_model.dart';
@@ -83,7 +85,9 @@ class FeedbackScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: state.isLoading
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppColors.pageWash),
+        child: state.isLoading
           ? const Center(child: CircularProgressIndicator())
           : items.isEmpty
               ? _Message(
@@ -111,25 +115,18 @@ class FeedbackScreen extends ConsumerWidget {
                         for (final field in state.formFields)
                           FeedbackFormCard(field: field),
                       const SizedBox(height: AppSpacing.sm),
-                      ElevatedButton(
+                      PrimaryButton(
+                        text: AppStrings.of('submit', lang),
+                        isLoading: state.isSubmitting,
                         onPressed: _canSubmit(state) && !state.isSubmitting
                             ? viewModel.submit
                             : null,
-                        child: state.isSubmitting
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : Text(AppStrings.of('submit', lang)),
                       ),
                       const SizedBox(height: AppSpacing.lg),
                     ],
                   ),
                 ),
+      ),
     );
   }
 
@@ -156,10 +153,7 @@ class _Intro extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.xl),
-      decoration: BoxDecoration(
-        color: AppColors.tintedPanel,
-        borderRadius: BorderRadius.circular(AppSpacing.radius),
-      ),
+      decoration: AppGloss.card(),
       child: Text(
         isMood
             ? "Hello and welcome!\n\nBefore we get started, let's get to know "
@@ -187,11 +181,7 @@ class _MoodCard extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.lg),
       padding: const EdgeInsets.all(AppSpacing.xl),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSpacing.radius),
-        border: Border.all(color: AppColors.divider),
-      ),
+      decoration: AppGloss.card(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

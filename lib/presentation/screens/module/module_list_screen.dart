@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/glossy.dart';
 import '../../viewmodels/module_view_model.dart';
 import '../../widgets/module_card.dart';
 import '../../widgets/module_type_tabs.dart';
@@ -18,11 +19,15 @@ class ModuleListScreen extends ConsumerWidget {
     final viewModel = ref.read(moduleViewModelProvider.notifier);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Women With Wheels'),
-        backgroundColor: AppColors.primary,
+        backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
+        elevation: 0,
+        flexibleSpace: const DecoratedBox(
+          decoration: BoxDecoration(gradient: AppColors.brandGradientRich),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.home),
@@ -30,36 +35,48 @@ class ModuleListScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ModuleTypeTabs(
-            categories: state.categories,
-            selectedTypeId: state.selectedTypeId,
-            onSelected: viewModel.selectType,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(
-                vertical: 12,
-                horizontal: 16,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.sectionHeader,
-                borderRadius: BorderRadius.circular(AppSpacing.radius),
-              ),
-              child: const Text('Module List', style: AppText.headingOnColor),
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppColors.pageWash),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ModuleTypeTabs(
+              categories: state.categories,
+              selectedTypeId: state.selectedTypeId,
+              onSelected: viewModel.selectType,
             ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Expanded(
-            child: _ModuleListBody(
-              onRefresh: viewModel.load,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: AppColors.brandGradientRich,
+                  borderRadius: BorderRadius.circular(AppGloss.radius),
+                  boxShadow: AppGloss.soft,
+                ),
+                child: Stack(
+                  children: [
+                    AppGloss.sheen(r: AppGloss.radius),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 16,
+                      ),
+                      child: Text('Module List',
+                          style: AppText.headingOnColor),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: AppSpacing.lg),
+            Expanded(
+              child: _ModuleListBody(
+                onRefresh: viewModel.load,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

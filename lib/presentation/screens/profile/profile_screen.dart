@@ -10,6 +10,7 @@ import '../../../core/network/api_constants.dart';
 import '../../../core/network/media_url.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/glossy.dart';
 import '../../viewmodels/login_view_model.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -35,22 +36,27 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       showDragHandle: true,
-      builder: (_) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_camera_outlined),
-              title: const Text('Take a photo'),
-              onTap: () => Navigator.pop(context, ImageSource.camera),
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Choose from gallery'),
-              onTap: () => Navigator.pop(context, ImageSource.gallery),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-          ],
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+        decoration: AppGloss.card(r: AppGloss.radiusLg),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_camera_outlined),
+                title: const Text('Take a photo'),
+                onTap: () => Navigator.pop(context, ImageSource.camera),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: const Text('Choose from gallery'),
+                onTap: () => Navigator.pop(context, ImageSource.gallery),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+            ],
+          ),
         ),
       ),
     );
@@ -120,56 +126,153 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('View Profile')),
-      body: participant == null
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.xl,
-                AppSpacing.lg,
-                AppSpacing.xl,
-              ),
-              child: Column(
-                children: [
-                  _Avatar(
-                    url: mediaUrl(
-                      participant.images,
-                      folder: 'participants',
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppColors.pageWash),
+        child: participant == null
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: EdgeInsets.zero,
+                child: Column(
+                  children: [
+                    _Header(
+                      name: participant.participantName,
+                      avatar: _Avatar(
+                        url: mediaUrl(
+                          participant.images,
+                          folder: 'participants',
+                        ),
+                        uploading: _uploading,
+                        onTap: _uploading ? null : _changePhoto,
+                      ),
+                      onChangePhoto: _uploading ? null : _changePhoto,
                     ),
-                    uploading: _uploading,
-                    onTap: _uploading ? null : _changePhoto,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  Text(participant.participantName, style: AppText.h2),
-                  TextButton.icon(
-                    onPressed: _uploading ? null : _changePhoto,
-                    icon: const Icon(Icons.photo_camera_outlined, size: 18),
-                    label: const Text('Change photo'),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  _Field(
-                    label: 'Participant ID',
-                    value: '${participant.participantId}',
-                  ),
-                  _Field(
-                    label: 'Enrollment No',
-                    value: participant.enrollmentNo,
-                  ),
-                  _Field(label: 'Username', value: participant.username),
-                  _Field(label: 'Email', value: participant.email ?? '-'),
-                  _Field(label: 'Mobile', value: participant.mobileNo ?? '-'),
-                  _Field(
-                    label: 'Progress Status',
-                    value: '${participant.progressStatus}',
-                  ),
-                  _Field(
-                    label: 'Course Progress',
-                    value: '${participant.courseProgress}%',
-                  ),
-                ],
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.lg,
+                        0,
+                        AppSpacing.lg,
+                        AppSpacing.xl,
+                      ),
+                      child: Transform.translate(
+                        offset: const Offset(0, -22),
+                        child: Container(
+                          padding: const EdgeInsets.all(AppSpacing.md),
+                          decoration:
+                              AppGloss.card(r: 24, shadow: AppGloss.lifted),
+                          child: Column(
+                            children: [
+                              _Field(
+                                label: 'Participant ID',
+                                value: '${participant.participantId}',
+                              ),
+                              _Field(
+                                label: 'Enrollment No',
+                                value: participant.enrollmentNo,
+                              ),
+                              _Field(
+                                label: 'Username',
+                                value: participant.username,
+                              ),
+                              _Field(
+                                label: 'Email',
+                                value: participant.email ?? '-',
+                              ),
+                              _Field(
+                                label: 'Mobile',
+                                value: participant.mobileNo ?? '-',
+                              ),
+                              _Field(
+                                label: 'Progress Status',
+                                value: '${participant.progressStatus}',
+                              ),
+                              _Field(
+                                label: 'Course Progress',
+                                value: '${participant.courseProgress}%',
+                                last: true,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+      ),
+    );
+  }
+}
+
+class _Header extends StatelessWidget {
+  final String name;
+  final Widget avatar;
+  final VoidCallback? onChangePhoto;
+
+  const _Header({
+    required this.name,
+    required this.avatar,
+    required this.onChangePhoto,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 44),
+      decoration: AppGloss.header(r: 36),
+      child: Stack(
+        children: [
+          AppGloss.sheen(r: 36),
+          SafeArea(
+            bottom: false,
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    onPressed: () => Navigator.of(context).maybePop(),
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                // Glass badge holding the avatar.
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: AppGloss.glass(r: 68, opacity: 0.18),
+                  child: avatar,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  name,
+                  textAlign: TextAlign.center,
+                  style: AppText.h2.copyWith(color: Colors.white),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                TextButton.icon(
+                  onPressed: onChangePhoto,
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.white.withValues(alpha: 0.16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(AppGloss.radiusLg),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                      vertical: AppSpacing.sm,
+                    ),
+                  ),
+                  icon: const Icon(Icons.photo_camera_outlined, size: 18),
+                  label: const Text('Change photo'),
+                ),
+              ],
             ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -238,7 +341,7 @@ class _Avatar extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.primary,
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.background, width: 2),
+                  border: Border.all(color: Colors.white, width: 2),
                 ),
                 child: const Icon(
                   Icons.photo_camera,
@@ -257,8 +360,13 @@ class _Avatar extends StatelessWidget {
 class _Field extends StatelessWidget {
   final String label;
   final String value;
+  final bool last;
 
-  const _Field({required this.label, required this.value});
+  const _Field({
+    required this.label,
+    required this.value,
+    this.last = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -268,12 +376,10 @@ class _Field extends StatelessWidget {
         horizontal: AppSpacing.lg,
         vertical: AppSpacing.md,
       ),
-      // Tighter than before: the cards were floating far apart.
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-      decoration: BoxDecoration(
+      margin: EdgeInsets.only(bottom: last ? 0 : AppSpacing.sm),
+      decoration: AppGloss.panel(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSpacing.radius),
-        border: Border.all(color: AppColors.divider),
+        r: AppGloss.radiusSm,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/glossy.dart';
+import '../../../core/widgets/primary_button.dart';
 import '../../../domain/entities/module_assessment.dart';
 
 /// The muted purple bar at the top of every assessment page.
@@ -27,17 +29,37 @@ class AssessmentHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.md,
-      ),
       decoration: BoxDecoration(
-        color: AppColors.sectionHeader,
-        borderRadius: BorderRadius.circular(AppSpacing.radius),
+        gradient: AppColors.brandGradientRich,
+        borderRadius: BorderRadius.circular(AppGloss.radius),
+        boxShadow: AppGloss.soft,
       ),
-      child: Text(
-        title,
-        style: AppText.sectionTitle,
+      child: Stack(
+        children: [
+          AppGloss.sheen(r: AppGloss.radius),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.md,
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.assignment_outlined,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: AppText.sectionTitle,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -60,28 +82,10 @@ class AssessmentNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final next = SizedBox(
-      height: AppButton.height,
-      child: ElevatedButton(
-        onPressed: isBusy ? null : onNext,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.assessmentAction,
-          disabledBackgroundColor: Colors.grey.shade400,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        child: isBusy
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
-            : Text(nextLabel),
-      ),
+    final next = PrimaryButton(
+      text: nextLabel,
+      isLoading: isBusy,
+      onPressed: onNext,
     );
 
     return SafeArea(
@@ -95,15 +99,31 @@ class AssessmentNavBar extends StatelessWidget {
                   Expanded(
                     child: SizedBox(
                       height: AppButton.height,
-                      child: ElevatedButton(
-                        onPressed: isBusy ? null : onPrevious,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.assessmentAction,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                      child: DecoratedBox(
+                        decoration: AppGloss.panel(
+                          color: AppColors.tintedPanel,
+                          r: AppGloss.radiusSm,
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          borderRadius:
+                              BorderRadius.circular(AppGloss.radiusSm),
+                          child: InkWell(
+                            onTap: isBusy ? null : onPrevious,
+                            borderRadius:
+                                BorderRadius.circular(AppGloss.radiusSm),
+                            child: const Center(
+                              child: Text(
+                                'Previous',
+                                style: TextStyle(
+                                  color: AppColors.primary,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                        child: const Text('Previous'),
                       ),
                     ),
                   ),

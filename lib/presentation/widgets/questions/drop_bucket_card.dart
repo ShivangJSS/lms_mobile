@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/media_url.dart';
+import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/glossy.dart';
 import '../../../domain/entities/module_assessment.dart';
 import '../../viewmodels/module_assessment_view_model.dart';
 import 'question_prompt.dart';
@@ -39,78 +41,84 @@ class DropBucketCard extends ConsumerWidget {
         .where((item) => viewModel.bucketOf(question, item.itemId) == null)
         .toList();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // No imageUrl: these types have their own visuals below, and the
-        // question-level image on these records is a shared placeholder.
-        QuestionPrompt(
-          number: number,
-          title: question.questionTitle,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Items to sort:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            TextButton(
-              onPressed: () => viewModel.resetPlacements(question),
-              child: const Text(
-                'Reset',
-                style: TextStyle(
-                  color: Colors.blue,
-                  decoration: TextDecoration.underline,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: AppGloss.card(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // No imageUrl: these types have their own visuals below, and the
+          // question-level image on these records is a shared placeholder.
+          QuestionPrompt(
+            number: number,
+            title: question.questionTitle,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Items to sort:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              TextButton(
+                onPressed: () => viewModel.resetPlacements(question),
+                child: const Text(
+                  'Reset',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                    decoration: TextDecoration.underline,
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-        const Divider(),
-        const SizedBox(height: 8),
-        if (unplaced.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 24),
-            child: Center(
-              child: Text(
-                'All items sorted',
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
-            ),
-          )
-        else
-          Wrap(
-            alignment: WrapAlignment.start,
-            spacing: 16,
-            runSpacing: 18,
-            children: [
-              for (final item in unplaced) _ItemTile(item: item),
             ],
           ),
-        const SizedBox(height: 28),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (var i = 0; i < question.buckets.length; i++)
-              Expanded(
-                child: _BucketArt(
-                  bucket: question.buckets[i],
-                  art: _bucketArt[i % _bucketArt.length],
-                  question: question,
-                  moduleId: moduleId,
-                  placed: question.items
-                      .where(
-                        (item) =>
-                            viewModel.bucketOf(question, item.itemId) ==
-                            question.buckets[i].bucketId,
-                      )
-                      .toList(),
+          const Divider(color: AppColors.hairline),
+          const SizedBox(height: 8),
+          if (unplaced.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Text(
+                  'All items sorted',
+                  style: TextStyle(color: AppColors.textSecondary),
                 ),
               ),
-          ],
-        ),
-      ],
+            )
+          else
+            Wrap(
+              alignment: WrapAlignment.start,
+              spacing: 16,
+              runSpacing: 18,
+              children: [
+                for (final item in unplaced) _ItemTile(item: item),
+              ],
+            ),
+          const SizedBox(height: 28),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var i = 0; i < question.buckets.length; i++)
+                Expanded(
+                  child: _BucketArt(
+                    bucket: question.buckets[i],
+                    art: _bucketArt[i % _bucketArt.length],
+                    question: question,
+                    moduleId: moduleId,
+                    placed: question.items
+                        .where(
+                          (item) =>
+                              viewModel.bucketOf(question, item.itemId) ==
+                              question.buckets[i].bucketId,
+                        )
+                        .toList(),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -153,9 +161,9 @@ class _ItemVisual extends StatelessWidget {
         Container(
           height: 66,
           width: 96,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(8),
+          decoration: AppGloss.panel(
+            color: AppColors.optionTile,
+            r: AppGloss.radiusSm,
           ),
           clipBehavior: Clip.antiAlias,
           child: image == null

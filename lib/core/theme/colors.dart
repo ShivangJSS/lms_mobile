@@ -19,6 +19,54 @@ class AppColors {
     colors: [gradientStart, gradientEnd],
   );
 
+  // ---------------------------------------------------------------------------
+  // Glossy / depth tokens — shared "glossy finish" language used across every
+  // screen. See AppGloss (core/theme/glossy.dart) for the decoration recipes.
+  // ---------------------------------------------------------------------------
+
+  /// Richer three-stop brand gradient for headers and hero surfaces. Reads as
+  /// lit from the top-left, which is what gives headers their glossy sheen.
+  static const LinearGradient brandGradientRich = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF9C27B0), Color(0xFF6A1B9A), Color(0xFF3F0A57)],
+    stops: [0.0, 0.55, 1.0],
+  );
+
+  /// Top-lit gradient for glossy primary buttons.
+  static const LinearGradient buttonGloss = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFFA145C7), Color(0xFF6A1B9A)],
+  );
+
+  /// Disabled button gradient (kept a gradient so the shape stays consistent).
+  static const LinearGradient buttonGlossDisabled = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFFC9C0D1), Color(0xFFB4A9BF)],
+  );
+
+  /// Subtle full-page background wash, replacing the flat [background].
+  static const LinearGradient pageWash = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFFFBF8FD), Color(0xFFEFE7F5)],
+  );
+
+  /// Faint diagonal sheen for white cards, so they catch light like glass.
+  static const LinearGradient cardSheen = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFFFFFFF), Color(0xFFF7F1FB)],
+  );
+
+  /// Hairline edge on light surfaces.
+  static const Color hairline = Color(0xFFEADFF1);
+
+  /// Brand-tinted shadow colour used by the AppGloss shadow recipes.
+  static const Color shadowBrand = Color(0x1A4A0D52);
+
   // Surfaces — the login page background is the app background everywhere.
   static const Color background = Color(0xFFF5F2F7);
   static const Color surface = Color(0xFFFFFFFF);

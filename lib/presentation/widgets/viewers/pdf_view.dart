@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/glossy.dart';
 
 /// Renders a pdf inline.
 ///
@@ -82,12 +83,32 @@ class _PdfViewState extends State<PdfView> {
         if (_pages > 0)
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
             color: AppColors.surface,
-            child: Text(
-              'Page ${_current + 1} of $_pages',
-              textAlign: TextAlign.center,
-              style: AppText.muted,
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.sm,
+              AppSpacing.lg,
+              AppSpacing.md,
+            ),
+            child: SafeArea(
+              top: false,
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                    vertical: AppSpacing.sm,
+                  ),
+                  decoration: AppGloss.panel(
+                    color: AppColors.tintedPanel,
+                    r: AppGloss.radius,
+                  ),
+                  child: Text(
+                    'Page ${_current + 1} of $_pages',
+                    textAlign: TextAlign.center,
+                    style: AppText.muted,
+                  ),
+                ),
+              ),
             ),
           ),
       ],
@@ -105,17 +126,29 @@ class _Message extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.xxl),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.picture_as_pdf,
-              size: 56,
-              color: AppColors.textSecondary,
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Text(text, textAlign: TextAlign.center, style: AppText.muted),
-          ],
+        child: Container(
+          padding: const EdgeInsets.all(AppSpacing.xxl),
+          decoration: AppGloss.card(r: AppGloss.radiusLg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                decoration: AppGloss.panel(
+                  color: AppColors.tintedPanel,
+                  r: AppGloss.radius,
+                ),
+                child: const Icon(
+                  Icons.picture_as_pdf,
+                  size: 44,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              Text(text, textAlign: TextAlign.center, style: AppText.muted),
+            ],
+          ),
         ),
       ),
     );

@@ -4,6 +4,7 @@ import 'package:video_player/video_player.dart';
 
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/glossy.dart';
 
 /// Plays a stored video. The media endpoint answers byte-range requests, so
 /// scrubbing works rather than only playing from the start.
@@ -79,21 +80,30 @@ class _VideoViewState extends State<VideoView> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.xxl),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.videocam_off,
-                size: 56,
-                color: Colors.white70,
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Text(
-                _error!,
-                textAlign: TextAlign.center,
-                style: AppText.muted.copyWith(color: Colors.white70),
-              ),
-            ],
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.xxl),
+            decoration: AppGloss.glass(r: AppGloss.radiusLg, opacity: 0.10),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  decoration: AppGloss.glass(r: AppGloss.radius, opacity: 0.16),
+                  child: const Icon(
+                    Icons.videocam_off,
+                    size: 44,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                Text(
+                  _error!,
+                  textAlign: TextAlign.center,
+                  style: AppText.muted.copyWith(color: Colors.white70),
+                ),
+              ],
+            ),
           ),
         ),
       );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/colors.dart';
+import '../../core/theme/glossy.dart';
 
 class _Slide {
   final String image;
@@ -58,41 +59,56 @@ class _WomenInActionCardState extends State<WomenInActionCard> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(14),
+        Container(
+          decoration: AppGloss.card(r: AppGloss.radius),
+          clipBehavior: Clip.antiAlias,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                color: AppColors.primary,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 7,
-                ),
-                child: const Row(
-                  children: [
-                    Icon(
-                      Icons.person_outline,
-                      color: Colors.white,
-                      size: 18,
+              Stack(
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      gradient: AppColors.brandGradientRich,
                     ),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Women in Action',
-                        style: TextStyle(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.person_outline,
                           color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                          size: 18,
                         ),
-                      ),
+                        const SizedBox(width: 8),
+                        const Expanded(
+                          child: Text(
+                            'Women in Action',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: AppGloss.glass(r: AppGloss.radiusSm),
+                          child: const Text(
+                            'View all ›',
+                            style: TextStyle(color: Colors.white, fontSize: 12),
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      'View all ›',
-                      style: TextStyle(color: Colors.white, fontSize: 13),
-                    ),
-                  ],
-                ),
+                  ),
+                  AppGloss.sheen(r: 0),
+                ],
               ),
               SizedBox(
                 height: widget.slideHeight,

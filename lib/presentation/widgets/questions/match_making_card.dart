@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/glossy.dart';
 import '../../../domain/entities/module_assessment.dart';
 import '../../viewmodels/module_assessment_view_model.dart';
 import 'question_prompt.dart';
@@ -41,77 +43,87 @@ class MatchMakingCard extends ConsumerWidget {
         .where((right) => !used.contains(right.itemId))
         .toList();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // No imageUrl: these types have their own visuals below, and the
-        // question-level image on these records is a shared placeholder.
-        QuestionPrompt(
-          number: number,
-          title: question.questionTitle,
-        ),
-        Container(
-          color: const Color(0xFFE9E9E9),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
-          child: const Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Column A',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  'Column B',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: AppGloss.card(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // No imageUrl: these types have their own visuals below, and the
+          // question-level image on these records is a shared placeholder.
+          QuestionPrompt(
+            number: number,
+            title: question.questionTitle,
           ),
-        ),
-        for (var i = 0; i < question.leftItems.length; i++)
-          _MatchRow(
-            index: i,
-            left: question.leftItems[i],
-            question: question,
-            moduleId: moduleId,
-            matched: _rightFor(
-              question,
-              viewModel.matchOf(question, question.leftItems[i].itemId),
+          Container(
+            decoration: AppGloss.panel(
+              color: AppColors.tintedPanel,
+              r: AppGloss.radiusSm,
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            child: const Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Column A',
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryDark,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    'Column B',
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryDark,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        const SizedBox(height: 18),
-        if (pool.isNotEmpty) ...[
-          const Text(
-            'Drag from here:',
-            style: TextStyle(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              for (final right in pool) _RightChip(item: right),
-            ],
-          ),
+          for (var i = 0; i < question.leftItems.length; i++)
+            _MatchRow(
+              index: i,
+              left: question.leftItems[i],
+              question: question,
+              moduleId: moduleId,
+              matched: _rightFor(
+                question,
+                viewModel.matchOf(question, question.leftItems[i].itemId),
+              ),
+            ),
           const SizedBox(height: 18),
-        ],
-        const Text(
-          'Note: Match the following by dragging the correct options from '
-          'Column B to Column A.',
-          style: TextStyle(
-            fontStyle: FontStyle.italic,
-            color: AppColors.textSecondary,
+          if (pool.isNotEmpty) ...[
+            const Text(
+              'Drag from here:',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                for (final right in pool) _RightChip(item: right),
+              ],
+            ),
+            const SizedBox(height: 18),
+          ],
+          const Text(
+            'Note: Match the following by dragging the correct options from '
+            'Column B to Column A.',
+            style: TextStyle(
+              fontStyle: FontStyle.italic,
+              color: AppColors.textSecondary,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

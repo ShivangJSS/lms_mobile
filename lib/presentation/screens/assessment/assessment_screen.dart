@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/glossy.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../../viewmodels/assessment_view_model.dart';
 import '../../widgets/radio_option_card.dart';
@@ -35,67 +37,64 @@ class AssessmentScreen extends ConsumerWidget {
     });
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Trainee Feedback Form'),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
       ),
-      body: state.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : state.questions == null || state.questions!.isEmpty
-              ? const Center(child: Text('No questions available'))
-              : Column(
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(16.0),
-                        itemCount: state.questions!.length,
-                        itemBuilder: (context, index) {
-                          final question = state.questions![index];
-                          final selectedAnswer = state.answers[question.id];
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppColors.pageWash),
+        child: state.isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : state.questions == null || state.questions!.isEmpty
+                ? const Center(child: Text('No questions available'))
+                : Column(
+                    children: [
+                      Expanded(
+                        child: ListView.builder(
+                          padding: const EdgeInsets.all(16.0),
+                          itemCount: state.questions!.length,
+                          itemBuilder: (context, index) {
+                            final question = state.questions![index];
+                            final selectedAnswer = state.answers[question.id];
 
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 24.0),
-                            padding: const EdgeInsets.all(16.0),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFEFEFEF), // Light gray from screenshot
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  question.questionText,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 24.0),
+                              padding: const EdgeInsets.all(16.0),
+                              decoration: AppGloss.card(),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    question.questionText,
+                                    style: AppText.h4,
                                   ),
-                                ),
-                                const SizedBox(height: 16),
-                                ...question.options.map((option) {
-                                  return RadioOptionCard(
-                                    text: option,
-                                    isSelected: selectedAnswer == option,
-                                    onTap: () {
-                                      ref
-                                          .read(assessmentViewModelProvider.notifier)
-                                          .answerQuestion(question.id, option);
-                                    },
-                                  );
-                                }).toList(),
-                              ],
-                            ),
-                          );
-                        },
+                                  const SizedBox(height: 16),
+                                  ...question.options.map((option) {
+                                    return RadioOptionCard(
+                                      text: option,
+                                      isSelected: selectedAnswer == option,
+                                      onTap: () {
+                                        ref
+                                            .read(assessmentViewModelProvider.notifier)
+                                            .answerQuestion(question.id, option);
+                                      },
+                                    );
+                                  }),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: PrimaryButton(
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: PrimaryButton(
                         text: 'Submit Feedback',
                         isLoading: state.isSubmitting,
                         onPressed: ref.read(assessmentViewModelProvider.notifier).canSubmit()
@@ -103,10 +102,11 @@ class AssessmentScreen extends ConsumerWidget {
                                 ref.read(assessmentViewModelProvider.notifier).submit();
                               }
                             : null, // Disabled if all questions are not answered
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+      ),
     );
   }
 }

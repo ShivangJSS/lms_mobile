@@ -1,5 +1,4 @@
 import 'package:go_router/go_router.dart';
-import '../../presentation/screens/splash/splash_screen.dart';
 import '../../presentation/screens/login/login_screen.dart';
 import '../../presentation/screens/home/home_screen.dart';
 import '../../presentation/screens/assessment/assessment_screen.dart';
@@ -12,7 +11,6 @@ import '../../presentation/screens/module/module_detail_screen.dart';
 import '../../presentation/screens/module/module_list_screen.dart';
 
 class AppRoutes {
-  static const String splash = '/';
   static const String login = '/login';
   static const String home = '/home';
   static const String assessment = '/assessment';
@@ -36,13 +34,12 @@ class AppRoutes {
   static int _moduleIdOf(GoRouterState state) =>
       int.tryParse(state.pathParameters['moduleId'] ?? '') ?? 0;
 
-  static final GoRouter router = GoRouter(
-    initialLocation: splash,
+  /// Builds the app router. [initialLocation] is decided at startup from the
+  /// saved session (home when signed in, login otherwise) — there is no longer
+  /// a splash screen in between.
+  static GoRouter buildRouter({String initialLocation = login}) => GoRouter(
+    initialLocation: initialLocation,
     routes: [
-      GoRoute(
-        path: splash,
-        builder: (context, state) => const SplashScreen(),
-      ),
       GoRoute(
         path: login,
         builder: (context, state) => const LoginScreen(),

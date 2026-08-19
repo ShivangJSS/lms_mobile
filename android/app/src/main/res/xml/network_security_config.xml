@@ -9,7 +9,10 @@
 -->
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
-        <!-- API host used by ApiConstants.baseUrl -->
+        <!-- API host used by ApiConstants.baseUrl (laptop LAN IP) -->
+        <domain includeSubdomains="false">10.154.22.71</domain>
+
+        <!-- Previous API host -->
         <domain includeSubdomains="false">10.147.155.61</domain>
 
         <!-- Android emulator loopback to the host machine -->

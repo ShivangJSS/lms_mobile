@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/colors.dart';
+
+import '../../core/theme/colors.dart';
+import '../../core/theme/glossy.dart';
 
 class ProgressCard extends StatelessWidget {
   final double progress;
@@ -16,32 +18,32 @@ class ProgressCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
+      decoration: AppGloss.card(r: AppGloss.radiusLg),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            decoration: const BoxDecoration(
-              color: Color(0xFF8A6C8C), // Muted purple from screenshot
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
+          // Glossy brand-gradient header band with a wet sheen highlight.
+          Stack(
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                decoration: const BoxDecoration(
+                  gradient: AppColors.brandGradientRich,
+                ),
+                child: const Text(
+                  'Your Progress',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            ),
-            child: const Text(
-              'Your Progress',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+              AppGloss.sheen(r: 0),
+            ],
           ),
           Padding(
             padding: const EdgeInsets.all(20.0),
@@ -56,8 +58,10 @@ class ProgressCard extends StatelessWidget {
                         child: LinearProgressIndicator(
                           value: progress,
                           minHeight: 16,
-                          backgroundColor: Colors.grey.shade300,
-                          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.progressGreen),
+                          backgroundColor: AppColors.tintedPanel,
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            AppColors.progressGreen,
+                          ),
                         ),
                       ),
                     ),
@@ -77,7 +81,7 @@ class ProgressCard extends StatelessWidget {
                   message,
                   style: const TextStyle(
                     fontSize: 16,
-                    color: Colors.black87,
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ],

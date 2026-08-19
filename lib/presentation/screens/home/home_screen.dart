@@ -6,6 +6,8 @@ import '../../../core/localization/app_strings.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/glossy.dart';
+import '../../../core/widgets/primary_button.dart';
 import '../../viewmodels/dashboard_view_model.dart';
 import '../../viewmodels/language_view_model.dart';
 import '../../viewmodels/login_view_model.dart';
@@ -32,6 +34,21 @@ class HomeScreen extends ConsumerWidget {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(AppStrings.of('dashboard', lang)),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.white,
+        flexibleSpace: Stack(
+          children: [
+            const Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: AppColors.brandGradientRich,
+                ),
+              ),
+            ),
+            AppGloss.sheen(r: 0),
+          ],
+        ),
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu),
@@ -43,9 +60,14 @@ class HomeScreen extends ConsumerWidget {
             padding: const EdgeInsets.only(right: 16.0),
             child: GestureDetector(
               onTap: () => context.push(AppRoutes.profile),
-              child: const CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Icon(Icons.person, color: AppColors.primary),
+              child: Container(
+                padding: const EdgeInsets.all(3),
+                decoration: AppGloss.glass(r: 40, opacity: 0.20),
+                child: const CircleAvatar(
+                  radius: 16,
+                  backgroundColor: Colors.white,
+                  child: Icon(Icons.person, color: AppColors.primary, size: 20),
+                ),
               ),
             ),
           ),
@@ -81,6 +103,7 @@ class HomeScreen extends ConsumerWidget {
                                   '${dashboardState.stats!.modulesCompleted}/'
                                   '${dashboardState.stats!.totalModules}',
                               backgroundColor: AppColors.dashboardCard1,
+                              icon: Icons.check_circle_outline,
                             ),
                             const SizedBox(width: AppSpacing.sm),
                             DashboardStatsCard(
@@ -89,6 +112,7 @@ class HomeScreen extends ConsumerWidget {
                                   ? '${dashboardState.stats!.averageScore.round()}%'
                                   : '-',
                               backgroundColor: AppColors.dashboardCard2,
+                              icon: Icons.emoji_events_outlined,
                             ),
                             const SizedBox(width: AppSpacing.sm),
                             DashboardStatsCard(
@@ -96,6 +120,7 @@ class HomeScreen extends ConsumerWidget {
                               value:
                                   '${dashboardState.stats!.timeInvestedMinutes} min',
                               backgroundColor: AppColors.dashboardCard3,
+                              icon: Icons.schedule_outlined,
                             ),
                           ],
                         ),
@@ -108,9 +133,10 @@ class HomeScreen extends ConsumerWidget {
                         ),
                       ],
                       const SizedBox(height: AppSpacing.md),
-                      _PrimaryAction(
-                        label: AppStrings.of('start_journey', lang),
-                        onTap: () => context.push(AppRoutes.modules),
+                      PrimaryButton(
+                        text: AppStrings.of('start_journey', lang),
+                        trailingIcon: Icons.arrow_forward_rounded,
+                        onPressed: () => context.push(AppRoutes.modules),
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       Align(
@@ -144,11 +170,18 @@ class HomeScreen extends ConsumerWidget {
                 ),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
-          color: AppColors.primary,
+          gradient: AppColors.brandGradientRich,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(24),
             topRight: Radius.circular(24),
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Color(0x336A1B9A),
+              blurRadius: 20,
+              offset: Offset(0, -6),
+            ),
+          ],
         ),
         child: ClipRRect(
           borderRadius: const BorderRadius.only(
@@ -157,6 +190,11 @@ class HomeScreen extends ConsumerWidget {
           ),
           child: BottomNavigationBar(
             currentIndex: navIndex,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: Colors.white,
+            unselectedItemColor: Colors.white70,
             onTap: (index) {
               ref.read(bottomNavIndexProvider.notifier).state = index;
               if (index == 1) context.push(AppRoutes.modules);
@@ -195,51 +233,33 @@ class _WelcomeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: AppColors.sectionHeader,
-        borderRadius: BorderRadius.circular(AppSpacing.radius),
+        gradient: AppColors.brandGradientRich,
+        borderRadius: BorderRadius.circular(AppGloss.radius),
+        boxShadow: AppGloss.soft,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
         children: [
-          Text(
-            '${AppStrings.of('welcome', languageId)} $userName',
-            style: AppText.sectionTitle,
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            AppStrings.of('welcome_subtitle', languageId),
-            style: AppText.bodySmall.copyWith(color: AppColors.textWhite),
+          AppGloss.sheen(r: AppGloss.radius),
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${AppStrings.of('welcome', languageId)} $userName',
+                  style: AppText.sectionTitle,
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  AppStrings.of('welcome_subtitle', languageId),
+                  style: AppText.bodySmall.copyWith(color: AppColors.textWhite),
+                ),
+              ],
+            ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _PrimaryAction extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-
-  const _PrimaryAction({required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-        decoration: BoxDecoration(
-          color: AppColors.sectionHeader,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: AppText.headingOnColor,
-          ),
-        ),
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../core/network/api_constants.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/glossy.dart';
 
 /// Shows a PowerPoint deck inline.
 ///
@@ -71,17 +72,33 @@ class _PptxViewState extends State<PptxView> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.xxl),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.slideshow,
-                size: 56,
-                color: AppColors.textSecondary,
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Text(_error!, textAlign: TextAlign.center, style: AppText.muted),
-            ],
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.xxl),
+            decoration: AppGloss.card(r: AppGloss.radiusLg),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  decoration: AppGloss.panel(
+                    color: AppColors.tintedPanel,
+                    r: AppGloss.radius,
+                  ),
+                  child: const Icon(
+                    Icons.slideshow,
+                    size: 44,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                Text(
+                  _error!,
+                  textAlign: TextAlign.center,
+                  style: AppText.muted,
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -131,33 +148,50 @@ class _PptxViewState extends State<PptxView> {
         ),
         Container(
           color: AppColors.surface,
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                onPressed: _page > 0
-                    ? () => _controller.previousPage(
-                          duration: const Duration(milliseconds: 220),
-                          curve: Curves.easeOut,
-                        )
-                    : null,
-                icon: const Icon(Icons.chevron_left),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            AppSpacing.sm,
+            AppSpacing.lg,
+            AppSpacing.md,
+          ),
+          child: SafeArea(
+            top: false,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+              decoration: AppGloss.panel(
+                color: AppColors.tintedPanel,
+                r: AppGloss.radius,
               ),
-              Text(
-                'Slide ${_page + 1} of ${_slides.length}',
-                style: AppText.muted,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    color: AppColors.primary,
+                    onPressed: _page > 0
+                        ? () => _controller.previousPage(
+                              duration: const Duration(milliseconds: 220),
+                              curve: Curves.easeOut,
+                            )
+                        : null,
+                    icon: const Icon(Icons.chevron_left),
+                  ),
+                  Text(
+                    'Slide ${_page + 1} of ${_slides.length}',
+                    style: AppText.label,
+                  ),
+                  IconButton(
+                    color: AppColors.primary,
+                    onPressed: _page < _slides.length - 1
+                        ? () => _controller.nextPage(
+                              duration: const Duration(milliseconds: 220),
+                              curve: Curves.easeOut,
+                            )
+                        : null,
+                    icon: const Icon(Icons.chevron_right),
+                  ),
+                ],
               ),
-              IconButton(
-                onPressed: _page < _slides.length - 1
-                    ? () => _controller.nextPage(
-                          duration: const Duration(milliseconds: 220),
-                          curve: Curves.easeOut,
-                        )
-                    : null,
-                icon: const Icon(Icons.chevron_right),
-              ),
-            ],
+            ),
           ),
         ),
       ],

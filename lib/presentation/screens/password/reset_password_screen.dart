@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/routes/app_routes.dart';
+import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/glossy.dart';
 import '../../../core/widgets/custom_text_field.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../../viewmodels/password_view_model.dart';
@@ -54,57 +56,157 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     final state = ref.watch(passwordViewModelProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Set New Password'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 12),
-            const Text(
-              'Choose a new password of at least 6 characters.',
-              style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: 24),
-            CustomTextField(
-              controller: _password,
-              labelText: 'New password',
-              hintText: 'Enter new password',
-              obscureText: _obscure,
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _obscure ? Icons.visibility_off : Icons.visibility,
-                ),
-                onPressed: () => setState(() => _obscure = !_obscure),
+      backgroundColor: AppColors.background,
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppColors.pageWash),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.zero,
+          child: Column(
+            children: [
+              const _Header(
+                title: 'Set New Password',
+                subtitle: 'Choose a strong new password',
+                icon: Icons.password_rounded,
               ),
-            ),
-            const SizedBox(height: 16),
-            CustomTextField(
-              controller: _confirm,
-              labelText: 'Confirm password',
-              hintText: 'Re-enter new password',
-              obscureText: _obscure,
-            ),
-            if (state.error != null) ...[
-              const SizedBox(height: 12),
-              Text(
-                state.error!,
-                style: const TextStyle(color: AppColors.error),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  0,
+                  AppSpacing.lg,
+                  AppSpacing.lg,
+                ),
+                child: Transform.translate(
+                  offset: const Offset(0, -28),
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+                    decoration:
+                        AppGloss.card(r: 24, shadow: AppGloss.lifted),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Choose a new password of at least 6 characters.',
+                          style: AppText.muted.copyWith(fontSize: 14),
+                        ),
+                        const SizedBox(height: AppSpacing.xl),
+                        CustomTextField(
+                          controller: _password,
+                          labelText: 'New password',
+                          hintText: 'Enter new password',
+                          obscureText: _obscure,
+                          prefixIcon: Icons.lock_outline,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscure
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                              color: Colors.grey.shade600,
+                            ),
+                            onPressed: () =>
+                                setState(() => _obscure = !_obscure),
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        CustomTextField(
+                          controller: _confirm,
+                          labelText: 'Confirm password',
+                          hintText: 'Re-enter new password',
+                          obscureText: _obscure,
+                          prefixIcon: Icons.lock_outline,
+                        ),
+                        if (state.error != null) ...[
+                          const SizedBox(height: 12),
+                          Text(
+                            state.error!,
+                            style: const TextStyle(color: AppColors.error),
+                          ),
+                        ],
+                        const SizedBox(height: AppSpacing.xl),
+                        PrimaryButton(
+                          text: 'Reset Password',
+                          isLoading: state.isLoading,
+                          trailingIcon: Icons.check_rounded,
+                          onPressed: state.isLoading ? null : _submit,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ],
-            const SizedBox(height: 24),
-            PrimaryButton(
-              text: 'Reset Password',
-              isLoading: state.isLoading,
-              onPressed: state.isLoading ? null : _submit,
-            ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+class _Header extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+
+  const _Header({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 48),
+      decoration: AppGloss.header(r: 36),
+      child: Stack(
+        children: [
+          AppGloss.sheen(r: 36),
+          SafeArea(
+            bottom: false,
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    onPressed: () => Navigator.of(context).maybePop(),
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  height: 72,
+                  width: 72,
+                  decoration: AppGloss.glass(r: 20, opacity: 0.18),
+                  child: Icon(icon, color: Colors.white, size: 34),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.92),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

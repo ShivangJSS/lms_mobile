@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_text.dart';
 import '../../core/theme/colors.dart';
+import '../../core/theme/glossy.dart';
 import '../../domain/entities/learning_module.dart';
 
 /// Module name banner, the always-open Module Overview card, and the
@@ -39,24 +40,32 @@ class _ModuleOverviewCardState extends State<ModuleOverviewCard> {
           const SizedBox(height: AppSpacing.md),
           Container(
             padding: const EdgeInsets.all(AppSpacing.lg),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(AppSpacing.radius),
-              border: Border.all(color: AppColors.divider),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.06),
-                  blurRadius: 10,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
+            decoration: AppGloss.card(r: AppGloss.radius),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Module Overview',
-                  style: AppText.h3.copyWith(color: AppColors.primary),
+                Row(
+                  children: [
+                    Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        gradient: AppColors.brandGradientRich,
+                        borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+                        boxShadow: AppGloss.soft,
+                      ),
+                      child: const Icon(
+                        Icons.menu_book_rounded,
+                        color: Colors.white,
+                        size: 19,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Text(
+                      'Module Overview',
+                      style: AppText.h3.copyWith(color: AppColors.primary),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
@@ -81,7 +90,8 @@ class _ModuleOverviewCardState extends State<ModuleOverviewCard> {
   }
 }
 
-/// Muted purple bar used for the module name, Topics and similar headings.
+/// Brand-gradient section bar used for the module name, Topics and similar
+/// headings, with a glossy top sheen.
 class SectionBanner extends StatelessWidget {
   final String title;
 
@@ -91,15 +101,23 @@ class SectionBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.md,
-      ),
       decoration: BoxDecoration(
-        color: AppColors.sectionHeader,
-        borderRadius: BorderRadius.circular(AppSpacing.radius),
+        gradient: AppColors.brandGradientRich,
+        borderRadius: BorderRadius.circular(AppGloss.radius),
+        boxShadow: AppGloss.soft,
       ),
-      child: Text(title, style: AppText.sectionTitle),
+      child: Stack(
+        children: [
+          AppGloss.sheen(r: AppGloss.radius),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.md,
+            ),
+            child: Text(title, style: AppText.sectionTitle),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -119,56 +137,70 @@ class _Collapsible extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Material(
-          color: AppColors.sectionHeader,
-          borderRadius: BorderRadius.circular(AppSpacing.radius),
-          child: InkWell(
-            onTap: onToggle,
-            borderRadius: BorderRadius.circular(AppSpacing.radius),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.lg,
-                vertical: AppSpacing.md,
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: AppText.sectionTitle,
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: AppGloss.card(r: AppGloss.radius),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DecoratedBox(
+            decoration: const BoxDecoration(
+              gradient: AppColors.brandGradientRich,
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: onToggle,
+                child: Stack(
+                  children: [
+                    AppGloss.sheen(r: AppGloss.radius),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.lg,
+                        vertical: AppSpacing.md,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              title,
+                              style: AppText.sectionTitle,
+                            ),
+                          ),
+                          Icon(
+                            open
+                                ? Icons.keyboard_arrow_up_rounded
+                                : Icons.keyboard_arrow_down_rounded,
+                            color: Colors.white,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Icon(
-                    open ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                    color: Colors.white,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-        AnimatedCrossFade(
-          duration: const Duration(milliseconds: 180),
-          crossFadeState:
-              open ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-          firstChild: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.md,
-              AppSpacing.lg,
-              AppSpacing.md,
+          AnimatedCrossFade(
+            duration: const Duration(milliseconds: 180),
+            crossFadeState:
+                open ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+            firstChild: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.md,
+              ),
+              child: Text(
+                body,
+                style: AppText.body,
+              ),
             ),
-            child: Text(
-              body,
-              style: AppText.body,
-            ),
+            secondChild: const SizedBox(width: double.infinity),
           ),
-          secondChild: const SizedBox(width: double.infinity),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
