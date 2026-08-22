@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:women_with_wheels_refactor/presentation/screens/login/login_screen.dart';
 
-/// Guards against the login screen rendering blank.
+/// Guards the login screen's one hard rule: it is a single, unscrollable page
+/// that must fit every phone we support without overflowing.
 ///
 /// A Spacer inside a SingleChildScrollView has no bounded height to work
 /// against; the layout threw and the whole page painted empty. These tests
@@ -22,6 +23,13 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     tester.view.physicalSize = logicalSize;
 
+    // Without this the tests measure a phone that does not exist. A real
+    // handset spends its top ~30pt on the status bar, which the header's
+    // SafeArea has to pay for; leaving it at zero made every one of these
+    // sizes ~30pt more generous than the device and let the carousel "fit"
+    // in tests while vanishing on hardware.
+    tester.view.padding = const FakeViewPadding(top: 30 * 1.0);
+
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(harness());
@@ -33,33 +41,101 @@ void main() {
 
     expect(tester.takeException(), isNull);
 
-    expect(find.text('E-Learning @ WWW'), findsOneWidget);
-    expect(find.text('LOGIN'), findsOneWidget);
-    expect(find.text('Women in Action'), findsOneWidget);
+    // Header.
+    expect(find.text('E-Learning Portal'), findsOneWidget);
+    expect(find.text('Learn'), findsOneWidget);
+    expect(find.text('Grow'), findsOneWidget);
+    expect(find.text('Empower'), findsOneWidget);
 
-    // The sign-in card is hint-only now: no "Sign In" heading, no field
-    // labels above the boxes, and no Forgot Password link.
-    expect(find.text('Sign In'), findsNothing);
-    expect(find.text('Username'), findsNothing);
-    expect(find.text('Password'), findsNothing);
-    expect(find.text('Forgot Password?'), findsNothing);
-    expect(find.text('Enter your username'), findsOneWidget);
-    expect(find.text('Enter your password'), findsOneWidget);
-    // The footer is a RichText, so spans have to be searched explicitly.
+    // Sign-in card.
+    expect(find.text('Welcome Back!'), findsOneWidget);
     expect(
-      find.textContaining('Indev Consultancy', findRichText: true),
+      find.text('Sign in to continue your learning journey'),
       findsOneWidget,
     );
-    expect(find.text('App version 1.0'), findsOneWidget);
+    expect(find.text('Username'), findsOneWidget);
+    expect(find.text('Password'), findsOneWidget);
+    expect(find.text('Enter your username'), findsOneWidget);
+    expect(find.text('Enter your password'), findsOneWidget);
+    expect(find.text('Remember me'), findsOneWidget);
+    expect(find.text('LOGIN'), findsOneWidget);
+
+    // Carousel: the photo only, with no caption written over it.
+    expect(find.byType(PageView), findsOneWidget);
+    expect(find.text('Women in Action'), findsNothing);
+    expect(find.text('See All'), findsNothing);
+    expect(find.text('Know More'), findsNothing);
+    expect(find.textContaining('Green Signal'), findsNothing);
 
     // Both inputs are present and usable.
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 
+  testWidgets('the card is sign-in only — no forgot, guest or OR',
+      (tester) async {
+    await pumpAt(tester, const Size(393, 873));
+
+    expect(find.text('Forgot password?'), findsNothing);
+    expect(find.text('OR'), findsNothing);
+    expect(find.text('Continue as Guest'), findsNothing);
+  });
+
+  testWidgets('the tech-partner strip is gone', (tester) async {
+    await pumpAt(tester, const Size(393, 873));
+
+    expect(find.text('Tech Partner'), findsNothing);
+    expect(find.text('Indev Consultancy Pvt Ltd'), findsNothing);
+    expect(find.text('App Version 1.0.0'), findsNothing);
+  });
+
+  testWidgets('the header block is centred, not pinned to the left',
+      (tester) async {
+    // A Stack lays non-positioned children out loosely, so the header column
+    // once shrink-wrapped and sat against the left edge.
+    await pumpAt(tester, const Size(393, 873));
+
+    const screenCentre = 393 / 2;
+
+    final blocks = <String, Finder>{
+      'logo': find.byType(Image),
+      'title': find.text('E-Learning Portal'),
+    };
+
+    blocks.forEach((name, finder) {
+      final rect = tester.getRect(finder.first);
+
+      expect(
+        rect.center.dx,
+        closeTo(screenCentre, 1.5),
+        reason: '$name is off-centre',
+      );
+    });
+
+    // "Learn · Grow · Empower" is measured end to end: the middle word is not
+    // the midpoint, because the outer two words are different widths.
+    final tagline = tester.getRect(find.text('Learn')).left +
+        tester.getRect(find.text('Empower')).right;
+
+    expect(tagline / 2, closeTo(screenCentre, 1.5));
+  });
+
+  testWidgets('the logo is wide enough to read', (tester) async {
+    await pumpAt(tester, const Size(393, 873));
+
+    final logo = tester.getSize(find.byType(Image).first);
+
+    // It is the brand mark, not a bullet: it should take up a good share of
+    // the screen width.
+    expect(logo.width, greaterThan(393 * 0.45));
+  });
+
   // Real logical sizes: a compact phone, a common phone, and a large one.
+  // 360x740 is the usable height of a 1080x2400 phone at 3x with a nav bar,
+  // which is the device this was reported broken on.
   for (final size in const [
     Size(320, 568), // smallest still-supported phone
     Size(360, 640),
+    Size(360, 746), // OPPO CPH2467, navigation bar subtracted
     Size(393, 873),
     Size(412, 915),
     Size(430, 932),
@@ -85,41 +161,31 @@ void main() {
     expect(find.byType(ListView), findsNothing);
   });
 
-  testWidgets('spreads the space instead of pooling it at the bottom',
-      (tester) async {
-    await pumpAt(tester, const Size(393, 873));
-
-    final header = tester.getRect(find.text('Learn · Grow · Lead'));
-    final card = tester.getRect(find.byType(Form));
-    final banner = tester.getRect(find.byType(PageView));
-    final footer = tester.getRect(find.text('App version 1.0'));
-
-    final headerToCard = card.top - header.bottom;
-    final cardToBanner = banner.top - card.bottom;
-    final bannerToFooter = footer.top - banner.bottom;
-
-    // The heading block is no longer crammed against the card.
-    expect(headerToCard, greaterThan(40));
-
-    // And the gap under the banner is no longer the biggest thing on screen.
-    expect(bannerToFooter, lessThan(headerToCard + cardToBanner));
-  });
-
   testWidgets('drops the banner rather than overflowing when short',
       (tester) async {
     await pumpAt(tester, const Size(360, 640));
 
     expect(tester.takeException(), isNull);
     expect(find.text('LOGIN'), findsOneWidget);
-    expect(find.text('Women in Action'), findsNothing);
+    expect(find.byType(PageView), findsNothing);
   });
 
-  testWidgets('keeps the banner when there is room', (tester) async {
-    await pumpAt(tester, const Size(412, 915));
+  // The sizes a real phone actually reports. The test font is wider and taller
+  // than the one on a device, so anything that fits here fits there too.
+  for (final size in const [Size(360, 746), Size(393, 873), Size(412, 915)]) {
+    testWidgets('keeps the banner at ${size.width.toInt()}x'
+        '${size.height.toInt()}', (tester) async {
+      await pumpAt(tester, size);
 
-    expect(tester.takeException(), isNull);
-    expect(find.text('Women in Action'), findsOneWidget);
-  });
+      expect(tester.takeException(), isNull);
+      expect(find.byType(PageView), findsOneWidget);
+      expect(
+        tester.getSize(find.byType(PageView)).height,
+        greaterThan(64),
+        reason: 'the photo should not be a sliver',
+      );
+    });
+  }
 
   testWidgets('the banner grows to fill the leftover space', (tester) async {
     Future<double> bannerHeight(Size size) async {
@@ -131,10 +197,18 @@ void main() {
     final onTall = await bannerHeight(const Size(430, 932));
     final onShorter = await bannerHeight(const Size(393, 873));
 
-    // A taller screen gives the carousel more room rather than leaving a
-    // dead gap above the footer.
-    expect(onTall, greaterThan(onShorter));
-    expect(onShorter, greaterThan(110));
+    // A taller screen never gets a SMALLER photo. Both of these sizes now sit
+    // at the maxSlide cap, past which the extra height goes to the gaps rather
+    // than to an ever-taller photo.
+    expect(onTall, greaterThanOrEqualTo(onShorter));
+    expect(onShorter, greaterThan(80));
+
+    // Below the cap it does still grow with the screen, which is the part
+    // that stops a dead gap opening above the footer.
+    final small = await bannerHeight(const Size(360, 700));
+    final larger = await bannerHeight(const Size(360, 790));
+
+    expect(larger, greaterThan(small));
   });
 
   testWidgets('empty fields are rejected before any request', (tester) async {
@@ -148,19 +222,50 @@ void main() {
     expect(find.text('Please enter password'), findsOneWidget);
   });
 
+  testWidgets('showing both validation errors does not overflow',
+      (tester) async {
+    // The card grows by two lines of red text; on a page that cannot scroll
+    // the space has to come from somewhere.
+    for (final size in const [
+      Size(320, 568),
+      Size(360, 640),
+      Size(360, 746),
+      Size(393, 873),
+    ]) {
+      await pumpAt(tester, size);
+
+      await tester.tap(find.text('LOGIN'));
+      await tester.pump();
+
+      expect(tester.takeException(), isNull, reason: '$size');
+    }
+  });
+
   testWidgets('password is obscured until the eye is tapped', (tester) async {
     await pumpAt(tester, const Size(393, 873));
 
-    EditableText passwordField() => tester.widgetList<EditableText>(
-          find.byType(EditableText),
-        ).last;
+    EditableText passwordField() => tester
+        .widgetList<EditableText>(find.byType(EditableText))
+        .last;
 
     expect(passwordField().obscureText, isTrue);
 
-    await tester.tap(find.byIcon(Icons.visibility_off));
+    await tester.tap(find.byIcon(Icons.visibility_off_outlined));
     await tester.pump();
 
     expect(tester.takeException(), isNull);
     expect(passwordField().obscureText, isFalse);
+  });
+
+  testWidgets('remember me starts ticked and toggles', (tester) async {
+    await pumpAt(tester, const Size(393, 873));
+
+    expect(find.byIcon(Icons.check), findsOneWidget);
+
+    await tester.tap(find.text('Remember me'));
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+    expect(find.byIcon(Icons.check), findsNothing);
   });
 }

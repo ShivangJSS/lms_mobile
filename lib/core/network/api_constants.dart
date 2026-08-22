@@ -1,11 +1,19 @@
 class ApiConstants {
   ApiConstants._();
 
-  // Physical Device on same Wi-Fi as the laptop running the FastAPI backend.
-  // Laptop LAN IP (en0) + backend port (uvicorn on 0.0.0.0:8090).
-  static const String baseUrl = 'http://10.243.237.169:8090';
+  // Hosted demo backend. Reachable from any network, so the phone no longer
+  // has to share Wi-Fi with a laptop running uvicorn, and https means the
+  // cleartext exemptions in network_security_config.xml are not involved.
+  static const String baseUrl = 'https://demo-azadlmsback.indevconsultancy.in';
 
-  // Previous values:
+  // For local development, point this at the laptop instead. Two things have
+  // to be true or every call sits out Dio's 30 second connect timeout: uvicorn
+  // must bind 0.0.0.0 rather than 127.0.0.1, and the laptop's current LAN
+  // address must be listed in
+  // android/app/src/main/res/xml/network_security_config.xml, because plain
+  // http is blocked from Android 9 onwards.
+  //
+  // static const String baseUrl = 'http://10.243.237.169:8090';
   // static const String baseUrl = 'http://10.147.155.61:8000';
   // static const String baseUrl = "http://192.168.1.10:8000";
 

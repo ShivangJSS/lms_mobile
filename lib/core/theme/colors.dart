@@ -86,6 +86,26 @@ class AppColors {
   static const Color textSecondary = Color(0xFF6B6B72);
   static const Color textWhite = Color(0xFFFFFFFF);
 
+  // ---------------------------------------------------------------------------
+  // Aliases for the shared widgets
+  //
+  // AppTypography, CustomTextField and GradientButton were written against a
+  // palette that named these directly. They are defined in terms of the plum
+  // family above rather than reintroducing a second brand colour, so those
+  // widgets follow this palette instead of fighting it.
+  // ---------------------------------------------------------------------------
+
+  /// The lighter brand tone: focused field borders, leading icons.
+  static const Color secondary = primaryLight;
+
+  /// The wash inside a text field's icon well.
+  static const Color fieldWell = Color(0xFFF7EFF6);
+
+  /// Text the participant has typed, as opposed to a hint.
+  static const Color inputText = Color(0xFF374151);
+
+  static const Color white = Color(0xFFFFFFFF);
+
   // Status
   static const Color accent = Color(0xFF0E9F6E);
   static const Color error = Color(0xFFD32F2F);

@@ -649,7 +649,7 @@ class _PostAssessmentBar extends ConsumerWidget {
               ),
               borderRadius: BorderRadius.circular(AppGloss.radiusSm),
               child: Container(
-                height: AppButton.height,
+                height: 60, // Reduced from AppButton.height if it's larger
                 width: double.infinity,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(

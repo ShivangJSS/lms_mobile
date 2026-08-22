@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
+import '../../../core/network/api_client.dart';
 import '../../../core/network/api_constants.dart';
+import '../../../core/services/token_storage.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/glossy.dart';
@@ -42,7 +44,7 @@ class _PptxViewState extends State<PptxView> {
 
   Future<void> _load() async {
     try {
-      final response = await Dio().get(
+      final response = await ApiClient.dio.get(
         '${ApiConstants.baseUrl}${ApiConstants.media}/pptx/info',
         queryParameters: {'path': widget.storedPath},
         // Composing a long deck takes a few seconds the first time.
@@ -130,6 +132,7 @@ class _PptxViewState extends State<PptxView> {
                 padding: const EdgeInsets.all(AppSpacing.sm),
                 child: Image.network(
                   _slides[index],
+                  headers: TokenStorage.mediaHeaders,
                   fit: BoxFit.contain,
                   loadingBuilder: (context, child, progress) =>
                       progress == null

@@ -17,14 +17,13 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
-            <!-- Specifies an Android theme to apply to this Activity as soon as
-                 the Android process has started. This theme is visible to the user
-                 while the Flutter UI initializes. After that, this theme continues
-                 to determine the Window background behind the Flutter UI. -->
-            <meta-data
-              android:name="io.flutter.embedding.android.NormalTheme"
-              android:resource="@style/NormalTheme"
-              />
+            <!-- The NormalTheme meta-data is deliberately absent. It tells
+                 FlutterActivity to swap LaunchTheme out in onCreate, which
+                 replaced the splash artwork with a flat window for however long
+                 Flutter took to start — a blank screen between the system
+                 splash and the app. Staying on LaunchTheme keeps the artwork up
+                 for that whole wait. Flutter paints over it opaquely, so it
+                 costs nothing once the app is running. -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

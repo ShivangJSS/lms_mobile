@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 12 and up never draw this: the system splash covers the window
+     until the app's first frame. Referencing the artwork here only cost a
+     full-size bitmap decode in the window manager on every launch, which is
+     time spent before Flutter can start. The plain colour costs nothing, and
+     older devices still get the artwork from drawable/ and drawable-v21/. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/splash_background" />
+</layer-list>
