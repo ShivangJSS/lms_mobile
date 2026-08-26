@@ -10,6 +10,8 @@ import '../../../core/theme/glossy.dart';
 import '../../../domain/entities/learning_module.dart';
 import '../../viewmodels/language_view_model.dart';
 import '../../viewmodels/module_topics_view_model.dart';
+import '../../../core/network/media_url.dart';
+import '../../widgets/viewers/video_view.dart';
 import '../viewer/topic_viewer_screen.dart';
 
 /// Faint decorative bubble bleeding off the header edges (matches the
@@ -42,6 +44,8 @@ class ModuleDetailScreen extends ConsumerWidget {
         ref.read(moduleTopicsViewModelProvider(moduleId).notifier);
     final lang = ref.watch(languageProvider).languageId;
 
+    final firstVideoIndex = state.topics.indexWhere((t) => t.isVideo);
+
     // Content starts below the header (status bar + app bar) since the glossy
     // header is drawn behind the body.
     final topInset = MediaQuery.of(context).padding.top + kToolbarHeight;
@@ -68,74 +72,80 @@ class ModuleDetailScreen extends ConsumerWidget {
       body: DecoratedBox(
         decoration: const BoxDecoration(gradient: AppColors.pageWash),
         child: Builder(
-        builder: (context) {
-          if (state.isLoading && state.topics.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          builder: (context) {
+            if (state.isLoading && state.topics.isEmpty) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (state.error != null) {
-            return _Message(
-              text: state.error!,
-              languageId: lang,
-              onRetry: viewModel.load,
-            );
-          }
+            if (state.error != null) {
+              return _Message(
+                text: state.error!,
+                languageId: lang,
+                onRetry: viewModel.load,
+              );
+            }
 
-          return Column(
-            children: [
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: viewModel.load,
-                  child: ListView(
-                    padding: EdgeInsets.fromLTRB(
-                      AppSpacing.lg, topInset + AppSpacing.lg, AppSpacing.lg,
-                      AppSpacing.sm),
-                    children: [
-                      if (state.overview != null)
-                        _ModuleOverview(
-                          overview: state.overview!,
-                          languageId: lang,
-                        )
-                      else
-                        _SectionBar(title: moduleName),
-                      const SizedBox(height: AppSpacing.xl),
-                      _SectionBar(
-                        title: AppStrings.of('topics', lang),
-                        icon: Icons.list_alt_rounded,
-                        trailingCount:
-                            state.topics.isEmpty ? null : state.topics.length,
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      if (state.topics.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 28),
-                          child: Center(
-                            child: Text(
-                              'No topics have been published yet.',
-                              style: TextStyle(
-                                color: AppColors.textSecondary,
+            return Column(
+              children: [
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: viewModel.load,
+                    child: ListView(
+                      padding: EdgeInsets.fromLTRB(
+                          AppSpacing.lg,
+                          topInset + AppSpacing.lg,
+                          AppSpacing.lg,
+                          AppSpacing.sm),
+                      children: [
+                        if (state.overview != null)
+                          _ModuleOverview(
+                            overview: state.overview!,
+                            languageId: lang,
+                          )
+                        else
+                          _SectionBar(title: moduleName),
+                        const SizedBox(height: AppSpacing.md),
+                        _SectionBar(
+                          title: AppStrings.of('topics', lang),
+                          icon: Icons.list_alt_rounded,
+                          trailingCount:
+                              state.topics.isEmpty ? null : state.topics.length,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        if (state.topics.isEmpty)
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 28),
+                            child: Center(
+                              child: Text(
+                                'No topics have been published yet.',
+                                style: TextStyle(
+                                  color: AppColors.textSecondary,
+                                ),
                               ),
                             ),
-                          ),
-                        )
-                      else
-                        for (var i = 0; i < state.topics.length; i++)
-                          _TopicRow(
-                            topic: state.topics[i],
-                            onTap: () => _openTopic(context, state.topics[i]),
-                          ),
-                      const SizedBox(height: 12),
-                    ],
+                          )
+                        else
+                          for (var i = 0; i < state.topics.length; i++)
+                            if (i == firstVideoIndex)
+                              _VideoTopicCard(topic: state.topics[i])
+                            else
+                              _TopicRow(
+                                topic: state.topics[i],
+                                onTap: () =>
+                                    _openTopic(context, state.topics[i]),
+                              ),
+                        const SizedBox(height: 4),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              _PostAssessmentBar(
-                moduleId: moduleId,
-                moduleName: state.overview?.moduleName ?? moduleName,
-              ),
-            ],
-          );
-        },
+                _PostAssessmentBar(
+                  moduleId: moduleId,
+                  moduleName: state.overview?.moduleName ?? moduleName,
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -430,6 +440,49 @@ class _LearningObjective extends StatelessWidget {
 
 /// A topic row rendered as a raised white glossy card: media badge, title, and
 /// a crisp chevron inside a subtle plum-tint circle.
+class _VideoTopicCard extends StatelessWidget {
+  final ModuleTopic topic;
+
+  const _VideoTopicCard({required this.topic});
+
+  @override
+  Widget build(BuildContext context) {
+    final url = topic.youtubeUrl?.isNotEmpty == true
+        ? topic.youtubeUrl
+        : mediaUrl(topic.contentPath);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      decoration: AppGloss.card(r: AppGloss.radius),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              topic.topicName ?? 'Untitled topic',
+              style: AppText.h3.copyWith(
+                color: AppColors.primary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(AppGloss.radius),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Container(
+                  color: Colors.black,
+                  child: url == null ? null : VideoView(url: url),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _TopicRow extends StatelessWidget {
   final ModuleTopic topic;
   final VoidCallback? onTap;
@@ -621,21 +674,23 @@ class _PostAssessmentBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SafeArea(
+      top: false,
+      minimum: const EdgeInsets.only(bottom: 6),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppGloss.radiusSm),
             boxShadow: [
               BoxShadow(
                 color: AppColors.assessmentAction.withValues(alpha: 0.40),
-                blurRadius: 22,
-                offset: const Offset(0, 12),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
               ),
               const BoxShadow(
                 color: Color(0x33000000),
-                blurRadius: 8,
-                offset: Offset(0, 3),
+                blurRadius: 6,
+                offset: Offset(0, 2),
               ),
             ],
           ),
@@ -649,7 +704,7 @@ class _PostAssessmentBar extends ConsumerWidget {
               ),
               borderRadius: BorderRadius.circular(AppGloss.radiusSm),
               child: Container(
-                height: 60, // Reduced from AppButton.height if it's larger
+                height: 48,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
