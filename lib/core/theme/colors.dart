@@ -86,6 +86,12 @@ class AppColors {
   static const Color textSecondary = Color(0xFF6B6B72);
   static const Color textWhite = Color(0xFFFFFFFF);
 
+  // Compatibility / form-field colors
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color secondary = primaryLight;
+  static const Color inputText = textPrimary;
+  static const Color fieldWell = Color(0xFFF7F1FB);
+
   // Status
   static const Color accent = Color(0xFF0E9F6E);
   static const Color error = Color(0xFFD32F2F);

@@ -39,6 +39,7 @@ class PrimaryButton extends StatelessWidget {
             onTap: enabled ? onPressed : null,
             borderRadius: BorderRadius.circular(AppGloss.radiusSm),
             child: SizedBox(
+              width: double.infinity,
               height: AppButton.height,
               child: Stack(
                 alignment: Alignment.center,

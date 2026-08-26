@@ -3,7 +3,7 @@ class ApiConstants {
 
   // Physical Device on same Wi-Fi as the laptop running the FastAPI backend.
   // Laptop LAN IP (en0) + backend port (uvicorn on 0.0.0.0:8090).
-  static const String baseUrl = 'http://10.243.237.169:8090';
+  static const String baseUrl = 'https://demo-azadlmsback.indevconsultancy.in';
 
   // Previous values:
   // static const String baseUrl = 'http://10.147.155.61:8000';
@@ -44,8 +44,7 @@ class ApiConstants {
   static const String moduleTypes = "/mobile/module/types";
   static const String languages = "/mobile/module/languages";
 
-  static String moduleTopics(int moduleId) =>
-      "/mobile/module/$moduleId/topics";
+  static String moduleTopics(int moduleId) => "/mobile/module/$moduleId/topics";
 
   // Feedback APIs
   static const String feedbackQuestions = "/mobile/feedback/questions";

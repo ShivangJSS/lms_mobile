@@ -165,7 +165,8 @@ class _Header extends StatelessWidget {
                             offset: const Offset(0, 12),
                           ),
                           BoxShadow(
-                            color: const Color(0xFF2A0A26).withValues(alpha: 0.30),
+                            color:
+                                const Color(0xFF2A0A26).withValues(alpha: 0.30),
                             blurRadius: 6,
                             offset: const Offset(0, 2),
                           ),
@@ -451,6 +452,9 @@ class _LoginFieldState extends State<_LoginField> {
               decoration: InputDecoration(
                 hintText: widget.hintText,
                 hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 15),
+                // IMPORTANT: don't let TextFormField paint its own background.
+                filled: false,
+                fillColor: Colors.transparent,
                 isDense: true,
                 contentPadding: const EdgeInsets.symmetric(vertical: 18),
                 border: InputBorder.none,
