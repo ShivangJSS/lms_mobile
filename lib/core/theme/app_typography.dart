@@ -19,7 +19,7 @@ class AppTypography {
     fontFamilyFallback: fallback,
     fontSize: 22,
     fontWeight: FontWeight.w700,
-    color: AppColors.white,
+    color: AppColors.textWhite,
   );
 
   static const TextStyle tagline = TextStyle(
@@ -59,7 +59,7 @@ class AppTypography {
     fontFamilyFallback: fallback,
     fontSize: 16,
     fontWeight: FontWeight.w400,
-    color: AppColors.inputText,
+    color: AppColors.textPrimary,
   );
 
   static const TextStyle inputHint = TextStyle(
@@ -75,7 +75,7 @@ class AppTypography {
     fontFamilyFallback: fallback,
     fontSize: 20,
     fontWeight: FontWeight.w700,
-    color: AppColors.white,
+    color: AppColors.textWhite,
     letterSpacing: 0.8,
   );
 

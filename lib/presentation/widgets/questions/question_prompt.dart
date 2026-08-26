@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/network/media_url.dart';
+import '../../../core/services/token_storage.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/glossy.dart';
 
@@ -40,6 +41,7 @@ class QuestionPrompt extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: Image.network(
+                  headers: TokenStorage.mediaHeaders,
                   image,
                   height: 140,
                   width: 140,

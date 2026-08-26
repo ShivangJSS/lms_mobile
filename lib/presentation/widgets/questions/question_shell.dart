@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/network/media_url.dart';
+import '../../../core/services/token_storage.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/glossy.dart';
 import '../../../domain/entities/module_assessment.dart';
@@ -82,6 +83,7 @@ class QuestionShell extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
+                headers: TokenStorage.mediaHeaders,
                 image,
                 height: 150,
                 width: double.infinity,

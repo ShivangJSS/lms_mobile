@@ -13,6 +13,12 @@ class ModuleAssessmentRemoteDataSource {
     required int moduleId,
     required int languageId,
   }) async {
+
+
+    print("========== ASSESSMENT REQUEST ==========");
+    print("MODULE ID = $moduleId");
+    print("LANGUAGE ID = $languageId");
+
     final response = await _dio.get(
       ApiConstants.moduleAssessment(moduleId),
       queryParameters: {'language_id': languageId},

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/localization/app_strings.dart';
 import '../../core/network/media_url.dart';
+import '../../core/services/token_storage.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_text.dart';
 import '../../core/theme/colors.dart';
@@ -157,6 +158,7 @@ class _GlossyDrawerHeader extends StatelessWidget {
                               ),
                             )
                           : Image.network(
+                              headers: TokenStorage.mediaHeaders,
                               avatar!,
                               width: 68,
                               height: 68,

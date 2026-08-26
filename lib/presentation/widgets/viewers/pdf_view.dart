@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../../core/network/api_client.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/glossy.dart';
@@ -44,7 +44,7 @@ class _PdfViewState extends State<PdfView> {
       final file = File('${dir.path}/$name');
 
       if (!await file.exists() || await file.length() == 0) {
-        await Dio().download(widget.url, file.path);
+        await ApiClient.dio.download(widget.url, file.path);
       }
 
       if (!mounted) return;

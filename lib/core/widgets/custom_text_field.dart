@@ -73,10 +73,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
       curve: Curves.easeOut,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.textWhite,
         borderRadius: BorderRadius.circular(_radius),
         border: Border.all(
-          color: _focused ? AppColors.secondary : AppColors.hairline,
+          color: _focused ? AppColors.primaryLight : AppColors.hairline,
           width: _focused ? 1.6 : 1.2,
         ),
         boxShadow: [
@@ -104,7 +104,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
               Container(
                 width: widget.dense ? 44 : 48,
                 decoration: const BoxDecoration(
-                  color: AppColors.fieldWell,
+                  color: AppColors.tintedPanel,
                   border: Border(
                     right: BorderSide(color: AppColors.hairline),
                   ),
@@ -112,7 +112,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 child: Icon(
                   widget.prefixIcon,
                   size: widget.dense ? 20 : 22,
-                  color: AppColors.secondary,
+                  color: AppColors.primaryLight,
                 ),
               ),
             Expanded(
