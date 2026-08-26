@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:women_with_wheels_refactor/core/theme/colors.dart';
 
 import '../../domain/entities/module_assessment.dart';
 
@@ -457,12 +458,12 @@ class _PrimaryAction extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
-          colors: [_Palette.purple, _Palette.purpleDeep],
+          colors: [AppColors.primaryLight, AppColors.primary],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x4D7C3AED),
+            color: Color(0x4D9B6BEC),
             blurRadius: 18,
             offset: Offset(0, 8),
           ),
@@ -523,19 +524,19 @@ class _SecondaryAction extends StatelessWidget {
           width: double.infinity,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _Palette.purple, width: 1.5),
+            border: Border.all(color: AppColors.primaryLight, width: 1.5),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 21, color: _Palette.purple),
+              Icon(icon, size: 21, color: AppColors.primaryLight),
               const SizedBox(width: 10),
               Text(
                 label,
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
-                  color: _Palette.purple,
+                  color: AppColors.primaryLight,
                 ),
               ),
             ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/localization/app_strings.dart';
 import '../../core/network/media_url.dart';
+import '../../core/services/token_storage.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/glossy.dart';
 import '../../domain/entities/dashboard_tip.dart';
@@ -79,6 +80,7 @@ class DidYouKnowCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(AppGloss.radiusSm),
               child: Image.network(
+                headers: TokenStorage.mediaHeaders,
                 image,
                 height: 140,
                 width: double.infinity,

@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/media_url.dart';
+import '../../../core/services/token_storage.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/glossy.dart';
@@ -309,6 +310,7 @@ class _Avatar extends StatelessWidget {
                     )
                   : ClipOval(
                       child: Image.network(
+                        headers: TokenStorage.mediaHeaders,
                         url!,
                         width: 104,
                         height: 104,

@@ -2,6 +2,7 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../core/services/token_storage.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/glossy.dart';
@@ -32,6 +33,7 @@ class _VideoViewState extends State<VideoView> {
   Future<void> _open() async {
     final controller = VideoPlayerController.networkUrl(
       Uri.parse(widget.url),
+      httpHeaders: TokenStorage.mediaHeaders,
     );
 
     try {

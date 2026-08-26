@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/media_url.dart';
+import '../../../core/services/token_storage.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/glossy.dart';
@@ -170,6 +171,7 @@ class _ItemVisual extends StatelessWidget {
               ? const Icon(Icons.image, color: Colors.grey)
               : Image.network(
                   image,
+                  headers: TokenStorage.mediaHeaders,
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => const Icon(
                     Icons.image,
@@ -310,6 +312,7 @@ class _PlacedChip extends StatelessWidget {
             )
           : Image.network(
               image,
+              headers: TokenStorage.mediaHeaders,
               fit: BoxFit.cover,
               errorBuilder: (_, __, ___) => const Icon(Icons.image, size: 12),
             ),

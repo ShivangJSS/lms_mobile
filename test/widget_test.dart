@@ -32,10 +32,12 @@ void main() {
   }
 
   test('every screen is reachable by route', () {
-    final paths = collect(AppRoutes.router.configuration.routes);
+    final paths = collect(AppRoutes.buildRouter().configuration.routes);
 
     for (final expected in [
-      '/',
+      // No '/' route on purpose: the router opens on AppRoutes.splash, and
+      // nothing links to the bare root.
+      AppRoutes.splash,
       AppRoutes.login,
       AppRoutes.forgotPassword,
       AppRoutes.resetPassword,
@@ -50,7 +52,7 @@ void main() {
   });
 
   test('module detail and its assessment are nested under modules', () {
-    final paths = collect(AppRoutes.router.configuration.routes);
+    final paths = collect(AppRoutes.buildRouter().configuration.routes);
 
     expect(paths, contains('/modules/:moduleId'));
     expect(paths, contains('/modules/:moduleId/assessment'));
