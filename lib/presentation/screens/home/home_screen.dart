@@ -88,8 +88,8 @@ class HomeScreen extends ConsumerWidget {
                       .read(dashboardViewModelProvider.notifier)
                       .loadDashboard(),
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.md),
+                    padding: const EdgeInsets.fromLTRB(AppSpacing.md,
+                        AppSpacing.md, AppSpacing.md, AppSpacing.md),
                     children: [
                       _WelcomeCard(userName: userName, languageId: lang),
                       const SizedBox(height: AppSpacing.md),
@@ -99,8 +99,7 @@ class HomeScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               _StatTile(
-                                title:
-                                    AppStrings.of('modules_completed', lang),
+                                title: AppStrings.of('modules_completed', lang),
                                 value:
                                     '${dashboardState.stats!.modulesCompleted}/'
                                     '${dashboardState.stats!.totalModules}',
@@ -118,7 +117,7 @@ class HomeScreen extends ConsumerWidget {
                               _StatTile(
                                 title: AppStrings.of('time_invested', lang),
                                 value:
-                                    '${dashboardState.stats!.timeInvestedMinutes} min',
+                                    '${dashboardState.stats!.timeInvestedMinutes} ${AppStrings.of('unit_min', lang)}',
                                 icon: Icons.schedule_outlined,
                               ),
                             ],
@@ -130,6 +129,7 @@ class HomeScreen extends ConsumerWidget {
                           progressText:
                               '${(dashboardState.stats!.overallProgress * 100).round()}%',
                           message: AppStrings.of('keep_going', lang),
+                          languageId: lang,
                         ),
                       ],
                       const SizedBox(height: AppSpacing.md),
@@ -225,28 +225,27 @@ class HomeScreen extends ConsumerWidget {
             selectedFontSize: 12,
             unselectedFontSize: 12,
             selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700),
-            unselectedLabelStyle:
-                const TextStyle(fontWeight: FontWeight.w500),
+            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
             onTap: (index) {
               ref.read(bottomNavIndexProvider.notifier).state = index;
               if (index == 1) context.push(AppRoutes.modules);
             },
-            items: const [
+            items: [
               BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: 'Home',
+                icon: const Icon(Icons.home),
+                label: AppStrings.of('home', lang),
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.menu_book),
-                label: 'Module',
+                icon: const Icon(Icons.menu_book),
+                label: AppStrings.of('module', lang),
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.support),
-                label: 'Support',
+                icon: const Icon(Icons.support),
+                label: AppStrings.of('support', lang),
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.help_outline),
-                label: 'FAQ',
+                icon: const Icon(Icons.help_outline),
+                label: AppStrings.of('faq', lang),
               ),
             ],
           ),

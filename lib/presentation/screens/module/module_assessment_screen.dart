@@ -40,86 +40,90 @@ class ModuleAssessmentScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Women With Wheels'),
+        title: Text(AppStrings.of('app_title', lang)),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
       body: DecoratedBox(
         decoration: const BoxDecoration(gradient: AppColors.pageWash),
         child: Builder(
-        builder: (context) {
-          if (state.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          builder: (context) {
+            if (state.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (state.result != null) {
-            return AssessmentResultView(
-              result: state.result!,
-              languageId: lang,
-              onRetry: viewModel.retry,
-              onDone: () {
-                // Module list and dashboard both change when a module
-                // completes, so they are refetched on the way out.
-                ref.invalidate(moduleViewModelProvider);
-                ref.invalidate(dashboardViewModelProvider);
-                context.pop();
-              },
-            );
-          }
+            if (state.result != null) {
+              return AssessmentResultView(
+                result: state.result!,
+                languageId: lang,
+                onRetry: viewModel.retry,
+                onDone: () {
+                  // Module list and dashboard both change when a module
+                  // completes, so they are refetched on the way out.
+                  ref.invalidate(moduleViewModelProvider);
+                  ref.invalidate(dashboardViewModelProvider);
+                  context.pop();
+                },
+              );
+            }
 
-          if (state.error != null && state.assessment == null) {
-            return _Message(
-              text: state.error!,
-              languageId: lang,
-              onRetry: viewModel.load,
-            );
-          }
+            if (state.error != null && state.assessment == null) {
+              return _Message(
+                text: state.error!,
+                languageId: lang,
+                onRetry: viewModel.load,
+              );
+            }
 
-          if (state.questions.isEmpty) {
-            return _Message(
-              text: 'No assessment has been set for this module yet.',
-              languageId: lang,
-              onRetry: viewModel.load,
-            );
-          }
+            if (state.questions.isEmpty) {
+              return _Message(
+                text: AppStrings.of('no_assessment', lang),
+                languageId: lang,
+                onRetry: viewModel.load,
+              );
+            }
 
-          if (state.onInstructions) {
-            return _InstructionsPage(
-              moduleName: moduleName,
-              onStart: viewModel.next,
-            );
-          }
+            if (state.onInstructions) {
+              return _InstructionsPage(
+                moduleName: moduleName,
+                onStart: viewModel.next,
+                languageId: lang,
+              );
+            }
 
-          final question = state.currentQuestion!;
+            final question = state.currentQuestion!;
 
-          return Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.sm),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AssessmentHeader.forQuestion(question),
-                      const SizedBox(height: AppSpacing.lg),
-                      _card(question, state.pageIndex + 1, lang),
-                    ],
+            return Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(AppSpacing.lg,
+                        AppSpacing.lg, AppSpacing.lg, AppSpacing.sm),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AssessmentHeader.forQuestion(question, lang),
+                        const SizedBox(height: AppSpacing.lg),
+                        _card(question, state.pageIndex + 1, lang),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              AssessmentNavBar(
-                onPrevious: state.pageIndex > 0 ? viewModel.previous : null,
-                onNext: state.onLastQuestion
-                    ? (state.canSubmit ? viewModel.submit : null)
-                    : (state.canAdvance ? viewModel.next : null),
-                nextLabel: state.onLastQuestion ? 'Submit' : 'Next',
-                isBusy: state.isSubmitting,
-              ),
-            ],
-          );
-        },
-      ),
+                AssessmentNavBar(
+                  onPrevious: state.pageIndex > 0 ? viewModel.previous : null,
+                  onNext: state.onLastQuestion
+                      ? (state.canSubmit ? viewModel.submit : null)
+                      : (state.canAdvance ? viewModel.next : null),
+                  nextLabel: state.onLastQuestion
+                      ? AppStrings.of('submit', lang)
+                      : AppStrings.of('next', lang),
+                  isBusy: state.isSubmitting,
+                  languageId: lang,
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -155,20 +159,24 @@ class ModuleAssessmentScreen extends ConsumerWidget {
 class _InstructionsPage extends StatelessWidget {
   final String moduleName;
   final VoidCallback onStart;
+  final int languageId;
 
-  const _InstructionsPage({required this.moduleName, required this.onStart});
-
-  static const _points = [
-    'Read each question carefully.',
-    'Includes MCQ, Yes/No, Match, and Drop types. Answer all questions to '
-        'finish the test.',
-    'No negative marking — attempt all.',
-    'Tap Next & then Submit to save your responses.',
-    'View your score and correct answers after submission.',
-  ];
+  const _InstructionsPage({
+    required this.moduleName,
+    required this.onStart,
+    required this.languageId,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final points = [
+      AppStrings.of('instruction_1', languageId),
+      AppStrings.of('instruction_2', languageId),
+      AppStrings.of('instruction_3', languageId),
+      AppStrings.of('instruction_4', languageId),
+      AppStrings.of('instruction_5', languageId),
+    ];
+
     return Column(
       children: [
         Expanded(
@@ -186,12 +194,12 @@ class _InstructionsPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Assessment Instructions',
+                      Text(
+                        AppStrings.of('assessment_instructions', languageId),
                         style: AppText.h3,
                       ),
                       const SizedBox(height: AppSpacing.md),
-                      for (final point in _points)
+                      for (final point in points)
                         Padding(
                           padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                           child: Row(
@@ -211,7 +219,11 @@ class _InstructionsPage extends StatelessWidget {
             ),
           ),
         ),
-        AssessmentNavBar(nextLabel: 'Next', onNext: onStart),
+        AssessmentNavBar(
+          nextLabel: AppStrings.of('next', languageId),
+          onNext: onStart,
+          languageId: languageId,
+        ),
       ],
     );
   }

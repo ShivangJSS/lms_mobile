@@ -107,5 +107,8 @@ class DashboardViewModel extends StateNotifier<DashboardState> {
 
 final dashboardViewModelProvider =
     StateNotifierProvider<DashboardViewModel, DashboardState>(
-  (ref) => DashboardViewModel(ref),
+  (ref) {
+    ref.watch(languageProvider);
+    return DashboardViewModel(ref);
+  },
 );

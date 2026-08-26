@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/localization/app_strings.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/glossy.dart';
@@ -15,14 +16,19 @@ class AssessmentHeader extends StatelessWidget {
 
   const AssessmentHeader({super.key, required this.title});
 
-  factory AssessmentHeader.forQuestion(AssessmentQuestionItem question) {
+  factory AssessmentHeader.forQuestion(
+    AssessmentQuestionItem question,
+    int languageId,
+  ) {
     final suffix = switch (question.type) {
       QuestionType.mcq => ' (MCQ)',
       QuestionType.scq => ' (SCQ)',
       _ => '',
     };
 
-    return AssessmentHeader(title: 'Assessment$suffix');
+    return AssessmentHeader(
+      title: '${AppStrings.of('assessment', languageId)}$suffix',
+    );
   }
 
   @override
@@ -71,6 +77,7 @@ class AssessmentNavBar extends StatelessWidget {
   final VoidCallback? onNext;
   final String nextLabel;
   final bool isBusy;
+  final int? languageId;
 
   const AssessmentNavBar({
     super.key,
@@ -78,6 +85,7 @@ class AssessmentNavBar extends StatelessWidget {
     this.onPrevious,
     this.onNext,
     this.isBusy = false,
+    this.languageId,
   });
 
   @override
@@ -91,7 +99,7 @@ class AssessmentNavBar extends StatelessWidget {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.md),
+            AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.md),
         child: onPrevious == null
             ? SizedBox(width: double.infinity, child: next)
             : Row(
@@ -112,10 +120,12 @@ class AssessmentNavBar extends StatelessWidget {
                             onTap: isBusy ? null : onPrevious,
                             borderRadius:
                                 BorderRadius.circular(AppGloss.radiusSm),
-                            child: const Center(
+                            child: Center(
                               child: Text(
-                                'Previous',
-                                style: TextStyle(
+                                languageId != null
+                                    ? AppStrings.of('previous', languageId!)
+                                    : 'Previous',
+                                style: const TextStyle(
                                   color: AppColors.primary,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,

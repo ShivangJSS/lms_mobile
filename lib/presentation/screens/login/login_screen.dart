@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/localization/app_strings.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/glossy.dart';
 import '../../../core/widgets/primary_button.dart';
+import '../../viewmodels/language_view_model.dart';
 import '../../viewmodels/login_view_model.dart';
 import '../../widgets/women_in_action_card.dart';
 
@@ -49,6 +51,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final loginState = ref.watch(loginViewModelProvider);
+    final lang = ref.watch(languageProvider).languageId;
 
     ref.listen<LoginState>(loginViewModelProvider, (previous, next) {
       if (next.error != null && next.error!.isNotEmpty) {
@@ -97,6 +100,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         passwordController: _passwordController,
                         obscurePassword: _obscurePassword,
                         isLoading: loginState.isLoading,
+                        languageId: lang,
                         onToggleObscure: () => setState(
                           () => _obscurePassword = !_obscurePassword,
                         ),
@@ -108,7 +112,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ),
             ),
-            const _Footer(),
+            _Footer(languageId: lang),
           ],
         ),
       ),
@@ -253,6 +257,7 @@ class _SignInCard extends StatelessWidget {
   final TextEditingController passwordController;
   final bool obscurePassword;
   final bool isLoading;
+  final int languageId;
   final VoidCallback onToggleObscure;
   final VoidCallback onSubmit;
 
@@ -262,6 +267,7 @@ class _SignInCard extends StatelessWidget {
     required this.passwordController,
     required this.obscurePassword,
     required this.isLoading,
+    required this.languageId,
     required this.onToggleObscure,
     required this.onSubmit,
   });
@@ -291,10 +297,10 @@ class _SignInCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Center(
+            Center(
               child: Text(
-                'Welcome Back!',
-                style: TextStyle(
+                AppStrings.of('welcome_back', languageId),
+                style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
@@ -304,23 +310,23 @@ class _SignInCard extends StatelessWidget {
             const SizedBox(height: 6),
             Center(
               child: Text(
-                'Sign in to continue your learning journey',
+                AppStrings.of('sign_in_subtitle', languageId),
                 textAlign: TextAlign.center,
                 style: AppText.muted.copyWith(fontSize: 14),
               ),
             ),
             const SizedBox(height: 24),
             _LoginField(
-              hintText: 'Username',
+              hintText: AppStrings.of('username', languageId),
               controller: usernameController,
               icon: Icons.person_outline,
               validator: (value) => value == null || value.trim().isEmpty
-                  ? 'Please enter username'
+                  ? AppStrings.of('please_enter_username', languageId)
                   : null,
             ),
             const SizedBox(height: 16),
             _LoginField(
-              hintText: 'Password',
+              hintText: AppStrings.of('password', languageId),
               controller: passwordController,
               icon: Icons.lock_outline,
               obscureText: obscurePassword,
@@ -334,12 +340,12 @@ class _SignInCard extends StatelessWidget {
                 onPressed: onToggleObscure,
               ),
               validator: (value) => value == null || value.isEmpty
-                  ? 'Please enter password'
+                  ? AppStrings.of('please_enter_password', languageId)
                   : null,
             ),
             const SizedBox(height: 22),
             PrimaryButton(
-              text: 'LOGIN',
+              text: AppStrings.of('login', languageId),
               isLoading: isLoading,
               trailingIcon: Icons.arrow_forward_rounded,
               onPressed: onSubmit,
@@ -473,7 +479,9 @@ class _LoginFieldState extends State<_LoginField> {
 }
 
 class _Footer extends StatelessWidget {
-  const _Footer();
+  final int languageId;
+
+  const _Footer({required this.languageId});
 
   @override
   Widget build(BuildContext context) {
@@ -504,9 +512,11 @@ class _Footer extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 text: TextSpan(
                   style: TextStyle(color: Colors.grey.shade800, fontSize: 15),
-                  children: const [
-                    TextSpan(text: 'Tech Partner : '),
+                  children: [
                     TextSpan(
+                        text:
+                            '${AppStrings.of('tech_partner', languageId)} : '),
+                    const TextSpan(
                       text: 'Indev Consultancy Pvt Ltd',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:women_with_wheels_refactor/core/theme/colors.dart';
+import '../../core/localization/app_strings.dart';
+import '../../core/theme/colors.dart';
 
 import '../../domain/entities/module_assessment.dart';
 
@@ -73,14 +74,17 @@ class AssessmentResultView extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(_gap, _gap, _gap, _gap / 2),
               child: Column(
                 children: [
-                  _OutcomeCard(result: result),
+                  _OutcomeCard(result: result, languageId: languageId),
                   const SizedBox(height: _gap),
-                  _ScoreCard(result: result),
+                  _ScoreCard(result: result, languageId: languageId),
                   const SizedBox(height: _gap),
-                  _StatsCard(result: result),
+                  _StatsCard(result: result, languageId: languageId),
                   if (passed && result.nextModuleName != null) ...[
                     const SizedBox(height: _gap),
-                    _UnlockedBanner(moduleName: result.nextModuleName!),
+                    _UnlockedBanner(
+                      moduleName: result.nextModuleName!,
+                      languageId: languageId,
+                    ),
                   ],
                 ],
               ),
@@ -92,6 +96,7 @@ class AssessmentResultView extends StatelessWidget {
             passed: passed,
             onRetry: onRetry,
             onDone: onDone,
+            languageId: languageId,
           ),
         ],
       ),
@@ -105,8 +110,12 @@ class AssessmentResultView extends StatelessWidget {
 
 class _OutcomeCard extends StatelessWidget {
   final AssessmentResult result;
+  final int languageId;
 
-  const _OutcomeCard({required this.result});
+  const _OutcomeCard({
+    required this.result,
+    required this.languageId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +156,9 @@ class _OutcomeCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            passed ? 'Well Done!' : 'Keep Trying!',
+            passed
+                ? AppStrings.of('well_done', languageId)
+                : AppStrings.of('keep_trying', languageId),
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 28,
@@ -159,9 +170,10 @@ class _OutcomeCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             passed
-                ? 'You scored $pass% or above. The next module is now open.'
-                : 'You scored below $pass%. Review the module and strengthen '
-                    'your understanding before attempting the assessment again.',
+                ? AppStrings.of('pass_msg', languageId)
+                    .replaceAll('{pass}', '$pass')
+                : AppStrings.of('fail_msg', languageId)
+                    .replaceAll('{pass}', '$pass'),
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 15,
@@ -182,8 +194,12 @@ class _OutcomeCard extends StatelessWidget {
 /// The focal point of the page: the percentage, and nothing competing with it.
 class _ScoreCard extends StatelessWidget {
   final AssessmentResult result;
+  final int languageId;
 
-  const _ScoreCard({required this.result});
+  const _ScoreCard({
+    required this.result,
+    required this.languageId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -198,9 +214,9 @@ class _ScoreCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Text(
-            'Your Score',
-            style: TextStyle(fontSize: 16, color: _Palette.inkSoft),
+          Text(
+            AppStrings.of('your_score', languageId),
+            style: const TextStyle(fontSize: 16, color: _Palette.inkSoft),
           ),
           const SizedBox(height: 4),
           FittedBox(
@@ -228,8 +244,12 @@ class _ScoreCard extends StatelessWidget {
 
 class _StatsCard extends StatelessWidget {
   final AssessmentResult result;
+  final int languageId;
 
-  const _StatsCard({required this.result});
+  const _StatsCard({
+    required this.result,
+    required this.languageId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -238,7 +258,7 @@ class _StatsCard extends StatelessWidget {
         icon: Icons.description_outlined,
         well: _Palette.wellPurple,
         iconColor: _Palette.purple,
-        label: 'Total Questions',
+        label: AppStrings.of('total_questions', languageId),
         value: '${result.totalQuestions}',
         valueColor: _Palette.ink,
       ),
@@ -246,7 +266,7 @@ class _StatsCard extends StatelessWidget {
         icon: Icons.check_circle,
         well: _Palette.wellGreen,
         iconColor: _Palette.green,
-        label: 'Correct',
+        label: AppStrings.of('correct', languageId),
         value: '${result.correctAnswers}',
         valueColor: _Palette.green,
       ),
@@ -257,7 +277,7 @@ class _StatsCard extends StatelessWidget {
         icon: Icons.contrast,
         well: _Palette.wellAmber,
         iconColor: _Palette.amber,
-        label: 'Partly Right',
+        label: AppStrings.of('partly_right', languageId),
         value: '${result.partiallyCorrect}',
         valueColor: _Palette.amber,
       ),
@@ -265,7 +285,7 @@ class _StatsCard extends StatelessWidget {
         icon: Icons.cancel,
         well: _Palette.wellRed,
         iconColor: _Palette.red,
-        label: 'Wrong',
+        label: AppStrings.of('wrong', languageId),
         value: '${result.wrongAnswers - result.partiallyCorrect}',
         valueColor: _Palette.red,
       ),
@@ -348,8 +368,12 @@ class _StatRow extends StatelessWidget {
 /// Shown only when a pass has opened the next module.
 class _UnlockedBanner extends StatelessWidget {
   final String moduleName;
+  final int languageId;
 
-  const _UnlockedBanner({required this.moduleName});
+  const _UnlockedBanner({
+    required this.moduleName,
+    required this.languageId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -378,7 +402,7 @@ class _UnlockedBanner extends StatelessWidget {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              'Unlocked: $moduleName',
+              '${AppStrings.of('unlocked', languageId)}: $moduleName',
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
@@ -402,11 +426,13 @@ class _Actions extends StatelessWidget {
   final bool passed;
   final VoidCallback onRetry;
   final VoidCallback onDone;
+  final int languageId;
 
   const _Actions({
     required this.passed,
     required this.onRetry,
     required this.onDone,
+    required this.languageId,
   });
 
   @override
@@ -419,18 +445,19 @@ class _Actions extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             _PrimaryAction(
-              label: passed ? 'Continue' : 'Try Again',
-              icon: passed
-                  ? Icons.arrow_forward_rounded
-                  : Icons.refresh_rounded,
+              label: passed
+                  ? AppStrings.of('continue', languageId)
+                  : AppStrings.of('try_again', languageId),
+              icon:
+                  passed ? Icons.arrow_forward_rounded : Icons.refresh_rounded,
               onPressed: passed ? onDone : onRetry,
             ),
             const SizedBox(height: 16),
             _SecondaryAction(
-              label: passed ? 'Try Again' : 'Back to Module',
-              icon: passed
-                  ? Icons.refresh_rounded
-                  : Icons.menu_book_outlined,
+              label: passed
+                  ? AppStrings.of('try_again', languageId)
+                  : AppStrings.of('back_to_module', languageId),
+              icon: passed ? Icons.refresh_rounded : Icons.menu_book_outlined,
               onPressed: passed ? onRetry : onDone,
             ),
           ],

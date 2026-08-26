@@ -54,7 +54,7 @@ class ModuleDetailScreen extends ConsumerWidget {
       backgroundColor: AppColors.background,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Women With Wheels'),
+        title: Text(AppStrings.of('app_title', lang)),
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -113,12 +113,12 @@ class ModuleDetailScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: AppSpacing.md),
                         if (state.topics.isEmpty)
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 28),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 28),
                             child: Center(
                               child: Text(
-                                'No topics have been published yet.',
-                                style: TextStyle(
+                                AppStrings.of('no_topics', lang),
+                                style: const TextStyle(
                                   color: AppColors.textSecondary,
                                 ),
                               ),
@@ -194,12 +194,12 @@ class _ModuleOverviewState extends State<_ModuleOverview> {
         _SectionBar(title: overview.moduleName ?? ''),
         if (overviewText.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.md),
-          _DescriptionCard(text: overviewText),
+          _DescriptionCard(text: overviewText, languageId: widget.languageId),
         ],
         if (overview.moduleObjective?.trim().isNotEmpty == true) ...[
           const SizedBox(height: AppSpacing.md),
           _LearningObjective(
-            title: 'Learning Objective',
+            title: AppStrings.of('objective', widget.languageId),
             body: overview.moduleObjective!,
             open: _objectiveOpen,
             onToggle: () => setState(() => _objectiveOpen = !_objectiveOpen),
@@ -214,8 +214,12 @@ class _ModuleOverviewState extends State<_ModuleOverview> {
 /// brand-gradient icon chip.
 class _DescriptionCard extends StatelessWidget {
   final String text;
+  final int languageId;
 
-  const _DescriptionCard({required this.text});
+  const _DescriptionCard({
+    required this.text,
+    required this.languageId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -230,7 +234,7 @@ class _DescriptionCard extends StatelessWidget {
               const _IconChip(icon: Icons.menu_book_rounded),
               const SizedBox(width: AppSpacing.md),
               Text(
-                'Module Overview',
+                AppStrings.of('module_overview_title', languageId),
                 style: AppText.h3.copyWith(color: AppColors.primary),
               ),
             ],
@@ -721,16 +725,22 @@ class _PostAssessmentBar extends ConsumerWidget {
                   alignment: Alignment.center,
                   children: [
                     AppGloss.sheen(r: AppGloss.radiusSm),
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.assignment_turned_in_rounded,
                           color: Colors.white,
                           size: 20,
                         ),
-                        SizedBox(width: AppSpacing.sm),
-                        Text('Post Assessment', style: AppText.button),
+                        const SizedBox(width: AppSpacing.sm),
+                        Text(
+                          AppStrings.of(
+                            'post_assessment',
+                            ref.watch(languageProvider).languageId,
+                          ),
+                          style: AppText.button,
+                        ),
                       ],
                     ),
                   ],

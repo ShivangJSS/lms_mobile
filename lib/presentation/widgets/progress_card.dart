@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/localization/app_strings.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/glossy.dart';
 
@@ -7,12 +8,14 @@ class ProgressCard extends StatelessWidget {
   final double progress;
   final String progressText;
   final String message;
+  final int languageId;
 
   const ProgressCard({
     super.key,
     required this.progress,
     required this.progressText,
     required this.message,
+    required this.languageId,
   });
 
   @override
@@ -32,10 +35,10 @@ class ProgressCard extends StatelessWidget {
                 decoration: const BoxDecoration(
                   gradient: AppColors.brandGradientRich,
                 ),
-                child: const Text(
-                  'Your Progress',
+                child: Text(
+                  AppStrings.of('your_progress', languageId),
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

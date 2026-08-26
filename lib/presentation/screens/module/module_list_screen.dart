@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/localization/app_strings.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/glossy.dart';
 import '../../../domain/entities/learning_module.dart';
+import '../../viewmodels/language_view_model.dart';
 import '../../viewmodels/module_view_model.dart';
 
 class ModuleListScreen extends ConsumerWidget {
@@ -16,6 +18,7 @@ class ModuleListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(moduleViewModelProvider);
     final viewModel = ref.read(moduleViewModelProvider.notifier);
+    final lang = ref.watch(languageProvider).languageId;
 
     // Content starts below the header (status bar + app bar) since the glossy
     // header is drawn behind the body.
@@ -25,7 +28,7 @@ class ModuleListScreen extends ConsumerWidget {
       backgroundColor: AppColors.background,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Women With Wheels'),
+        title: Text(AppStrings.of('app_title', lang)),
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -56,23 +59,30 @@ class ModuleListScreen extends ConsumerWidget {
               categories: state.categories,
               selectedTypeId: state.selectedTypeId,
               onSelected: viewModel.selectType,
+              languageId: lang,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              child: _ModuleListHeaderBar(count: state.modules.length),
+              child: _ModuleListHeaderBar(
+                count: state.modules.length,
+                languageId: lang,
+              ),
             ),
             if (state.modules.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.md),
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                child: _ProgressSummary(modules: state.modules),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                child: _ProgressSummary(
+                  modules: state.modules,
+                  languageId: lang,
+                ),
               ),
             ],
             const SizedBox(height: AppSpacing.lg),
             Expanded(
               child: _ModuleListBody(
                 onRefresh: viewModel.load,
+                languageId: lang,
               ),
             ),
           ],
@@ -102,11 +112,13 @@ class _SegmentedTypeTabs extends StatelessWidget {
   final List<ModuleCategory> categories;
   final int? selectedTypeId;
   final ValueChanged<int?> onSelected;
+  final int languageId;
 
   const _SegmentedTypeTabs({
     required this.categories,
     required this.selectedTypeId,
     required this.onSelected,
+    required this.languageId,
   });
 
   static const double _pill = 26;
@@ -151,7 +163,7 @@ class _SegmentedTypeTabs extends StatelessWidget {
             for (final category in categories)
               Expanded(
                 child: _Segment(
-                  label: category.moduleType,
+                  label: _translate(category.moduleType),
                   isActive: selectedTypeId == category.moduleTypeId,
                   onTap: () => onSelected(category.moduleTypeId),
                 ),
@@ -160,6 +172,17 @@ class _SegmentedTypeTabs extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _translate(String type) {
+    final lower = type.toLowerCase().trim();
+    if (lower.startsWith('non') || lower.contains('गैर')) {
+      return AppStrings.of('non_technical', languageId);
+    }
+    if (lower.contains('tech') || lower.contains('तकनीकी')) {
+      return AppStrings.of('technical', languageId);
+    }
+    return type;
   }
 }
 
@@ -201,8 +224,7 @@ class _Segment extends StatelessWidget {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              if (isActive)
-                AppGloss.sheen(r: _SegmentedTypeTabs._pill),
+              if (isActive) AppGloss.sheen(r: _SegmentedTypeTabs._pill),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 11),
                 child: Text(
@@ -227,8 +249,12 @@ class _Segment extends StatelessWidget {
 /// Glossy plum gradient "Module List" bar with depth and a live count chip.
 class _ModuleListHeaderBar extends StatelessWidget {
   final int count;
+  final int languageId;
 
-  const _ModuleListHeaderBar({required this.count});
+  const _ModuleListHeaderBar({
+    required this.count,
+    required this.languageId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -252,8 +278,11 @@ class _ModuleListHeaderBar extends StatelessWidget {
                   size: 20,
                 ),
                 const SizedBox(width: 10),
-                const Expanded(
-                  child: Text('Module List', style: AppText.headingOnColor),
+                Expanded(
+                  child: Text(
+                    AppStrings.of('module_list', languageId),
+                    style: AppText.headingOnColor,
+                  ),
                 ),
                 if (count > 0)
                   Container(
@@ -288,8 +317,12 @@ class _ModuleListHeaderBar extends StatelessWidget {
 /// A compact "your progress" banner summarising how many modules are done.
 class _ProgressSummary extends StatelessWidget {
   final List<LearningModule> modules;
+  final int languageId;
 
-  const _ProgressSummary({required this.modules});
+  const _ProgressSummary({
+    required this.modules,
+    required this.languageId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -314,12 +347,12 @@ class _ProgressSummary extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Your Progress',
+                  AppStrings.of('your_progress', languageId),
                   style: AppText.label.copyWith(color: AppColors.primaryDark),
                 ),
               ),
               Text(
-                '$done / $total completed',
+                '$done / $total ${AppStrings.of('completed', languageId).toLowerCase()}',
                 style: AppText.muted.copyWith(fontWeight: FontWeight.w600),
               ),
             ],
@@ -356,8 +389,12 @@ class _ProgressSummary extends StatelessWidget {
 
 class _ModuleListBody extends ConsumerWidget {
   final Future<void> Function() onRefresh;
+  final int languageId;
 
-  const _ModuleListBody({required this.onRefresh});
+  const _ModuleListBody({
+    required this.onRefresh,
+    required this.languageId,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -371,13 +408,15 @@ class _ModuleListBody extends ConsumerWidget {
       return _Message(
         text: state.error!,
         onRetry: onRefresh,
+        languageId: languageId,
       );
     }
 
     if (state.modules.isEmpty) {
       return _Message(
-        text: 'No modules have been assigned to you yet.',
+        text: AppStrings.of('no_modules', languageId),
         onRetry: onRefresh,
+        languageId: languageId,
       );
     }
 
@@ -396,6 +435,7 @@ class _ModuleListBody extends ConsumerWidget {
 
           return _ModuleTile(
             module: module,
+            languageId: languageId,
             onTap: () => context.push(
               AppRoutes.moduleDetailPath(module.moduleId),
               extra: module.moduleName,
@@ -411,9 +451,14 @@ class _ModuleListBody extends ConsumerWidget {
 /// are not tappable and read as a muted, flat tile.
 class _ModuleTile extends StatelessWidget {
   final LearningModule module;
+  final int languageId;
   final VoidCallback? onTap;
 
-  const _ModuleTile({required this.module, this.onTap});
+  const _ModuleTile({
+    required this.module,
+    required this.languageId,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -454,18 +499,21 @@ class _ModuleTile extends StatelessWidget {
                           Icon(
                             Icons.schedule_rounded,
                             size: 14,
-                            color: AppColors.textSecondary
-                                .withValues(alpha: 0.9),
+                            color:
+                                AppColors.textSecondary.withValues(alpha: 0.9),
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'Duration : ${module.durationText}',
+                            '${AppStrings.of('duration', languageId)} : ${module.durationMinutes ?? '-'} ${AppStrings.of('unit_min', languageId)}',
                             style: AppText.muted,
                           ),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      _StatusTag(status: module.status),
+                      _StatusTag(
+                        status: module.status,
+                        languageId: languageId,
+                      ),
                     ],
                   ),
                 ),
@@ -527,8 +575,12 @@ class _ModuleBadge extends StatelessWidget {
 /// A small pill labelling the module state under the title.
 class _StatusTag extends StatelessWidget {
   final ModuleStatus status;
+  final int languageId;
 
-  const _StatusTag({required this.status});
+  const _StatusTag({
+    required this.status,
+    required this.languageId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -538,17 +590,17 @@ class _StatusTag extends StatelessWidget {
 
     switch (status) {
       case ModuleStatus.completed:
-        label = 'Completed';
+        label = AppStrings.of('completed', languageId);
         color = const Color(0xFF4E8B1C);
         icon = Icons.check_circle_rounded;
         break;
       case ModuleStatus.active:
-        label = 'Continue';
+        label = AppStrings.of('continue', languageId);
         color = AppColors.primary;
         icon = Icons.play_circle_fill_rounded;
         break;
       case ModuleStatus.locked:
-        label = 'Locked';
+        label = AppStrings.of('locked', languageId);
         color = AppColors.textSecondary;
         icon = Icons.lock_rounded;
         break;
@@ -653,8 +705,13 @@ class _StatusIcon extends StatelessWidget {
 class _Message extends StatelessWidget {
   final String text;
   final Future<void> Function() onRetry;
+  final int languageId;
 
-  const _Message({required this.text, required this.onRetry});
+  const _Message({
+    required this.text,
+    required this.onRetry,
+    required this.languageId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -672,7 +729,7 @@ class _Message extends StatelessWidget {
             const SizedBox(height: AppSpacing.lg),
             TextButton(
               onPressed: onRetry,
-              child: const Text('Retry'),
+              child: Text(AppStrings.of('retry', languageId)),
             ),
           ],
         ),

@@ -136,5 +136,8 @@ class ModuleViewModel extends StateNotifier<ModuleListState> {
 
 final moduleViewModelProvider =
     StateNotifierProvider<ModuleViewModel, ModuleListState>(
-  (ref) => ModuleViewModel(ref),
+  (ref) {
+    ref.watch(languageProvider);
+    return ModuleViewModel(ref);
+  },
 );

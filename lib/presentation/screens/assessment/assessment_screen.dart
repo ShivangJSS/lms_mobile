@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/localization/app_strings.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/glossy.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../../viewmodels/assessment_view_model.dart';
+import '../../viewmodels/language_view_model.dart';
 import '../../widgets/radio_option_card.dart';
 
 class AssessmentScreen extends ConsumerWidget {
@@ -14,19 +16,21 @@ class AssessmentScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(assessmentViewModelProvider);
+    final lang = ref.watch(languageProvider).languageId;
 
     // Listen for successful submission
     ref.listen<AssessmentState>(assessmentViewModelProvider, (previous, next) {
       if (next.isSubmitted && (previous == null || !previous.isSubmitted)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Feedback submitted successfully!'),
+          SnackBar(
+            content: Text(AppStrings.of('feedback_success', lang)),
             backgroundColor: AppColors.success,
           ),
         );
         context.pop(); // Go back to Home
       }
-      if (next.error != null && (previous == null || previous.error != next.error)) {
+      if (next.error != null &&
+          (previous == null || previous.error != next.error)) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.error!),
@@ -39,7 +43,7 @@ class AssessmentScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Trainee Feedback Form'),
+        title: Text(AppStrings.of('trainee_feedback_form', lang)),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         leading: IconButton(
@@ -52,7 +56,7 @@ class AssessmentScreen extends ConsumerWidget {
         child: state.isLoading
             ? const Center(child: CircularProgressIndicator())
             : state.questions == null || state.questions!.isEmpty
-                ? const Center(child: Text('No questions available'))
+                ? Center(child: Text(AppStrings.of('no_questions', lang)))
                 : Column(
                     children: [
                       Expanded(
@@ -81,8 +85,10 @@ class AssessmentScreen extends ConsumerWidget {
                                       isSelected: selectedAnswer == option,
                                       onTap: () {
                                         ref
-                                            .read(assessmentViewModelProvider.notifier)
-                                            .answerQuestion(question.id, option);
+                                            .read(assessmentViewModelProvider
+                                                .notifier)
+                                            .answerQuestion(
+                                                question.id, option);
                                       },
                                     );
                                   }),
@@ -95,13 +101,18 @@ class AssessmentScreen extends ConsumerWidget {
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: PrimaryButton(
-                        text: 'Submit Feedback',
-                        isLoading: state.isSubmitting,
-                        onPressed: ref.read(assessmentViewModelProvider.notifier).canSubmit()
-                            ? () {
-                                ref.read(assessmentViewModelProvider.notifier).submit();
-                              }
-                            : null, // Disabled if all questions are not answered
+                          text: AppStrings.of('submit_feedback', lang),
+                          isLoading: state.isSubmitting,
+                          onPressed: ref
+                                  .read(assessmentViewModelProvider.notifier)
+                                  .canSubmit()
+                              ? () {
+                                  ref
+                                      .read(
+                                          assessmentViewModelProvider.notifier)
+                                      .submit();
+                                }
+                              : null, // Disabled if all questions are not answered
                         ),
                       ),
                     ],

@@ -79,7 +79,10 @@ class ModuleTopicsViewModel extends StateNotifier<ModuleTopicsState> {
 }
 
 /// Keyed by module id so each module keeps its own topic list.
-final moduleTopicsViewModelProvider = StateNotifierProvider.family<
-    ModuleTopicsViewModel, ModuleTopicsState, int>(
-  (ref, moduleId) => ModuleTopicsViewModel(ref, moduleId),
+final moduleTopicsViewModelProvider =
+    StateNotifierProvider.family<ModuleTopicsViewModel, ModuleTopicsState, int>(
+  (ref, moduleId) {
+    ref.watch(languageProvider);
+    return ModuleTopicsViewModel(ref, moduleId);
+  },
 );
