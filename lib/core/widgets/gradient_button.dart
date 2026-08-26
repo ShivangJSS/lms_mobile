@@ -87,7 +87,7 @@ class _GradientButtonState extends State<GradientButton> {
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                           valueColor:
-                              AlwaysStoppedAnimation<Color>(AppColors.white),
+                              AlwaysStoppedAnimation<Color>(AppColors.textWhite),
                         ),
                       )
                     else
@@ -110,7 +110,7 @@ class _GradientButtonState extends State<GradientButton> {
                             const SizedBox(width: 12),
                             Icon(
                               widget.trailingIcon,
-                              color: AppColors.white,
+                              color: AppColors.textWhite,
                               size: widget.height * 0.36,
                             ),
                           ],
