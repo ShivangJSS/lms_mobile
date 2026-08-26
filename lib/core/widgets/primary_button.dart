@@ -38,9 +38,10 @@ class PrimaryButton extends StatelessWidget {
           child: InkWell(
             onTap: enabled ? onPressed : null,
             borderRadius: BorderRadius.circular(AppGloss.radiusSm),
-            child: SizedBox(
+            child: Container(
               width: double.infinity,
               height: AppButton.height,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -58,9 +59,18 @@ class PrimaryButton extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(text, style: AppText.button),
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              text,
+                              style: AppText.button,
+                              maxLines: 1,
+                            ),
+                          ),
+                        ),
                         if (trailingIcon != null) ...[
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 8),
                           Icon(trailingIcon, color: Colors.white, size: 20),
                         ],
                       ],

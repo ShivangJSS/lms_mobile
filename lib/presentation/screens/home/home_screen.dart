@@ -161,11 +161,15 @@ class HomeScreen extends ConsumerWidget {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text(
-                                    AppStrings.of('view_all_modules', lang),
-                                    style: const TextStyle(
-                                      color: AppColors.primary,
-                                      fontWeight: FontWeight.bold,
+                                  Flexible(
+                                    child: Text(
+                                      AppStrings.of('view_all_modules', lang),
+                                      style: const TextStyle(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                   const SizedBox(width: 6),
@@ -198,57 +202,53 @@ class HomeScreen extends ConsumerWidget {
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           gradient: AppColors.brandGradientRich,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
-          ),
           boxShadow: [
             BoxShadow(
-              color: Color(0x336A1B9A),
-              blurRadius: 20,
-              offset: Offset(0, -6),
+              color: Color(0x33000000),
+              blurRadius: 10,
+              offset: Offset(0, -2),
             ),
           ],
+          border: Border(
+            top: BorderSide(
+              color: Colors.white24,
+              width: 0.5,
+            ),
+          ),
         ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
-          ),
-          child: BottomNavigationBar(
-            currentIndex: navIndex,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            type: BottomNavigationBarType.fixed,
-            selectedItemColor: Colors.white,
-            unselectedItemColor: Colors.white70,
-            selectedFontSize: 12,
-            unselectedFontSize: 12,
-            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700),
-            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
-            onTap: (index) {
-              ref.read(bottomNavIndexProvider.notifier).state = index;
-              if (index == 1) context.push(AppRoutes.modules);
-            },
-            items: [
-              BottomNavigationBarItem(
-                icon: const Icon(Icons.home),
-                label: AppStrings.of('home', lang),
-              ),
-              BottomNavigationBarItem(
-                icon: const Icon(Icons.menu_book),
-                label: AppStrings.of('module', lang),
-              ),
-              BottomNavigationBarItem(
-                icon: const Icon(Icons.support),
-                label: AppStrings.of('support', lang),
-              ),
-              BottomNavigationBarItem(
-                icon: const Icon(Icons.help_outline),
-                label: AppStrings.of('faq', lang),
-              ),
-            ],
-          ),
+        child: BottomNavigationBar(
+          currentIndex: navIndex,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white70,
+          selectedFontSize: 12,
+          unselectedFontSize: 12,
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700),
+          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
+          onTap: (index) {
+            ref.read(bottomNavIndexProvider.notifier).state = index;
+            if (index == 1) context.push(AppRoutes.modules);
+          },
+          items: [
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.home),
+              label: AppStrings.of('home', lang),
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.menu_book),
+              label: AppStrings.of('module', lang),
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.support),
+              label: AppStrings.of('support', lang),
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.help_outline),
+              label: AppStrings.of('faq', lang),
+            ),
+          ],
         ),
       ),
     );

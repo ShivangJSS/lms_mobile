@@ -725,23 +725,31 @@ class _PostAssessmentBar extends ConsumerWidget {
                   alignment: Alignment.center,
                   children: [
                     AppGloss.sheen(r: AppGloss.radiusSm),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.assignment_turned_in_rounded,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Text(
-                          AppStrings.of(
-                            'post_assessment',
-                            ref.watch(languageProvider).languageId,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.assignment_turned_in_rounded,
+                            color: Colors.white,
+                            size: 20,
                           ),
-                          style: AppText.button,
-                        ),
-                      ],
+                          const SizedBox(width: AppSpacing.sm),
+                          Flexible(
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                AppStrings.of(
+                                  'post_assessment',
+                                  ref.watch(languageProvider).languageId,
+                                ),
+                                style: AppText.button,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
