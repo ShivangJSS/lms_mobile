@@ -66,8 +66,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                   offset: const Offset(0, -28),
                   child: Container(
                     padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-                    decoration:
-                        AppGloss.card(r: 24, shadow: AppGloss.lifted),
+                    decoration: AppGloss.card(r: 24, shadow: AppGloss.lifted),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -126,10 +125,10 @@ class _Header extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 48),
-      decoration: AppGloss.header(r: 36),
+      decoration: AppGloss.header(),
       child: Stack(
         children: [
-          AppGloss.sheen(r: 36),
+          AppGloss.sheen(r: 0),
           SafeArea(
             bottom: false,
             child: Column(

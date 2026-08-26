@@ -40,11 +40,11 @@ class FeedbackScreen extends ConsumerWidget {
     ref.listen<FeedbackState>(feedbackViewModelProvider, (previous, next) {
       if (next.isSubmitted && previous?.isSubmitted != true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Feedback submitted successfully!'),
+          SnackBar(
+            content: Text(AppStrings.of('feedback_success', lang)),
             backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
-            margin: EdgeInsets.all(16),
+            margin: const EdgeInsets.all(16),
           ),
         );
 
@@ -71,7 +71,9 @@ class FeedbackScreen extends ConsumerWidget {
     final headerInset = MediaQuery.of(context).padding.top + kToolbarHeight;
 
     final title = _isMood
-        ? (userName.isEmpty ? 'Welcome' : 'Welcome $userName')
+        ? (userName.isEmpty
+            ? AppStrings.of('welcome', lang)
+            : '${AppStrings.of('welcome', lang)} $userName')
         : AppStrings.of('feedback', lang);
 
     return Scaffold(
@@ -91,9 +93,10 @@ class FeedbackScreen extends ConsumerWidget {
           ),
         ),
         flexibleSpace: Container(
-          decoration: AppGloss.header(r: 28),
+          decoration: AppGloss.header(),
           child: Stack(
             children: [
+              AppGloss.sheen(r: 0),
               // Faint decorative bubbles bleeding off the header edges.
               Positioned(top: -46, right: -30, child: _bubble(150)),
               Positioned(bottom: -50, left: -40, child: _bubble(130)),
@@ -104,7 +107,9 @@ class FeedbackScreen extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.only(right: AppSpacing.md),
             child: _GlassPill(
-              label: _isMood ? 'Skip' : 'Close',
+              label: _isMood
+                  ? AppStrings.of('skip', lang)
+                  : AppStrings.of('close', lang),
               onTap: () => _leave(context),
             ),
           ),
@@ -116,8 +121,7 @@ class FeedbackScreen extends ConsumerWidget {
             ? const Center(child: CircularProgressIndicator())
             : items.isEmpty
                 ? _Message(
-                    text: state.error ??
-                        'No questions are available right now.',
+                    text: state.error ?? AppStrings.of('no_questions', lang),
                     languageId: lang,
                     onRetry: viewModel.load,
                   )
@@ -146,10 +150,9 @@ class FeedbackScreen extends ConsumerWidget {
                             text: AppStrings.of('submit', lang),
                             isLoading: state.isSubmitting,
                             trailingIcon: Icons.check_rounded,
-                            onPressed:
-                                _canSubmit(state) && !state.isSubmitting
-                                    ? viewModel.submit
-                                    : null,
+                            onPressed: _canSubmit(state) && !state.isSubmitting
+                                ? viewModel.submit
+                                : null,
                           ),
                           const SizedBox(height: AppSpacing.lg),
                         ],
@@ -220,13 +223,15 @@ class _GlassPill extends StatelessWidget {
   }
 }
 
-class _Intro extends StatelessWidget {
+class _Intro extends ConsumerWidget {
   final bool isMood;
 
   const _Intro({required this.isMood});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(languageProvider).languageId;
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.xl),
       decoration: AppGloss.card(r: AppGloss.radiusLg, shadow: AppGloss.lifted),
@@ -243,9 +248,7 @@ class _Intro extends StatelessWidget {
               boxShadow: AppGloss.buttonGlow,
             ),
             child: Icon(
-              isMood
-                  ? Icons.emoji_emotions_rounded
-                  : Icons.chat_bubble_rounded,
+              isMood ? Icons.emoji_emotions_rounded : Icons.chat_bubble_rounded,
               color: Colors.white,
               size: 26,
             ),
@@ -256,16 +259,16 @@ class _Intro extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isMood ? 'Hello and welcome!' : 'A few quick questions',
+                  isMood
+                      ? AppStrings.of('hello_welcome', lang)
+                      : AppStrings.of('intro_full_title', lang),
                   style: AppText.h3.copyWith(color: AppColors.primary),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   isMood
-                      ? "Before we get started, let's get to know you a "
-                          'little better.'
-                      : 'Your answers help us improve the training. Nothing '
-                          'here is compulsory — answer what you like.',
+                      ? AppStrings.of('intro_mood_subtitle', lang)
+                      : AppStrings.of('intro_full_subtitle', lang),
                   style: AppText.muted,
                 ),
               ],
@@ -292,8 +295,7 @@ class _MoodCard extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.lg),
       padding: const EdgeInsets.all(AppSpacing.xl),
-      decoration:
-          AppGloss.card(r: AppGloss.radiusLg, shadow: AppGloss.lifted),
+      decoration: AppGloss.card(r: AppGloss.radiusLg, shadow: AppGloss.lifted),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -419,8 +421,7 @@ class _OptionTile extends StatelessWidget {
                   child: Text(
                     label,
                     style: AppText.body.copyWith(
-                      fontWeight:
-                          selected ? FontWeight.w600 : FontWeight.w400,
+                      fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                       color: selected
                           ? AppColors.primaryDark
                           : AppColors.textPrimary,

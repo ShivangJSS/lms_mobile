@@ -131,10 +131,10 @@ class _GlossyDrawerHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: AppGloss.header(r: AppGloss.radiusLg),
+      decoration: AppGloss.header(),
       child: Stack(
         children: [
-          AppGloss.sheen(r: AppGloss.radiusLg),
+          AppGloss.sheen(),
           SafeArea(
             bottom: false,
             child: Padding(
