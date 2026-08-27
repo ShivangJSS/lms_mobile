@@ -15,8 +15,8 @@ class FeedbackRepositoryImpl implements FeedbackRepository {
   }
 
   @override
-  Future<List<FeedbackFormField>> getForm() async {
-    return await dataSource.getForm();
+  Future<List<FeedbackFormField>> getForm({required int languageId}) async {
+    return await dataSource.getForm(languageId: languageId);
   }
 
   @override

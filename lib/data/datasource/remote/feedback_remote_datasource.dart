@@ -28,8 +28,12 @@ class FeedbackRemoteDataSource {
   }
 
   /// GET /mobile/feedback/form — the full trainee questionnaire.
-  Future<List<FeedbackFormFieldModel>> getForm() async {
-    final response = await _dio.get(ApiConstants.feedbackForm);
+  Future<List<FeedbackFormFieldModel>> getForm(
+      {required int languageId}) async {
+    final response = await _dio.get(
+      ApiConstants.feedbackForm,
+      queryParameters: {'language_id': languageId},
+    );
 
     final fields = response.data as List<dynamic>? ?? [];
 

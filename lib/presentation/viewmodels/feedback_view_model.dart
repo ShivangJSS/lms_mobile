@@ -80,9 +80,10 @@ class FeedbackViewModel extends StateNotifier<FeedbackState> {
 
     try {
       final repository = ref.read(feedbackRepositoryProvider);
+      final languageId = ref.read(languageProvider).languageId;
 
       final questions = await repository.getQuestions(
-        languageId: ref.read(languageProvider).languageId,
+        languageId: languageId,
       );
 
       // The longer questionnaire is optional — if it fails the mood
@@ -90,7 +91,7 @@ class FeedbackViewModel extends StateNotifier<FeedbackState> {
       List<FeedbackFormField> formFields = const [];
 
       try {
-        formFields = await repository.getForm();
+        formFields = await repository.getForm(languageId: languageId);
       } catch (_) {}
 
       state = state.copyWith(
@@ -189,10 +190,10 @@ class FeedbackViewModel extends StateNotifier<FeedbackState> {
 
     try {
       await ref.read(feedbackRepositoryProvider).submit(
-            usefulModules: const [],
-            moodAnswers: state.answers,
-            formAnswers: state.formAnswers,
-          );
+        usefulModules: const [],
+        moodAnswers: state.answers,
+        formAnswers: state.formAnswers,
+      );
 
       // Answers are cleared once stored, so reopening the form starts fresh
       // rather than showing what was already submitted.
@@ -229,5 +230,8 @@ class FeedbackViewModel extends StateNotifier<FeedbackState> {
 
 final feedbackViewModelProvider =
     StateNotifierProvider<FeedbackViewModel, FeedbackState>(
-  (ref) => FeedbackViewModel(ref),
+  (ref) {
+    ref.watch(languageProvider);
+    return FeedbackViewModel(ref);
+  },
 );

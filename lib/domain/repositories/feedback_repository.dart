@@ -6,7 +6,7 @@ abstract class FeedbackRepository {
   });
 
   /// The full trainee questionnaire shown from the side navigation.
-  Future<List<FeedbackFormField>> getForm();
+  Future<List<FeedbackFormField>> getForm({required int languageId});
 
   /// Returns the created feedback_id.
   Future<int> submit({
