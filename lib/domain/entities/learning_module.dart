@@ -203,7 +203,12 @@ class ModuleTopic extends Equatable {
 
   bool get isPdf => docType?.toLowerCase() == 'pdf';
 
-  bool get isPpt => docType?.toLowerCase() == 'ppt';
+  /// The API sends "PPT" for every deck, whatever the file's own extension.
+  /// "pptx" and "presentation" are accepted too so a future upload that
+  /// records the extension instead still opens in the slide viewer rather
+  /// than falling through to the external-app handler.
+  bool get isPpt => const {'ppt', 'pptx', 'presentation'}
+      .contains(docType?.toLowerCase().trim());
 
   bool get hasContent =>
       (contentPath != null && contentPath!.isNotEmpty) ||

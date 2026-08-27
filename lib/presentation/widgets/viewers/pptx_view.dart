@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/network/api_constants.dart';
+import '../../../core/network/media_url.dart';
 import '../../../core/services/token_storage.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
@@ -51,8 +52,10 @@ class _PptxViewState extends State<PptxView> {
         options: Options(receiveTimeout: const Duration(seconds: 90)),
       );
 
+      // The server addresses these to itself, which behind a proxy is an
+      // unreachable LAN address; put them back on the configured API host.
       final slides = (response.data['slides'] as List<dynamic>? ?? [])
-          .map((e) => e.toString())
+          .map((e) => sanitizeMediaUrl(e.toString()))
           .toList();
 
       if (!mounted) return;
