@@ -128,9 +128,9 @@ class _Header extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
-      decoration: AppGloss.header(r: 36),
+      decoration: AppGloss.header(),
       child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(36)),
+        borderRadius: BorderRadius.zero,
         child: Stack(
           alignment: Alignment.topCenter,
           children: [

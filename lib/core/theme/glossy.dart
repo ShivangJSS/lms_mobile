@@ -81,20 +81,17 @@ class AppGloss {
     );
   }
 
-  /// Rich brand header/hero gradient with a rounded bottom and soft drop.
-  static BoxDecoration header({double r = 34, bool shadow = true}) {
+  /// Rich brand header/hero gradient with a straight bottom and soft drop.
+  static BoxDecoration header({double r = 0, bool shadow = true}) {
     return BoxDecoration(
       gradient: AppColors.brandGradientRich,
-      borderRadius: BorderRadius.only(
-        bottomLeft: Radius.circular(r),
-        bottomRight: Radius.circular(r),
-      ),
+      borderRadius: BorderRadius.vertical(bottom: Radius.circular(r)),
       boxShadow: shadow
           ? const [
               BoxShadow(
-                color: Color(0x33702068),
-                blurRadius: 24,
-                offset: Offset(0, 10),
+                color: Color(0x26000000),
+                blurRadius: 10,
+                offset: Offset(0, 4),
               ),
             ]
           : null,
@@ -104,7 +101,7 @@ class AppGloss {
   /// A thin top highlight to lay over any glossy surface (button/header) for
   /// the "wet" sheen. Add as the first child of a [Stack] that fills the
   /// surface; it is ignored by pointers.
-  static Widget sheen({double r = radiusSm}) {
+  static Widget sheen({double r = 0}) {
     return Positioned.fill(
       child: IgnorePointer(
         child: Align(

@@ -220,10 +220,10 @@ class _Header extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 44),
-      decoration: AppGloss.header(r: 36),
+      decoration: AppGloss.header(),
       child: Stack(
         children: [
-          AppGloss.sheen(r: 36),
+          AppGloss.sheen(),
           SafeArea(
             bottom: false,
             child: Column(
@@ -258,8 +258,7 @@ class _Header extends StatelessWidget {
                     foregroundColor: Colors.white,
                     backgroundColor: Colors.white.withValues(alpha: 0.16),
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(AppGloss.radiusLg),
+                      borderRadius: BorderRadius.circular(AppGloss.radiusLg),
                     ),
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.lg,

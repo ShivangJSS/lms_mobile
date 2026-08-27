@@ -3,8 +3,8 @@ class ApiConstants {
 
   // Physical Device on same Wi-Fi as the laptop running the FastAPI backend.
   // Laptop LAN IP (en0) + backend port (uvicorn on 0.0.0.0:8090).
+  // static const String baseUrl = 'https://demo-azadlmsback.indevconsultancy.in';
   static const String baseUrl = 'http://10.195.166.61:8000';
-
   // Previous values:
   // static const String baseUrl = 'http://10.147.155.61:8000';
   // static const String baseUrl = "http://192.168.1.10:8000";

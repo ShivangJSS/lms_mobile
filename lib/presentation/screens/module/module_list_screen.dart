@@ -34,9 +34,10 @@ class ModuleListScreen extends ConsumerWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         flexibleSpace: Container(
-          decoration: AppGloss.header(r: 28),
+          decoration: AppGloss.header(),
           child: Stack(
             children: [
+              AppGloss.sheen(r: 0),
               Positioned(top: -46, right: -30, child: _headerBubble(150)),
               Positioned(bottom: -50, left: -40, child: _headerBubble(130)),
             ],
