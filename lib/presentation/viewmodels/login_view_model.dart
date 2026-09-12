@@ -5,7 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/network/providers.dart';
 import '../../core/network/session_reset.dart';
+import '../../core/services/session_clock.dart';
 import '../../core/services/token_storage.dart';
+import '../../data/datasource/remote/activity_remote_datasource.dart';
 import '../../data/models/participant_model.dart';
 
 class LoginState {
@@ -57,6 +59,8 @@ class LoginViewModel extends StateNotifier<LoginState> {
       // Start this participant clean: any answers or dashboard data left in
       // memory from a previous session must not carry over.
       resetParticipantStateFromRef(ref);
+
+      SessionClock.start();
 
       state = LoginState(
         isLoading: false,
@@ -123,6 +127,16 @@ class LoginViewModel extends StateNotifier<LoginState> {
     try {
       final repository = ref.read(authRepositoryProvider);
 
+      // Report the session's total time before the token is torn down; a
+      // failure here must not block logging out.
+      final minutes = SessionClock.elapsedMinutes();
+      if (minutes != null && minutes > 0) {
+        try {
+          await ActivityRemoteDataSource().logTimeSpent(minutes);
+        } catch (_) {}
+      }
+      SessionClock.clear();
+
       await repository.logout();
 
       resetParticipantStateFromRef(ref);
@@ -161,6 +175,8 @@ class LoginViewModel extends StateNotifier<LoginState> {
 
       if (participant == null) return false;
 
+      SessionClock.start();
+
       state = LoginState(user: participant);
 
       return true;
@@ -174,6 +190,8 @@ class LoginViewModel extends StateNotifier<LoginState> {
         final participant = await repository.getCurrentUser();
 
         if (participant == null) return false;
+
+        SessionClock.start();
 
         state = LoginState(user: participant);
 

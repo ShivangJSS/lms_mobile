@@ -7,10 +7,12 @@ import '../../../core/routes/app_routes.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/glossy.dart';
+import '../../../data/datasource/remote/activity_remote_datasource.dart';
 import '../../../domain/entities/learning_module.dart';
 import '../../viewmodels/language_view_model.dart';
 import '../../viewmodels/module_topics_view_model.dart';
 import '../../../core/network/media_url.dart';
+import '../../widgets/video_questions_sheet.dart';
 import '../../widgets/viewers/video_view.dart';
 import '../viewer/topic_viewer_screen.dart';
 
@@ -128,7 +130,10 @@ class ModuleDetailScreen extends ConsumerWidget {
                         else
                           for (var i = 0; i < state.topics.length; i++)
                             if (i == firstVideoIndex)
-                              _VideoTopicCard(topic: state.topics[i])
+                              _VideoTopicCard(
+                                topic: state.topics[i],
+                                moduleId: moduleId,
+                              )
                             else
                               _TopicRow(
                                 topic: state.topics[i],
@@ -156,7 +161,7 @@ class ModuleDetailScreen extends ConsumerWidget {
   void _openTopic(BuildContext context, ModuleTopic topic) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => TopicViewerScreen(topic: topic),
+        builder: (_) => TopicViewerScreen(topic: topic, moduleId: moduleId),
       ),
     );
   }
@@ -443,15 +448,43 @@ class _LearningObjective extends StatelessWidget {
   }
 }
 
-/// A topic row rendered as a raised white glossy card: media badge, title, and
-/// a crisp chevron inside a subtle plum-tint circle.
-class _VideoTopicCard extends StatelessWidget {
+/// The inline first-video card: a raised white glossy card playing the video,
+/// timing how long it stays on screen (reported as module time) and — when the
+/// video has them — offering its post-video questions.
+class _VideoTopicCard extends StatefulWidget {
   final ModuleTopic topic;
+  final int moduleId;
 
-  const _VideoTopicCard({required this.topic});
+  const _VideoTopicCard({required this.topic, required this.moduleId});
+
+  @override
+  State<_VideoTopicCard> createState() => _VideoTopicCardState();
+}
+
+class _VideoTopicCardState extends State<_VideoTopicCard> {
+  final _stopwatch = Stopwatch()..start();
+
+  @override
+  void dispose() {
+    _stopwatch.stop();
+    final seconds = _stopwatch.elapsed.inSeconds;
+    if (seconds >= 1) {
+      ActivityRemoteDataSource()
+          .logModuleTime(
+            moduleId: widget.moduleId,
+            topicId: widget.topic.topicId,
+            documentId: widget.topic.docId,
+            seconds: seconds,
+          )
+          .ignore();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final topic = widget.topic;
+
     final url = topic.youtubeUrl?.isNotEmpty == true
         ? topic.youtubeUrl
         : mediaUrl(topic.contentPath);
@@ -481,6 +514,26 @@ class _VideoTopicCard extends StatelessWidget {
                 ),
               ),
             ),
+            if (topic.isVideoWithId) ...[
+              const SizedBox(height: AppSpacing.md),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => showVideoQuestions(
+                    context,
+                    topic,
+                    moduleId: widget.moduleId,
+                  ),
+                  icon: const Icon(Icons.quiz_rounded, size: 18),
+                  label: const Text('Answer video questions'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),

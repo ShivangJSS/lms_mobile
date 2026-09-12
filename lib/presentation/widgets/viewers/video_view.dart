@@ -5,7 +5,6 @@ import 'package:video_player/video_player.dart';
 import '../../../core/services/token_storage.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/theme/colors.dart';
-import '../../../core/theme/glossy.dart';
 
 /// Plays a stored video. The media endpoint answers byte-range requests, so
 /// scrubbing works rather than only playing from the start.
@@ -79,26 +78,23 @@ class _VideoViewState extends State<VideoView> {
   @override
   Widget build(BuildContext context) {
     if (_error != null) {
+      // Kept compact so it never overflows the small 16:9 box the inline
+      // video card gives it.
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xxl),
-          child: Container(
-            padding: const EdgeInsets.all(AppSpacing.xxl),
-            decoration: AppGloss.glass(r: AppGloss.radiusLg, opacity: 0.10),
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(AppSpacing.lg),
-                  decoration: AppGloss.glass(r: AppGloss.radius, opacity: 0.16),
-                  child: const Icon(
-                    Icons.videocam_off,
-                    size: 44,
-                    color: Colors.white,
-                  ),
+                const Icon(
+                  Icons.videocam_off,
+                  size: 34,
+                  color: Colors.white70,
                 ),
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppSpacing.sm),
                 Text(
                   _error!,
                   textAlign: TextAlign.center,

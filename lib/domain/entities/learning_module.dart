@@ -176,6 +176,10 @@ class ModuleTopic extends Equatable {
   final int? docId;
   final String? docTitle;
 
+  /// video_masters.video_id when this topic is a video — the key for fetching
+  /// its post-video questions. Null for PDFs and presentations.
+  final int? videoId;
+
   /// "Video", "PDF" or "PPT".
   final String? docType;
 
@@ -192,12 +196,16 @@ class ModuleTopic extends Equatable {
     this.topicName,
     this.docId,
     this.docTitle,
+    this.videoId,
     this.docType,
     this.durationMinutes,
     this.contentPath,
     this.youtubeUrl,
     this.thumbnail,
   });
+
+  /// True when this video has post-video questions to attempt.
+  bool get isVideoWithId => isVideo && videoId != null;
 
   bool get isVideo => docType?.toLowerCase() == 'video';
 
@@ -220,6 +228,7 @@ class ModuleTopic extends Equatable {
         topicName,
         docId,
         docTitle,
+        videoId,
         docType,
         durationMinutes,
         contentPath,
