@@ -92,6 +92,7 @@ class ModuleAssessmentModel extends ModuleAssessment {
     required super.moduleId,
     required super.passPercentage,
     super.questions,
+    super.result, // <--- Add super.result
   });
 
   factory ModuleAssessmentModel.fromJson(Map<String, dynamic> json) {
@@ -101,6 +102,10 @@ class ModuleAssessmentModel extends ModuleAssessment {
       questions: _list(json['questions'])
           .map(AssessmentQuestionItemModel.fromJson)
           .toList(),
+      result: json['result'] != null
+          ? AssessmentResultModel.fromJson(
+              json['result'] as Map<String, dynamic>)
+          : null,
     );
   }
 }

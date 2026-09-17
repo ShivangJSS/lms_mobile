@@ -103,7 +103,7 @@ class ModuleAssessmentScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         AssessmentHeader.forQuestion(question, lang),
-                        const SizedBox(height: AppSpacing.lg),
+                        const SizedBox(height: AppSpacing.xl),
                         _card(question, state.pageIndex + 1, lang),
                       ],
                     ),

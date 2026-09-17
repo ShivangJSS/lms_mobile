@@ -91,6 +91,53 @@ class ModuleAssessmentViewModel extends StateNotifier<ModuleAssessmentState> {
     load();
   }
 
+  // Future<void> load() async {
+  //   state = state.copyWith(isLoading: true, error: null);
+  //
+  //   try {
+  //     final assessment =
+  //         await ref.read(moduleAssessmentRepositoryProvider).getAssessment(
+  //               moduleId: moduleId,
+  //               languageId: ref.read(languageProvider).languageId,
+  //             );
+  //
+  //     state = ModuleAssessmentState(assessment: assessment);
+  //   } catch (e) {
+  //     state = state.copyWith(isLoading: false, error: _messageFor(e));
+  //   }
+  // }
+
+  // Future<void> load() async {
+  //   state = state.copyWith(isLoading: true, error: null);
+  //
+  //   try {
+  //     final assessment =
+  //         await ref.read(moduleAssessmentRepositoryProvider).getAssessment(
+  //               moduleId: moduleId,
+  //               languageId: ref.read(languageProvider).languageId,
+  //             );
+  //
+  //     // FIX: Use copyWith to keep existing pageIndex and answers
+  //     // while only updating the assessment content (translations).
+  //     state = state.copyWith(
+  //       isLoading: false,
+  //       assessment: assessment,
+  //     );
+  //
+  //     // Safety check: if current page is now beyond the new question list
+  //     // (e.g. if a language has fewer questions), reset to the last page.
+  //     if (state.pageIndex >= assessment.questions.length) {
+  //       state = state.copyWith(
+  //         pageIndex: assessment.questions.length - 1,
+  //       );
+  //     }
+  //   } catch (e) {
+  //     state = state.copyWith(isLoading: false, error: _messageFor(e));
+  //   }
+  // }
+
+  // lib/presentation/viewmodels/module_assessment_view_model.dart
+
   Future<void> load() async {
     state = state.copyWith(isLoading: true, error: null);
 
@@ -101,7 +148,21 @@ class ModuleAssessmentViewModel extends StateNotifier<ModuleAssessmentState> {
                 languageId: ref.read(languageProvider).languageId,
               );
 
-      state = ModuleAssessmentState(assessment: assessment);
+      // Use copyWith to keep existing pageIndex and answers
+      // while updating questions and potentially the result.
+      state = state.copyWith(
+        isLoading: false,
+        assessment: assessment,
+        // Update result if the server provides it, otherwise keep current state
+        result: assessment.result ?? state.result,
+      );
+
+      // Safety check: preserve current page unless it's out of bounds
+      if (state.pageIndex >= assessment.questions.length) {
+        state = state.copyWith(
+          pageIndex: assessment.questions.length - 1,
+        );
+      }
     } catch (e) {
       state = state.copyWith(isLoading: false, error: _messageFor(e));
     }
@@ -210,9 +271,7 @@ class ModuleAssessmentViewModel extends StateNotifier<ModuleAssessmentState> {
     state = state.copyWith(isSubmitting: true, error: null);
 
     try {
-      final result = await ref
-          .read(moduleAssessmentRepositoryProvider)
-          .submit(
+      final result = await ref.read(moduleAssessmentRepositoryProvider).submit(
             moduleId: moduleId,
             languageId: ref.read(languageProvider).languageId,
             answers: state.answers.values.toList(),
@@ -269,7 +328,72 @@ class ModuleAssessmentViewModel extends StateNotifier<ModuleAssessmentState> {
   }
 }
 
-final moduleAssessmentViewModelProvider = StateNotifierProvider.family<
-    ModuleAssessmentViewModel, ModuleAssessmentState, int>(
-  (ref, moduleId) => ModuleAssessmentViewModel(ref, moduleId),
+// final moduleAssessmentViewModelProvider = StateNotifierProvider.family<
+//     ModuleAssessmentViewModel, ModuleAssessmentState, int>(
+//   (ref, moduleId) => ModuleAssessmentViewModel(ref, moduleId),
+// );
+
+// final moduleAssessmentViewModelProvider = StateNotifierProvider.autoDispose
+//     .family<ModuleAssessmentViewModel, ModuleAssessmentState, int>(
+//   (ref, moduleId) {
+//     // This line ensures it reloads when language changes too
+//     ref.watch(languageProvider);
+//     return ModuleAssessmentViewModel(ref, moduleId);
+//   },
+// );
+
+// final moduleAssessmentViewModelProvider = StateNotifierProvider.autoDispose
+//     .family<ModuleAssessmentViewModel, ModuleAssessmentState, int>(
+//   (ref, moduleId) {
+//     final viewModel = ModuleAssessmentViewModel(ref, moduleId);
+//
+//     // This replaces ref.watch. It still reloads the data (fixing the cache issue)
+//     // but it allows the ViewModel to keep your current page and answers.
+//     ref.listen(languageProvider, (previous, next) {
+//       if (previous?.languageId != next.languageId) {
+//         viewModel.load();
+//       }
+//     });
+//
+//     return viewModel;
+//   },
+// );
+
+// lib/presentation/viewmodels/module_assessment_view_model.dart
+
+final moduleAssessmentViewModelProvider = StateNotifierProvider.autoDispose
+    .family<ModuleAssessmentViewModel, ModuleAssessmentState, int>(
+  (ref, moduleId) {
+    final viewModel = ModuleAssessmentViewModel(ref, moduleId);
+
+    // Listen for language changes and trigger a reload of questions
+    // without destroying the current viewModel instance (preserving answers/pageIndex).
+    ref.listen(languageProvider, (previous, next) {
+      if (previous?.languageId != next.languageId) {
+        viewModel.load();
+      }
+    });
+
+    return viewModel;
+  },
 );
+
+// lib/presentation/viewmodels/module_assessment_view_model.dart
+
+// Change this: Remove .autoDispose
+// final moduleAssessmentViewModelProvider = StateNotifierProvider.family<
+//     ModuleAssessmentViewModel, ModuleAssessmentState, int>(
+//   (ref, moduleId) {
+//     final viewModel = ModuleAssessmentViewModel(ref, moduleId);
+//
+//     // This ensures that when you change language, the questions are re-fetched
+//     // but the ViewModel instance (and thus your pageIndex/answers) stays the same.
+//     ref.listen(languageProvider, (previous, next) {
+//       if (previous?.languageId != next.languageId) {
+//         viewModel.load();
+//       }
+//     });
+//
+//     return viewModel;
+//   },
+// );

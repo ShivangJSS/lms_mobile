@@ -88,8 +88,7 @@ class AssessmentQuestionItem extends Equatable {
     this.rightItems = const [],
   });
 
-  bool get isChoice =>
-      type == QuestionType.mcq || type == QuestionType.scq;
+  bool get isChoice => type == QuestionType.mcq || type == QuestionType.scq;
 
   bool get isDropBucket => type == QuestionType.dropBucket;
 
@@ -120,10 +119,13 @@ class ModuleAssessment extends Equatable {
   final double passPercentage;
   final List<AssessmentQuestionItem> questions;
 
+  final AssessmentResult? result; // <--- Add this field
+
   const ModuleAssessment({
     required this.moduleId,
     required this.passPercentage,
     this.questions = const [],
+    this.result, // <--- Add this to constructor
   });
 
   bool get isEmpty => questions.isEmpty;
