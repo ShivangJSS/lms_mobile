@@ -82,6 +82,8 @@ class ModuleOverviewInfoModel extends ModuleOverviewInfo {
     super.durationLabel,
     super.hasMainContent,
     super.hasPostAssessment,
+    super.hasSelfPacedLearning,
+    super.hasPreAssessment,
   });
 
   factory ModuleOverviewInfoModel.fromJson(Map<String, dynamic> json) {
@@ -95,6 +97,8 @@ class ModuleOverviewInfoModel extends ModuleOverviewInfo {
       durationLabel: json['duration_label'] as String?,
       hasMainContent: json['has_main_content'] == true,
       hasPostAssessment: json['has_post_assessment'] == true,
+      hasSelfPacedLearning: json['has_self_paced_learning'] == true,
+      hasPreAssessment: json['has_pre_assessment'] == true,
     );
   }
 }

@@ -22,6 +22,7 @@ Future<void> showVideoQuestions(
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
+    useSafeArea: true,
     backgroundColor: Colors.transparent,
     builder: (_) => _VideoQuestionsSheet(topic: topic, moduleId: moduleId),
   );
@@ -166,14 +167,43 @@ class _VideoQuestionsSheetState extends ConsumerState<_VideoQuestionsSheet> {
     );
   }
 
+  // Widget _body() {
+  //   return ListView.separated(
+  //     shrinkWrap: true,
+  //     padding: const EdgeInsets.fromLTRB(
+  //       AppSpacing.lg,
+  //       AppSpacing.md,
+  //       AppSpacing.lg,
+  //       AppSpacing.lg,
+  //     ),
+  //     itemCount: _questions.length + 1,
+  //     separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
+  //     itemBuilder: (context, index) {
+  //       if (index == _questions.length) return _footer();
+  //
+  //       final q = _questions[index];
+  //       return VideoQuestionCard(
+  //         index: index + 1,
+  //         question: q,
+  //         selected: _selected[q.questionId] ?? const {},
+  //         revealed: _submitted,
+  //         onTap: (optionId) => _toggle(q, optionId),
+  //       );
+  //     },
+  //   );
+  // }
+
   Widget _body() {
+    final bottomInset = MediaQuery.of(context).padding.bottom;
     return ListView.separated(
       shrinkWrap: true,
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         AppSpacing.lg,
         AppSpacing.md,
         AppSpacing.lg,
-        AppSpacing.lg,
+        AppSpacing.lg +
+            bottomInset +
+            12, // <--- Adds system navigation bar inset + padding
       ),
       itemCount: _questions.length + 1,
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),

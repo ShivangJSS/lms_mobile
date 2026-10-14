@@ -12,6 +12,9 @@ class ModuleTopicsState {
   final String? error;
   final List<ModuleTopic> topics;
 
+
+  final List<ModuleTopic> selfPacedTopics; // NEW
+
   /// The module's own content, shown above the topic list.
   final ModuleOverviewInfo? overview;
 
@@ -19,6 +22,7 @@ class ModuleTopicsState {
     this.isLoading = false,
     this.error,
     this.topics = const [],
+    this.selfPacedTopics = const [], // NEW
     this.overview,
   });
 
@@ -26,12 +30,14 @@ class ModuleTopicsState {
     bool? isLoading,
     String? error,
     List<ModuleTopic>? topics,
+    List<ModuleTopic>? selfPacedTopics,
     ModuleOverviewInfo? overview,
   }) {
     return ModuleTopicsState(
       isLoading: isLoading ?? this.isLoading,
       error: error,
       topics: topics ?? this.topics,
+      selfPacedTopics: selfPacedTopics ?? this.selfPacedTopics,
       overview: overview ?? this.overview,
     );
   }
@@ -58,6 +64,7 @@ class ModuleTopicsViewModel extends StateNotifier<ModuleTopicsState> {
       state = state.copyWith(
         isLoading: false,
         topics: content.topics,
+        selfPacedTopics: content.selfPacedTopics,
         overview: content.overview,
       );
     } on DioException catch (e) {

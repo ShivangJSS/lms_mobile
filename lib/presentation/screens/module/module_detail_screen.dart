@@ -42,6 +42,9 @@ class ModuleDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(moduleTopicsViewModelProvider(moduleId));
+    // final viewModel =
+    //     ref.read(moduleTopicsViewModelProvider(moduleId).notifier);
+    // ✅ CORRECT:
     final viewModel =
         ref.read(moduleTopicsViewModelProvider(moduleId).notifier);
     final lang = ref.watch(languageProvider).languageId;
@@ -99,7 +102,51 @@ class ModuleDetailScreen extends ConsumerWidget {
                           topInset + AppSpacing.lg,
                           AppSpacing.lg,
                           AppSpacing.sm),
+                      // children: [
+                      //   // if (state.overview != null)
+                      //   //   _ModuleOverview(
+                      //   //     overview: state.overview!,
+                      //   //     languageId: lang,
+                      //   //   )
+                      //   // else
+                      //   //   _SectionBar(title: moduleName),
+                      //   // const SizedBox(height: AppSpacing.md),
+                      //   // _SectionBar(
+                      //   //   title: AppStrings.of('topics', lang),
+                      //   //   icon: Icons.list_alt_rounded,
+                      //   //   trailingCount:
+                      //   //       state.topics.isEmpty ? null : state.topics.length,
+                      //   // ),
+                      //   // const SizedBox(height: AppSpacing.md),
+                      //   // if (state.topics.isEmpty)
+                      //   //   Padding(
+                      //   //     padding: const EdgeInsets.symmetric(vertical: 28),
+                      //   //     child: Center(
+                      //   //       child: Text(
+                      //   //         AppStrings.of('no_topics', lang),
+                      //   //         style: const TextStyle(
+                      //   //           color: AppColors.textSecondary,
+                      //   //         ),
+                      //   //       ),
+                      //   //     ),
+                      //   //   )
+                      //   // else
+                      //   //   for (var i = 0; i < state.topics.length; i++)
+                      //   //     if (i == firstVideoIndex)
+                      //   //       _VideoTopicCard(
+                      //   //         topic: state.topics[i],
+                      //   //         moduleId: moduleId,
+                      //   //       )
+                      //   //     else
+                      //   //       _TopicRow(
+                      //   //         topic: state.topics[i],
+                      //   //         onTap: () =>
+                      //   //             _openTopic(context, state.topics[i]),
+                      //   //       ),
+                      //   // const SizedBox(height: 4),
+                      // ],
                       children: [
+                        // 1. Overview & Objectives
                         if (state.overview != null)
                           _ModuleOverview(
                             overview: state.overview!,
@@ -107,27 +154,47 @@ class ModuleDetailScreen extends ConsumerWidget {
                           )
                         else
                           _SectionBar(title: moduleName),
-                        const SizedBox(height: AppSpacing.md),
-                        _SectionBar(
-                          title: AppStrings.of('topics', lang),
-                          icon: Icons.list_alt_rounded,
-                          trailingCount:
-                              state.topics.isEmpty ? null : state.topics.length,
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        if (state.topics.isEmpty)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 28),
-                            child: Center(
-                              child: Text(
-                                AppStrings.of('no_topics', lang),
-                                style: const TextStyle(
-                                  color: AppColors.textSecondary,
-                                ),
+
+                        // 2. Self-Paced Learning (Optional)
+                        if (state.overview?.hasSelfPacedLearning == true &&
+                            state.selfPacedTopics.isNotEmpty) ...[
+                          const SizedBox(height: AppSpacing.md),
+                          _SectionBar(
+                            title: AppStrings.of('self_paced_learning', lang),
+                            icon: Icons.play_circle_outline_rounded,
+                            trailingCount: state.selfPacedTopics.length,
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          for (var topic in state.selfPacedTopics)
+                            if (topic.isVideo)
+                              _VideoTopicCard(topic: topic, moduleId: moduleId)
+                            else
+                              _TopicRow(
+                                topic: topic,
+                                onTap: () => _openTopic(context, topic),
                               ),
-                            ),
-                          )
-                        else
+                        ],
+
+                        // 3. Pre-Session Assessment (Optional)
+                        if (state.overview?.hasPreAssessment == true) ...[
+                          const SizedBox(height: AppSpacing.md),
+                          _PreSessionAssessmentBar(
+                            moduleId: moduleId,
+                            moduleName:
+                                state.overview?.moduleName ?? moduleName,
+                            languageId: lang,
+                          ),
+                        ],
+
+                        // 4. Main Course Topics (Compulsory)
+                        if (state.topics.isNotEmpty) ...[
+                          const SizedBox(height: AppSpacing.md),
+                          _SectionBar(
+                            title: AppStrings.of('main_course_topics', lang),
+                            icon: Icons.list_alt_rounded,
+                            trailingCount: state.topics.length,
+                          ),
+                          const SizedBox(height: AppSpacing.md),
                           for (var i = 0; i < state.topics.length; i++)
                             if (i == firstVideoIndex)
                               _VideoTopicCard(
@@ -140,6 +207,8 @@ class ModuleDetailScreen extends ConsumerWidget {
                                 onTap: () =>
                                     _openTopic(context, state.topics[i]),
                               ),
+                        ],
+
                         const SizedBox(height: 4),
                       ],
                     ),
@@ -710,6 +779,58 @@ class _CircleSheen extends StatelessWidget {
                   ],
                 ),
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PreSessionAssessmentBar extends StatelessWidget {
+  final int moduleId;
+  final String moduleName;
+  final int languageId;
+
+  const _PreSessionAssessmentBar({
+    required this.moduleId,
+    required this.moduleName,
+    required this.languageId,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: AppGloss.card(r: AppGloss.radiusSm),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+        child: InkWell(
+          onTap: () => context.push(
+            AppRoutes.moduleAssessmentPath(moduleId, type: 'pre'),
+            extra: moduleName,
+          ),
+          borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF8B5CF6), Color(0xFF6D28D9)],
+              ),
+              borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.assignment_outlined,
+                    color: Colors.white, size: 20),
+                const SizedBox(width: AppSpacing.sm),
+                Text(
+                  AppStrings.of('pre_session_assessment', languageId),
+                  style: AppText.button,
+                ),
+              ],
             ),
           ),
         ),

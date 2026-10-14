@@ -50,6 +50,7 @@ class ModuleAssessmentRemoteDataSource {
   Future<ModuleAssessmentModel> getAssessment({
     required int moduleId,
     required int languageId,
+    String type = 'post', // 'pre' or 'post'
   }) async {
     final response = await _dio.get(
       ApiConstants.moduleAssessment(moduleId),
@@ -57,6 +58,7 @@ class ModuleAssessmentRemoteDataSource {
         'language_id': languageId,
         // This timestamp ensures you see Web Admin changes immediately
         // without ever having to "Clear Cache" again.
+        'type': type,
         '_t': DateTime.now().millisecondsSinceEpoch,
       },
     );
@@ -71,10 +73,14 @@ class ModuleAssessmentRemoteDataSource {
     required int moduleId,
     required int languageId,
     required List<AssessmentAnswer> answers,
+    String type = 'post', // 'pre' or 'post'
   }) async {
     final response = await _dio.post(
       ApiConstants.moduleAssessmentSubmit(moduleId),
-      queryParameters: {'language_id': languageId},
+      queryParameters: {
+        'language_id': languageId,
+        'type': type,
+      },
       data: {
         'answers': answers.map((answer) => answer.toJson()).toList(),
       },

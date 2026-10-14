@@ -17,6 +17,7 @@ class DropBucketCard extends ConsumerWidget {
   final int number;
   final int moduleId;
   final int languageId;
+  final String type;
 
   const DropBucketCard({
     super.key,
@@ -24,6 +25,7 @@ class DropBucketCard extends ConsumerWidget {
     required this.number,
     required this.moduleId,
     required this.languageId,
+    required this.type,
   });
 
   static const _bucketArt = [
@@ -33,7 +35,8 @@ class DropBucketCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final provider = moduleAssessmentViewModelProvider(moduleId);
+    final provider = moduleAssessmentViewModelProvider(
+        AssessmentParams(moduleId: moduleId, type: type));
     final viewModel = ref.read(provider.notifier);
 
     ref.watch(provider);
@@ -107,6 +110,7 @@ class DropBucketCard extends ConsumerWidget {
                     art: _bucketArt[i % _bucketArt.length],
                     question: question,
                     moduleId: moduleId,
+                    type: type,
                     placed: question.items
                         .where(
                           (item) =>
@@ -198,6 +202,7 @@ class _BucketArt extends ConsumerWidget {
   final String art;
   final AssessmentQuestionItem question;
   final int moduleId;
+  final String type;
   final List<DraggableItem> placed;
 
   const _BucketArt({
@@ -205,13 +210,19 @@ class _BucketArt extends ConsumerWidget {
     required this.art,
     required this.question,
     required this.moduleId,
+    required this.type,
     required this.placed,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // final viewModel = ref.read(
+    //   moduleAssessmentViewModelProvider(moduleId).notifier,
+    // );
     final viewModel = ref.read(
-      moduleAssessmentViewModelProvider(moduleId).notifier,
+      moduleAssessmentViewModelProvider(
+              AssessmentParams(moduleId: moduleId, type: type))
+          .notifier,
     );
 
     return DragTarget<int>(

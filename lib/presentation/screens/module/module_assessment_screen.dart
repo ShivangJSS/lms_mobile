@@ -1,3 +1,270 @@
+// import 'package:flutter/material.dart';
+// import 'package:flutter_riverpod/flutter_riverpod.dart';
+// import 'package:go_router/go_router.dart';
+//
+// import '../../../core/localization/app_strings.dart';
+// import '../../../core/theme/app_text.dart';
+// import '../../../core/theme/colors.dart';
+// import '../../../core/theme/glossy.dart';
+// import '../../../domain/entities/module_assessment.dart';
+// import '../../viewmodels/dashboard_view_model.dart';
+// import '../../viewmodels/language_view_model.dart';
+// import '../../viewmodels/module_assessment_view_model.dart';
+// import '../../viewmodels/module_view_model.dart';
+// import '../../widgets/assessment_result_view.dart';
+// import '../../widgets/questions/assessment_header.dart';
+// import '../../widgets/questions/choice_question_card.dart';
+// import '../../widgets/questions/drop_bucket_card.dart';
+// import '../../widgets/questions/match_making_card.dart';
+//
+// /// One question per page: instructions, then each question in turn, then the
+// /// result.
+// class ModuleAssessmentScreen extends ConsumerWidget {
+//   final int moduleId;
+//   final String moduleName;
+//
+//   const ModuleAssessmentScreen({
+//     super.key,
+//     required this.moduleId,
+//     required this.moduleName,
+//   });
+//
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     final provider = moduleAssessmentViewModelProvider(moduleId);
+//
+//     final state = ref.watch(provider);
+//     final viewModel = ref.read(provider.notifier);
+//     final lang = ref.watch(languageProvider).languageId;
+//
+//     return Scaffold(
+//       backgroundColor: AppColors.background,
+//       appBar: AppBar(
+//         title: Text(AppStrings.of('app_title', lang)),
+//         backgroundColor: AppColors.primary,
+//         foregroundColor: Colors.white,
+//       ),
+//       body: DecoratedBox(
+//         decoration: const BoxDecoration(gradient: AppColors.pageWash),
+//         child: Builder(
+//           builder: (context) {
+//             if (state.isLoading) {
+//               return const Center(child: CircularProgressIndicator());
+//             }
+//
+//             if (state.result != null) {
+//               return AssessmentResultView(
+//                 result: state.result!,
+//                 languageId: lang,
+//                 onRetry: viewModel.retry,
+//                 onDone: () {
+//                   // Module list and dashboard both change when a module
+//                   // completes, so they are refetched on the way out.
+//                   ref.invalidate(moduleViewModelProvider);
+//                   ref.invalidate(dashboardViewModelProvider);
+//                   context.pop();
+//                 },
+//               );
+//             }
+//
+//             if (state.error != null && state.assessment == null) {
+//               return _Message(
+//                 text: state.error!,
+//                 languageId: lang,
+//                 onRetry: viewModel.load,
+//               );
+//             }
+//
+//             if (state.questions.isEmpty) {
+//               return _Message(
+//                 text: AppStrings.of('no_assessment', lang),
+//                 languageId: lang,
+//                 onRetry: viewModel.load,
+//               );
+//             }
+//
+//             if (state.onInstructions) {
+//               return _InstructionsPage(
+//                 moduleName: moduleName,
+//                 onStart: viewModel.next,
+//                 languageId: lang,
+//               );
+//             }
+//
+//             final question = state.currentQuestion!;
+//
+//             return Column(
+//               children: [
+//                 Expanded(
+//                   child: SingleChildScrollView(
+//                     padding: const EdgeInsets.fromLTRB(AppSpacing.lg,
+//                         AppSpacing.lg, AppSpacing.lg, AppSpacing.sm),
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         AssessmentHeader.forQuestion(question, lang),
+//                         const SizedBox(height: AppSpacing.xl),
+//                         _card(question, state.pageIndex + 1, lang),
+//                       ],
+//                     ),
+//                   ),
+//                 ),
+//                 AssessmentNavBar(
+//                   onPrevious: state.pageIndex > 0 ? viewModel.previous : null,
+//                   onNext: state.onLastQuestion
+//                       ? (state.canSubmit ? viewModel.submit : null)
+//                       : (state.canAdvance ? viewModel.next : null),
+//                   nextLabel: state.onLastQuestion
+//                       ? AppStrings.of('submit', lang)
+//                       : AppStrings.of('next', lang),
+//                   isBusy: state.isSubmitting,
+//                   languageId: lang,
+//                 ),
+//               ],
+//             );
+//           },
+//         ),
+//       ),
+//     );
+//   }
+//
+//   Widget _card(AssessmentQuestionItem question, int number, int lang) {
+//     if (question.isDropBucket) {
+//       return DropBucketCard(
+//         question: question,
+//         number: number,
+//         moduleId: moduleId,
+//         languageId: lang,
+//       );
+//     }
+//
+//     if (question.isMatchMaking) {
+//       return MatchMakingCard(
+//         question: question,
+//         number: number,
+//         moduleId: moduleId,
+//         languageId: lang,
+//       );
+//     }
+//
+//     return ChoiceQuestionCard(
+//       question: question,
+//       number: number,
+//       moduleId: moduleId,
+//       languageId: lang,
+//     );
+//   }
+// }
+//
+// class _InstructionsPage extends StatelessWidget {
+//   final String moduleName;
+//   final VoidCallback onStart;
+//   final int languageId;
+//
+//   const _InstructionsPage({
+//     required this.moduleName,
+//     required this.onStart,
+//     required this.languageId,
+//   });
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final points = [
+//       AppStrings.of('instruction_1', languageId),
+//       AppStrings.of('instruction_2', languageId),
+//       AppStrings.of('instruction_3', languageId),
+//       AppStrings.of('instruction_4', languageId),
+//       AppStrings.of('instruction_5', languageId),
+//     ];
+//
+//     return Column(
+//       children: [
+//         Expanded(
+//           child: SingleChildScrollView(
+//             padding: const EdgeInsets.all(AppSpacing.lg),
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 AssessmentHeader(title: moduleName),
+//                 const SizedBox(height: AppSpacing.md),
+//                 Container(
+//                   width: double.infinity,
+//                   padding: const EdgeInsets.all(AppSpacing.lg),
+//                   decoration: AppGloss.card(),
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       Text(
+//                         AppStrings.of('assessment_instructions', languageId),
+//                         style: AppText.h3,
+//                       ),
+//                       const SizedBox(height: AppSpacing.md),
+//                       for (final point in points)
+//                         Padding(
+//                           padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+//                           child: Row(
+//                             crossAxisAlignment: CrossAxisAlignment.start,
+//                             children: [
+//                               const Text('•  ', style: AppText.body),
+//                               Expanded(
+//                                 child: Text(point, style: AppText.body),
+//                               ),
+//                             ],
+//                           ),
+//                         ),
+//                     ],
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//         AssessmentNavBar(
+//           nextLabel: AppStrings.of('next', languageId),
+//           onNext: onStart,
+//           languageId: languageId,
+//         ),
+//       ],
+//     );
+//   }
+// }
+//
+// class _Message extends StatelessWidget {
+//   final String text;
+//   final int languageId;
+//   final Future<void> Function() onRetry;
+//
+//   const _Message({
+//     required this.text,
+//     required this.languageId,
+//     required this.onRetry,
+//   });
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Center(
+//       child: Padding(
+//         padding: const EdgeInsets.all(24.0),
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             Text(
+//               text,
+//               textAlign: TextAlign.center,
+//               style: const TextStyle(color: AppColors.textSecondary),
+//             ),
+//             const SizedBox(height: 16),
+//             TextButton(
+//               onPressed: onRetry,
+//               child: Text(AppStrings.of('retry', languageId)),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -22,16 +289,19 @@ import '../../widgets/questions/match_making_card.dart';
 class ModuleAssessmentScreen extends ConsumerWidget {
   final int moduleId;
   final String moduleName;
+  final String type;
 
   const ModuleAssessmentScreen({
     super.key,
     required this.moduleId,
     required this.moduleName,
+    this.type = 'post',
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final provider = moduleAssessmentViewModelProvider(moduleId);
+    final params = AssessmentParams(moduleId: moduleId, type: type);
+    final provider = moduleAssessmentViewModelProvider(params);
 
     final state = ref.watch(provider);
     final viewModel = ref.read(provider.notifier);
@@ -135,6 +405,7 @@ class ModuleAssessmentScreen extends ConsumerWidget {
         number: number,
         moduleId: moduleId,
         languageId: lang,
+        type: type,
       );
     }
 
@@ -144,6 +415,7 @@ class ModuleAssessmentScreen extends ConsumerWidget {
         number: number,
         moduleId: moduleId,
         languageId: lang,
+        type: type,
       );
     }
 
@@ -152,6 +424,7 @@ class ModuleAssessmentScreen extends ConsumerWidget {
       number: number,
       moduleId: moduleId,
       languageId: lang,
+      type: type,
     );
   }
 }

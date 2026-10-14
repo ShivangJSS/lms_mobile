@@ -30,8 +30,8 @@ class AppRoutes {
 
   static String moduleDetailPath(int moduleId) => '/modules/$moduleId';
 
-  static String moduleAssessmentPath(int moduleId) =>
-      '/modules/$moduleId/assessment';
+  static String moduleAssessmentPath(int moduleId, {String type = 'post'}) =>
+      '/modules/$moduleId/assessment?type=$type';
 
   static int _moduleIdOf(GoRouterState state) =>
       int.tryParse(state.pathParameters['moduleId'] ?? '') ?? 0;
@@ -40,72 +40,83 @@ class AppRoutes {
   /// saved session (home when signed in, login otherwise) — there is no longer
   /// a splash screen in between.
   static GoRouter buildRouter({String initialLocation = login}) => GoRouter(
-    initialLocation: initialLocation,
-    routes: [
-      GoRoute(
-        path: splash,
-        builder: (context, state) => const SplashScreen(),
-      ),
-      GoRoute(
-        path: login,
-        builder: (context, state) => const LoginScreen(),
-      ),
-      GoRoute(
-        path: forgotPassword,
-        builder: (context, state) => const ForgotPasswordScreen(),
-      ),
-      GoRoute(
-        path: resetPassword,
-        builder: (context, state) => const ResetPasswordScreen(),
-      ),
-      GoRoute(
-        path: home,
-        builder: (context, state) => const HomeScreen(),
-      ),
-      GoRoute(
-        path: assessment,
-        builder: (context, state) => const AssessmentScreen(),
-      ),
-      GoRoute(
-        path: profile,
-        builder: (context, state) => const ProfileScreen(),
-      ),
-      GoRoute(
-        path: moodCheck,
-        builder: (context, state) => const FeedbackScreen(
-          mode: FeedbackMode.mood,
-        ),
-      ),
-      GoRoute(
-        path: feedback,
-        builder: (context, state) => const FeedbackScreen(
-          mode: FeedbackMode.full,
-        ),
-      ),
-      GoRoute(
-        path: modules,
-        builder: (context, state) => const ModuleListScreen(),
+        initialLocation: initialLocation,
         routes: [
           GoRoute(
-            path: ':moduleId',
-            builder: (context, state) => ModuleDetailScreen(
-              moduleId: _moduleIdOf(state),
-              // Passed through so the header reads correctly before the
-              // topics have loaded.
-              moduleName: state.extra as String? ?? '',
+            path: splash,
+            builder: (context, state) => const SplashScreen(),
+          ),
+          GoRoute(
+            path: login,
+            builder: (context, state) => const LoginScreen(),
+          ),
+          GoRoute(
+            path: forgotPassword,
+            builder: (context, state) => const ForgotPasswordScreen(),
+          ),
+          GoRoute(
+            path: resetPassword,
+            builder: (context, state) => const ResetPasswordScreen(),
+          ),
+          GoRoute(
+            path: home,
+            builder: (context, state) => const HomeScreen(),
+          ),
+          GoRoute(
+            path: assessment,
+            builder: (context, state) => const AssessmentScreen(),
+          ),
+          GoRoute(
+            path: profile,
+            builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: moodCheck,
+            builder: (context, state) => const FeedbackScreen(
+              mode: FeedbackMode.mood,
             ),
+          ),
+          GoRoute(
+            path: feedback,
+            builder: (context, state) => const FeedbackScreen(
+              mode: FeedbackMode.full,
+            ),
+          ),
+          GoRoute(
+            path: modules,
+            builder: (context, state) => const ModuleListScreen(),
             routes: [
               GoRoute(
-                path: 'assessment',
-                builder: (context, state) => ModuleAssessmentScreen(
+                path: ':moduleId',
+                builder: (context, state) => ModuleDetailScreen(
                   moduleId: _moduleIdOf(state),
+                  // Passed through so the header reads correctly before the
+                  // topics have loaded.
                   moduleName: state.extra as String? ?? '',
                 ),
+                routes: [
+                  // GoRoute(
+                  //   path: 'assessment',
+                  //   builder: (context, state) => ModuleAssessmentScreen(
+                  //     moduleId: _moduleIdOf(state),
+                  //     moduleName: state.extra as String? ?? '',
+                  //   ),
+                  // ),
+                  GoRoute(
+                      path: 'assessment',
+                      builder: (context, state) {
+                        final type =
+                            state.uri.queryParameters['type'] ?? 'post';
+                        return ModuleAssessmentScreen(
+                          moduleId: _moduleIdOf(state),
+                          moduleName: state.extra as String? ?? '',
+                          type: type,
+                        );
+                      })
+                ],
               ),
             ],
           ),
         ],
-      ),
-    ],
-  );
+      );
 }

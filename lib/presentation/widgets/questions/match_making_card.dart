@@ -15,6 +15,7 @@ class MatchMakingCard extends ConsumerWidget {
   final int number;
   final int moduleId;
   final int languageId;
+  final String type;
 
   const MatchMakingCard({
     super.key,
@@ -22,11 +23,13 @@ class MatchMakingCard extends ConsumerWidget {
     required this.number,
     required this.moduleId,
     required this.languageId,
+    required this.type,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final provider = moduleAssessmentViewModelProvider(moduleId);
+    final provider = moduleAssessmentViewModelProvider(
+        AssessmentParams(moduleId: moduleId, type: type));
     final viewModel = ref.read(provider.notifier);
 
     ref.watch(provider);
@@ -93,6 +96,7 @@ class MatchMakingCard extends ConsumerWidget {
               left: question.leftItems[i],
               question: question,
               moduleId: moduleId,
+              type: type,
               matched: _rightFor(
                 question,
                 viewModel.matchOf(question, question.leftItems[i].itemId),
@@ -176,6 +180,7 @@ class _MatchRow extends ConsumerWidget {
   final MatchItem left;
   final AssessmentQuestionItem question;
   final int moduleId;
+  final String type;
   final MatchItem? matched;
 
   const _MatchRow({
@@ -184,12 +189,18 @@ class _MatchRow extends ConsumerWidget {
     required this.question,
     required this.moduleId,
     required this.matched,
+    required this.type,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // final viewModel = ref.read(
+    //   moduleAssessmentViewModelProvider(moduleId).notifier,
+    // );
     final viewModel = ref.read(
-      moduleAssessmentViewModelProvider(moduleId).notifier,
+      moduleAssessmentViewModelProvider(
+              AssessmentParams(moduleId: moduleId, type: type))
+          .notifier,
     );
 
     return DragTarget<int>(

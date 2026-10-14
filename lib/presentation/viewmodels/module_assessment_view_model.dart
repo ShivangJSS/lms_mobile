@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:equatable/equatable.dart';
 import '../../core/network/providers.dart';
 import '../../domain/entities/assessment_answer.dart';
 import '../../domain/entities/module_assessment.dart';
@@ -82,11 +82,29 @@ class ModuleAssessmentState {
   }
 }
 
+class AssessmentParams extends Equatable {
+  final int moduleId;
+  final String type; // 'pre' or 'post'
+
+  const AssessmentParams({
+    required this.moduleId,
+    this.type = 'post',
+  });
+
+  @override
+  List<Object?> get props => [moduleId, type];
+}
+
 class ModuleAssessmentViewModel extends StateNotifier<ModuleAssessmentState> {
   final Ref ref;
-  final int moduleId;
+  // final int moduleId;
+  final AssessmentParams
+      params; // <--- Change from int moduleId to AssessmentParams
 
-  ModuleAssessmentViewModel(this.ref, this.moduleId)
+  int get moduleId => params.moduleId;
+  String get type => params.type;
+
+  ModuleAssessmentViewModel(this.ref, this.params)
       : super(const ModuleAssessmentState()) {
     load();
   }
@@ -146,6 +164,7 @@ class ModuleAssessmentViewModel extends StateNotifier<ModuleAssessmentState> {
           await ref.read(moduleAssessmentRepositoryProvider).getAssessment(
                 moduleId: moduleId,
                 languageId: ref.read(languageProvider).languageId,
+                type: type,
               );
 
       // Use copyWith to keep existing pageIndex and answers
@@ -275,6 +294,7 @@ class ModuleAssessmentViewModel extends StateNotifier<ModuleAssessmentState> {
             moduleId: moduleId,
             languageId: ref.read(languageProvider).languageId,
             answers: state.answers.values.toList(),
+            type: type,
           );
 
       state = state.copyWith(isSubmitting: false, result: result);
@@ -362,9 +382,9 @@ class ModuleAssessmentViewModel extends StateNotifier<ModuleAssessmentState> {
 // lib/presentation/viewmodels/module_assessment_view_model.dart
 
 final moduleAssessmentViewModelProvider = StateNotifierProvider.autoDispose
-    .family<ModuleAssessmentViewModel, ModuleAssessmentState, int>(
-  (ref, moduleId) {
-    final viewModel = ModuleAssessmentViewModel(ref, moduleId);
+    .family<ModuleAssessmentViewModel, ModuleAssessmentState, AssessmentParams>(
+  (ref, params) {
+    final viewModel = ModuleAssessmentViewModel(ref, params);
 
     // Listen for language changes and trigger a reload of questions
     // without destroying the current viewModel instance (preserving answers/pageIndex).

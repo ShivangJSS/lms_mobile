@@ -126,6 +126,9 @@ class ModuleOverviewInfo extends Equatable {
   final bool hasMainContent;
   final bool hasPostAssessment;
 
+  final bool hasSelfPacedLearning; // NEW
+  final bool hasPreAssessment; //New
+
   const ModuleOverviewInfo({
     required this.moduleId,
     this.moduleName,
@@ -136,6 +139,8 @@ class ModuleOverviewInfo extends Equatable {
     this.durationLabel,
     this.hasMainContent = false,
     this.hasPostAssessment = false,
+    this.hasSelfPacedLearning = false, // NEW
+    this.hasPreAssessment = false,     // NEW
   });
 
   bool get hasAnyText =>
@@ -154,6 +159,8 @@ class ModuleOverviewInfo extends Equatable {
         durationLabel,
         hasMainContent,
         hasPostAssessment,
+        hasSelfPacedLearning,
+        hasPreAssessment,
       ];
 }
 
@@ -161,11 +168,16 @@ class ModuleOverviewInfo extends Equatable {
 class ModuleContent extends Equatable {
   final ModuleOverviewInfo? overview;
   final List<ModuleTopic> topics;
+  final List<ModuleTopic> selfPacedTopics; // NEW
 
-  const ModuleContent({this.overview, this.topics = const []});
+  const ModuleContent({
+    this.overview,
+    this.topics = const [],
+    this.selfPacedTopics = const [], // NEW
+  });
 
   @override
-  List<Object?> get props => [overview, topics];
+  List<Object?> get props => [overview, topics, selfPacedTopics];
 }
 
 /// A single topic inside a module, with the document attached to it.

@@ -21,6 +21,7 @@ class ModuleRemoteDataSource {
       queryParameters: {
         'language_id': languageId,
         if (moduleType != null) 'module_type': moduleType,
+        '_t': DateTime.now().millisecondsSinceEpoch, // <--- Add this line
       },
     );
 
@@ -72,32 +73,68 @@ class ModuleRemoteDataSource {
   /// GET /mobile/module/{module_id}/topics
   ///
   /// Returns the module's own content alongside its topic list.
+  // Future<ModuleContent> getModuleTopics({
+  //   required int moduleId,
+  //   required int languageId,
+  // }) async {
+  //   final response = await _dio.get(
+  //     ApiConstants.moduleTopics(moduleId),
+  //     queryParameters: {
+  //       'language_id': languageId,
+  //       '_t': DateTime.now().millisecondsSinceEpoch, // <--- Add this line
+  //     },
+  //   );
+  //
+  //   final data = response.data as Map<String, dynamic>;
+  //
+  //   final module = data['module'];
+  //
+  //   final topics = data['topics'] as List<dynamic>? ?? [];
+  //
+  //   return ModuleContent(
+  //     overview: module is Map<String, dynamic>
+  //         ? ModuleOverviewInfoModel.fromJson(module)
+  //         : null,
+  //     topics: topics
+  //         .map(
+  //           (item) => ModuleTopicModel.fromJson(
+  //             item as Map<String, dynamic>,
+  //           ),
+  //         )
+  //         .toList(),
+  //   );
+  // }
+
+  // lib/data/datasource/remote/module_remote_datasource.dart
+
   Future<ModuleContent> getModuleTopics({
     required int moduleId,
     required int languageId,
   }) async {
     final response = await _dio.get(
       ApiConstants.moduleTopics(moduleId),
-      queryParameters: {'language_id': languageId},
+      queryParameters: {
+        'language_id': languageId,
+        '_t': DateTime.now().millisecondsSinceEpoch,
+      },
     );
 
     final data = response.data as Map<String, dynamic>;
-
     final module = data['module'];
-
     final topics = data['topics'] as List<dynamic>? ?? [];
+    final selfPacedTopics = data['self_paced_topics'] as List<dynamic>? ?? [];
 
     return ModuleContent(
       overview: module is Map<String, dynamic>
           ? ModuleOverviewInfoModel.fromJson(module)
           : null,
       topics: topics
-          .map(
-            (item) => ModuleTopicModel.fromJson(
-              item as Map<String, dynamic>,
-            ),
-          )
+          .map((item) => ModuleTopicModel.fromJson(item as Map<String, dynamic>))
+          .toList(),
+      selfPacedTopics: selfPacedTopics
+          .map((item) => ModuleTopicModel.fromJson(item as Map<String, dynamic>))
           .toList(),
     );
   }
+
 }

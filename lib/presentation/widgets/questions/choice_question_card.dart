@@ -16,18 +16,20 @@ class ChoiceQuestionCard extends ConsumerWidget {
   final int number;
   final int moduleId;
   final int languageId;
+  final String type;
 
-  const ChoiceQuestionCard({
-    super.key,
-    required this.question,
-    required this.number,
-    required this.moduleId,
-    required this.languageId,
-  });
+  const ChoiceQuestionCard(
+      {super.key,
+      required this.question,
+      required this.number,
+      required this.moduleId,
+      required this.languageId,
+      required this.type});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final provider = moduleAssessmentViewModelProvider(moduleId);
+    final provider = moduleAssessmentViewModelProvider(
+        AssessmentParams(moduleId: moduleId, type: type));
     final viewModel = ref.read(provider.notifier);
 
     ref.watch(provider);
