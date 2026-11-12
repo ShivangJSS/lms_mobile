@@ -280,6 +280,79 @@ class _Intro extends ConsumerWidget {
   }
 }
 
+// class _MoodCard extends ConsumerWidget {
+//   final FeedbackQuestion question;
+//
+//   const _MoodCard({required this.question});
+//
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     final viewModel = ref.read(feedbackViewModelProvider.notifier);
+//
+//     // Watched so the tiles rebuild when a selection changes.
+//     ref.watch(feedbackViewModelProvider);
+//
+//     return Container(
+//       margin: const EdgeInsets.only(bottom: AppSpacing.lg),
+//       padding: const EdgeInsets.all(AppSpacing.xl),
+//       decoration: AppGloss.card(r: AppGloss.radiusLg, shadow: AppGloss.lifted),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Row(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               // Leading accent bar for a clear, hierarchical heading.
+//               Container(
+//                 width: 4,
+//                 height: 22,
+//                 margin: const EdgeInsets.only(top: 2, right: AppSpacing.md),
+//                 decoration: BoxDecoration(
+//                   gradient: AppColors.brandGradientRich,
+//                   borderRadius: BorderRadius.circular(4),
+//                 ),
+//               ),
+//               Expanded(
+//                 child: Text(
+//                   question.questionName,
+//                   style: AppText.h4,
+//                 ),
+//               ),
+//             ],
+//           ),
+//           if (question.questionDescription != null &&
+//               question.questionDescription!.isNotEmpty) ...[
+//             const SizedBox(height: 6),
+//             Padding(
+//               padding: const EdgeInsets.only(left: AppSpacing.lg),
+//               child: Text(question.questionDescription!, style: AppText.muted),
+//             ),
+//           ],
+//           const SizedBox(height: AppSpacing.lg),
+//           for (final option in question.options)
+//             _OptionTile(
+//               label: option.optionName,
+//               isMultiple: question.allowsMultiple,
+//               selected: viewModel.isSelected(
+//                 question.questionId,
+//                 option.optionId,
+//               ),
+//               onTap: question.allowsMultiple
+//                   ? () => viewModel.toggleMultiple(
+//                         question.questionId,
+//                         option.optionId,
+//                       )
+//                   : () => viewModel.selectSingle(
+//                         question.questionId,
+//                         option.optionId,
+//                       ),
+//             ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
 class _MoodCard extends ConsumerWidget {
   final FeedbackQuestion question;
 
@@ -287,26 +360,43 @@ class _MoodCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final viewModel = ref.read(feedbackViewModelProvider.notifier);
+    final viewModel = ref.read(
+      feedbackViewModelProvider.notifier,
+    );
 
     // Watched so the tiles rebuild when a selection changes.
     ref.watch(feedbackViewModelProvider);
 
+    // Filter out raw/misspelled API subtitle strings like
+    // "Single Choise" or "Multiple Choise".
+    final desc = question.questionDescription?.trim();
+
+    final showDesc = desc != null &&
+        desc.isNotEmpty &&
+        !desc.toLowerCase().contains('choise') &&
+        !desc.toLowerCase().contains('single choice') &&
+        !desc.toLowerCase().contains('multiple choice');
+
     return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.lg),
-      padding: const EdgeInsets.all(AppSpacing.xl),
-      decoration: AppGloss.card(r: AppGloss.radiusLg, shadow: AppGloss.lifted),
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(16),
+      decoration: AppGloss.card(
+        r: AppGloss.radiusLg,
+        shadow: AppGloss.lifted,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Leading accent bar for a clear, hierarchical heading.
               Container(
                 width: 4,
-                height: 22,
-                margin: const EdgeInsets.only(top: 2, right: AppSpacing.md),
+                height: 20,
+                margin: const EdgeInsets.only(
+                  top: 2,
+                  right: 10,
+                ),
                 decoration: BoxDecoration(
                   gradient: AppColors.brandGradientRich,
                   borderRadius: BorderRadius.circular(4),
@@ -315,20 +405,25 @@ class _MoodCard extends ConsumerWidget {
               Expanded(
                 child: Text(
                   question.questionName,
-                  style: AppText.h4,
+                  style: AppText.h4.copyWith(
+                    fontSize: 16.5,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
           ),
-          if (question.questionDescription != null &&
-              question.questionDescription!.isNotEmpty) ...[
-            const SizedBox(height: 6),
+          if (showDesc) ...[
+            const SizedBox(height: 4),
             Padding(
-              padding: const EdgeInsets.only(left: AppSpacing.lg),
-              child: Text(question.questionDescription!, style: AppText.muted),
+              padding: const EdgeInsets.only(left: 14),
+              child: Text(
+                desc!,
+                style: AppText.muted,
+              ),
             ),
           ],
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: 12),
           for (final option in question.options)
             _OptionTile(
               label: option.optionName,
@@ -356,6 +451,89 @@ class _MoodCard extends ConsumerWidget {
 /// A glossy, tappable option row with a clear selected state in brand plum.
 /// Renders a circular indicator for single-choice and a rounded square for
 /// multiple-choice, matching radio / checkbox semantics.
+// class _OptionTile extends StatelessWidget {
+//   final String label;
+//   final bool selected;
+//   final bool isMultiple;
+//   final VoidCallback onTap;
+//
+//   const _OptionTile({
+//     required this.label,
+//     required this.selected,
+//     required this.isMultiple,
+//     required this.onTap,
+//   });
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+//       child: Material(
+//         color: Colors.transparent,
+//         borderRadius: BorderRadius.circular(14),
+//         child: InkWell(
+//           onTap: onTap,
+//           borderRadius: BorderRadius.circular(14),
+//           child: AnimatedContainer(
+//             duration: const Duration(milliseconds: 160),
+//             curve: Curves.easeOut,
+//             padding: const EdgeInsets.symmetric(
+//               horizontal: AppSpacing.lg,
+//               vertical: AppSpacing.md + 2,
+//             ),
+//             decoration: BoxDecoration(
+//               gradient: selected
+//                   ? const LinearGradient(
+//                       begin: Alignment.topLeft,
+//                       end: Alignment.bottomRight,
+//                       colors: [Color(0xFFF3E7F7), Color(0xFFE7D6EF)],
+//                     )
+//                   : const LinearGradient(
+//                       begin: Alignment.topCenter,
+//                       end: Alignment.bottomCenter,
+//                       colors: [Colors.white, Color(0xFFF7F1FB)],
+//                     ),
+//               borderRadius: BorderRadius.circular(14),
+//               border: Border.all(
+//                 color: selected ? AppColors.primary : AppColors.hairline,
+//                 width: selected ? 1.6 : 1,
+//               ),
+//               boxShadow: selected
+//                   ? [
+//                       BoxShadow(
+//                         color: AppColors.primary.withValues(alpha: 0.18),
+//                         blurRadius: 14,
+//                         offset: const Offset(0, 6),
+//                       ),
+//                     ]
+//                   : null,
+//             ),
+//             child: Row(
+//               children: [
+//                 _Indicator(selected: selected, isMultiple: isMultiple),
+//                 const SizedBox(width: AppSpacing.md),
+//                 Expanded(
+//                   child: Text(
+//                     label,
+//                     style: AppText.body.copyWith(
+//                       fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+//                       color: selected
+//                           ? AppColors.primaryDark
+//                           : AppColors.textPrimary,
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+/// Border-free, clean option tile with a soft lavender plum
+/// highlight when selected (#ECE0EF).
 class _OptionTile extends StatelessWidget {
   final String label;
   final bool selected;
@@ -372,55 +550,37 @@ class _OptionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      padding: const EdgeInsets.only(bottom: 6),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 160),
             curve: Curves.easeOut,
             padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.lg,
-              vertical: AppSpacing.md + 2,
+              horizontal: 12,
+              vertical: 11,
             ),
             decoration: BoxDecoration(
-              gradient: selected
-                  ? const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFFF3E7F7), Color(0xFFE7D6EF)],
-                    )
-                  : const LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.white, Color(0xFFF7F1FB)],
-                    ),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: selected ? AppColors.primary : AppColors.hairline,
-                width: selected ? 1.6 : 1,
-              ),
-              boxShadow: selected
-                  ? [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.18),
-                        blurRadius: 14,
-                        offset: const Offset(0, 6),
-                      ),
-                    ]
-                  : null,
+              color: selected ? const Color(0xFFECE0EF) : Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+              border: null, // Border-free option tile.
             ),
             child: Row(
               children: [
-                _Indicator(selected: selected, isMultiple: isMultiple),
-                const SizedBox(width: AppSpacing.md),
+                _Indicator(
+                  selected: selected,
+                  isMultiple: isMultiple,
+                ),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     label,
                     style: AppText.body.copyWith(
+                      fontSize: 15,
                       fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                       color: selected
                           ? AppColors.primaryDark
@@ -438,41 +598,89 @@ class _OptionTile extends StatelessWidget {
 }
 
 /// The filled brand indicator inside an [_OptionTile].
+// class _Indicator extends StatelessWidget {
+//   final bool selected;
+//   final bool isMultiple;
+//
+//   const _Indicator({required this.selected, required this.isMultiple});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return AnimatedContainer(
+//       duration: const Duration(milliseconds: 160),
+//       curve: Curves.easeOut,
+//       height: 24,
+//       width: 24,
+//       decoration: BoxDecoration(
+//         gradient: selected ? AppColors.buttonGloss : null,
+//         color: selected ? null : Colors.white,
+//         shape: isMultiple ? BoxShape.rectangle : BoxShape.circle,
+//         borderRadius: isMultiple ? BorderRadius.circular(7) : null,
+//         border: Border.all(
+//           color: selected ? AppColors.primary : const Color(0xFFC7B6CE),
+//           width: 1.6,
+//         ),
+//         boxShadow: selected
+//             ? [
+//                 BoxShadow(
+//                   color: AppColors.primary.withValues(alpha: 0.35),
+//                   blurRadius: 8,
+//                   offset: const Offset(0, 3),
+//                 ),
+//               ]
+//             : null,
+//       ),
+//       child: selected
+//           ? (isMultiple
+//               ? const Icon(Icons.check_rounded, size: 16, color: Colors.white)
+//               : Center(
+//                   child: Container(
+//                     height: 8,
+//                     width: 8,
+//                     decoration: const BoxDecoration(
+//                       color: Colors.white,
+//                       shape: BoxShape.circle,
+//                     ),
+//                   ),
+//                 ))
+//           : null,
+//     );
+//   }
+// }
+
+/// Radio / Checkbox indicator inside an [_OptionTile].
 class _Indicator extends StatelessWidget {
   final bool selected;
   final bool isMultiple;
 
-  const _Indicator({required this.selected, required this.isMultiple});
+  const _Indicator({
+    required this.selected,
+    required this.isMultiple,
+  });
 
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 160),
       curve: Curves.easeOut,
-      height: 24,
-      width: 24,
+      height: 22,
+      width: 22,
       decoration: BoxDecoration(
-        gradient: selected ? AppColors.buttonGloss : null,
-        color: selected ? null : Colors.white,
+        color: selected ? AppColors.primary : Colors.white,
         shape: isMultiple ? BoxShape.rectangle : BoxShape.circle,
-        borderRadius: isMultiple ? BorderRadius.circular(7) : null,
+        borderRadius: isMultiple ? BorderRadius.circular(6) : null,
         border: Border.all(
           color: selected ? AppColors.primary : const Color(0xFFC7B6CE),
           width: 1.6,
         ),
-        boxShadow: selected
-            ? [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.35),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ]
-            : null,
       ),
       child: selected
           ? (isMultiple
-              ? const Icon(Icons.check_rounded, size: 16, color: Colors.white)
+              ? const Icon(
+                  Icons.check_rounded,
+                  size: 15,
+                  color: Colors.white,
+                )
               : Center(
                   child: Container(
                     height: 8,

@@ -40,9 +40,9 @@ class LoginViewModel extends StateNotifier<LoginState> {
   LoginViewModel(this.ref) : super(const LoginState());
 
   Future<bool> login(
-      String username,
-      String password,
-      ) async {
+    String username,
+    String password,
+  ) async {
     state = state.copyWith(
       isLoading: true,
       error: null,
@@ -68,31 +68,77 @@ class LoginViewModel extends StateNotifier<LoginState> {
       );
 
       return true;
+      // } on DioException catch (e) {
+      //   // Never surface Dio's own text — it explains validateStatus and HTTP
+      //   // codes, which means nothing to a participant.
+      //   String message;
+      //
+      //   switch (e.response?.statusCode) {
+      //     case 400:
+      //     case 401:
+      //     case 404:
+      //     case 422:
+      //       message = "Invalid username or password";
+      //       break;
+      //
+      //     case 500:
+      //     case 502:
+      //     case 503:
+      //       message = "Server error. Please try again.";
+      //       break;
+      //
+      //     default:
+      //       message = e.type == DioExceptionType.connectionError ||
+      //               e.type == DioExceptionType.connectionTimeout ||
+      //               e.type == DioExceptionType.receiveTimeout
+      //           ? "Cannot reach the server. Check your connection."
+      //           : "Something went wrong. Please try again.";
+      //   }
+      //
+      //   state = LoginState(
+      //     isLoading: false,
+      //     error: message,
+      //   );
+      //
+      //   return false;
+      // }
     } on DioException catch (e) {
-      // Never surface Dio's own text — it explains validateStatus and HTTP
-      // codes, which means nothing to a participant.
       String message;
 
-      switch (e.response?.statusCode) {
-        case 400:
-        case 401:
-        case 404:
-        case 422:
-          message = "Invalid username or password";
-          break;
+      final responseData = e.response?.data;
 
-        case 500:
-        case 502:
-        case 503:
-          message = "Server error. Please try again.";
-          break;
+      final detail = responseData is Map
+          ? (responseData['detail']?.toString() ??
+              responseData['message']?.toString())
+          : null;
 
-        default:
-          message = e.type == DioExceptionType.connectionError ||
-                  e.type == DioExceptionType.connectionTimeout ||
-                  e.type == DioExceptionType.receiveTimeout
-              ? "Cannot reach the server. Check your connection."
-              : "Something went wrong. Please try again.";
+      if (detail != null && detail.isNotEmpty) {
+        message = detail;
+      } else {
+        switch (e.response?.statusCode) {
+          case 400:
+          case 401:
+          case 403: // Forbidden
+          case 404:
+          case 422:
+            message = "Invalid username or password";
+            break;
+
+          case 500:
+          case 502:
+          case 503:
+            message = "Server error. Please try again.";
+            break;
+
+          default:
+            if (e.type == DioExceptionType.connectionError ||
+                e.type == DioExceptionType.connectionTimeout ||
+                e.type == DioExceptionType.receiveTimeout) {
+              message = "Cannot reach the server. Check your connection.";
+            } else {
+              message = "Something went wrong. Please try again.";
+            }
+        }
       }
 
       state = LoginState(
@@ -229,6 +275,6 @@ class LoginViewModel extends StateNotifier<LoginState> {
 }
 
 final loginViewModelProvider =
-StateNotifierProvider<LoginViewModel, LoginState>(
-      (ref) => LoginViewModel(ref),
+    StateNotifierProvider<LoginViewModel, LoginState>(
+  (ref) => LoginViewModel(ref),
 );

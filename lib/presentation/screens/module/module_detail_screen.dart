@@ -423,6 +423,100 @@ class _SectionBar extends StatelessWidget {
 
 /// Collapsible Learning Objective: a glossy plum header bar with a chevron over
 /// a raised white card body that fades open and closed.
+// class _LearningObjective extends StatelessWidget {
+//   final String title;
+//   final String body;
+//   final bool open;
+//   final VoidCallback onToggle;
+//
+//   const _LearningObjective({
+//     required this.title,
+//     required this.body,
+//     required this.open,
+//     required this.onToggle,
+//   });
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       clipBehavior: Clip.antiAlias,
+//       decoration: AppGloss.card(r: AppGloss.radius),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.stretch,
+//         children: [
+//           DecoratedBox(
+//             decoration: const BoxDecoration(
+//               gradient: AppColors.brandGradientRich,
+//             ),
+//             child: Material(
+//               color: Colors.transparent,
+//               child: InkWell(
+//                 onTap: onToggle,
+//                 child: Stack(
+//                   children: [
+//                     AppGloss.sheen(r: AppGloss.radius),
+//                     Padding(
+//                       padding: const EdgeInsets.symmetric(
+//                         horizontal: AppSpacing.lg,
+//                         vertical: AppSpacing.md,
+//                       ),
+//                       child: Row(
+//                         children: [
+//                           const Icon(
+//                             Icons.flag_rounded,
+//                             color: Colors.white,
+//                             size: 20,
+//                           ),
+//                           const SizedBox(width: AppSpacing.md),
+//                           Expanded(
+//                             child: Text(title, style: AppText.sectionTitle),
+//                           ),
+//                           AnimatedRotation(
+//                             turns: open ? 0.5 : 0.0,
+//                             duration: const Duration(milliseconds: 200),
+//                             child: Container(
+//                               width: 26,
+//                               height: 26,
+//                               decoration: BoxDecoration(
+//                                 color: Colors.white.withValues(alpha: 0.16),
+//                                 shape: BoxShape.circle,
+//                               ),
+//                               child: const Icon(
+//                                 Icons.keyboard_arrow_down_rounded,
+//                                 color: Colors.white,
+//                                 size: 20,
+//                               ),
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           ),
+//           AnimatedCrossFade(
+//             duration: const Duration(milliseconds: 180),
+//             crossFadeState:
+//                 open ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+//             firstChild: Padding(
+//               padding: const EdgeInsets.fromLTRB(
+//                 AppSpacing.lg,
+//                 AppSpacing.md,
+//                 AppSpacing.lg,
+//                 AppSpacing.md,
+//               ),
+//               child: Text(body, style: AppText.body),
+//             ),
+//             secondChild: const SizedBox(width: double.infinity),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
 class _LearningObjective extends StatelessWidget {
   final String title;
   final String body;
@@ -438,20 +532,35 @@ class _LearningObjective extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
       clipBehavior: Clip.antiAlias,
-      decoration: AppGloss.card(r: AppGloss.radius),
+      decoration: BoxDecoration(
+        color: open ? Colors.white : Colors.transparent,
+        borderRadius: BorderRadius.circular(AppGloss.radius),
+        boxShadow: AppGloss.soft,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          DecoratedBox(
-            decoration: const BoxDecoration(
+          Container(
+            decoration: BoxDecoration(
               gradient: AppColors.brandGradientRich,
+              borderRadius: open
+                  ? const BorderRadius.vertical(
+                      top: Radius.circular(AppGloss.radius),
+                    )
+                  : BorderRadius.circular(AppGloss.radius),
             ),
             child: Material(
               color: Colors.transparent,
               child: InkWell(
                 onTap: onToggle,
+                borderRadius: open
+                    ? const BorderRadius.vertical(
+                        top: Radius.circular(AppGloss.radius),
+                      )
+                    : BorderRadius.circular(AppGloss.radius),
                 child: Stack(
                   children: [
                     AppGloss.sheen(r: AppGloss.radius),
@@ -469,7 +578,10 @@ class _LearningObjective extends StatelessWidget {
                           ),
                           const SizedBox(width: AppSpacing.md),
                           Expanded(
-                            child: Text(title, style: AppText.sectionTitle),
+                            child: Text(
+                              title,
+                              style: AppText.sectionTitle,
+                            ),
                           ),
                           AnimatedRotation(
                             turns: open ? 0.5 : 0.0,
@@ -478,7 +590,9 @@ class _LearningObjective extends StatelessWidget {
                               width: 26,
                               height: 26,
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.16),
+                                color: Colors.white.withValues(
+                                  alpha: 0.16,
+                                ),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -507,9 +621,14 @@ class _LearningObjective extends StatelessWidget {
                 AppSpacing.lg,
                 AppSpacing.md,
               ),
-              child: Text(body, style: AppText.body),
+              child: Text(
+                body,
+                style: AppText.body,
+              ),
             ),
-            secondChild: const SizedBox(width: double.infinity),
+            secondChild: const SizedBox(
+              width: double.infinity,
+            ),
           ),
         ],
       ),
@@ -787,6 +906,58 @@ class _CircleSheen extends StatelessWidget {
   }
 }
 
+// class _PreSessionAssessmentBar extends StatelessWidget {
+//   final int moduleId;
+//   final String moduleName;
+//   final int languageId;
+//
+//   const _PreSessionAssessmentBar({
+//     required this.moduleId,
+//     required this.moduleName,
+//     required this.languageId,
+//   });
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       decoration: AppGloss.card(r: AppGloss.radiusSm),
+//       child: Material(
+//         color: Colors.transparent,
+//         borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+//         child: InkWell(
+//           onTap: () => context.push(
+//             AppRoutes.moduleAssessmentPath(moduleId, type: 'pre'),
+//             extra: moduleName,
+//           ),
+//           borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+//           child: Container(
+//             height: 48,
+//             padding: const EdgeInsets.symmetric(horizontal: 16),
+//             decoration: BoxDecoration(
+//               gradient: const LinearGradient(
+//                 colors: [Color(0xFF8B5CF6), Color(0xFF6D28D9)],
+//               ),
+//               borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+//             ),
+//             child: Row(
+//               mainAxisAlignment: MainAxisAlignment.center,
+//               children: [
+//                 const Icon(Icons.assignment_outlined,
+//                     color: Colors.white, size: 20),
+//                 const SizedBox(width: AppSpacing.sm),
+//                 Text(
+//                   AppStrings.of('pre_session_assessment', languageId),
+//                   style: AppText.button,
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
 class _PreSessionAssessmentBar extends StatelessWidget {
   final int moduleId;
   final String moduleName;
@@ -801,37 +972,51 @@ class _PreSessionAssessmentBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: AppGloss.card(r: AppGloss.radiusSm),
+      decoration: BoxDecoration(
+        gradient: AppColors.brandGradientRich,
+        borderRadius: BorderRadius.circular(AppGloss.radius),
+        boxShadow: AppGloss.soft,
+      ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+        borderRadius: BorderRadius.circular(AppGloss.radius),
         child: InkWell(
           onTap: () => context.push(
             AppRoutes.moduleAssessmentPath(moduleId, type: 'pre'),
             extra: moduleName,
           ),
-          borderRadius: BorderRadius.circular(AppGloss.radiusSm),
-          child: Container(
-            height: 48,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF8B5CF6), Color(0xFF6D28D9)],
-              ),
-              borderRadius: BorderRadius.circular(AppGloss.radiusSm),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.assignment_outlined,
-                    color: Colors.white, size: 20),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  AppStrings.of('pre_session_assessment', languageId),
-                  style: AppText.button,
+          borderRadius: BorderRadius.circular(AppGloss.radius),
+          child: Stack(
+            children: [
+              AppGloss.sheen(r: AppGloss.radius),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.md,
                 ),
-              ],
-            ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.assignment_outlined,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: Text(
+                        AppStrings.of('pre_session_assessment', languageId),
+                        style: AppText.sectionTitle,
+                      ),
+                    ),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -841,6 +1026,102 @@ class _PreSessionAssessmentBar extends StatelessWidget {
 
 /// Green Post Assessment button pinned under the topic list. Completing it is
 /// what finishes the module and opens the next one.
+// class _PostAssessmentBar extends ConsumerWidget {
+//   final int moduleId;
+//   final String moduleName;
+//
+//   const _PostAssessmentBar({
+//     required this.moduleId,
+//     required this.moduleName,
+//   });
+//
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     return SafeArea(
+//       top: false,
+//       minimum: const EdgeInsets.only(bottom: 6),
+//       child: Padding(
+//         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+//         child: DecoratedBox(
+//           decoration: BoxDecoration(
+//             borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+//             boxShadow: [
+//               BoxShadow(
+//                 color: AppColors.assessmentAction.withValues(alpha: 0.40),
+//                 blurRadius: 16,
+//                 offset: const Offset(0, 8),
+//               ),
+//               const BoxShadow(
+//                 color: Color(0x33000000),
+//                 blurRadius: 6,
+//                 offset: Offset(0, 2),
+//               ),
+//             ],
+//           ),
+//           child: Material(
+//             color: Colors.transparent,
+//             borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+//             child: InkWell(
+//               onTap: () => context.push(
+//                 AppRoutes.moduleAssessmentPath(moduleId),
+//                 extra: moduleName,
+//               ),
+//               borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+//               child: Container(
+//                 height: 48,
+//                 width: double.infinity,
+//                 decoration: BoxDecoration(
+//                   gradient: const LinearGradient(
+//                     begin: Alignment.topCenter,
+//                     end: Alignment.bottomCenter,
+//                     colors: [Color(0xFF12B981), AppColors.assessmentAction],
+//                   ),
+//                   borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+//                   border: Border.all(
+//                     color: Colors.white.withValues(alpha: 0.25),
+//                   ),
+//                 ),
+//                 child: Stack(
+//                   alignment: Alignment.center,
+//                   children: [
+//                     AppGloss.sheen(r: AppGloss.radiusSm),
+//                     Padding(
+//                       padding: const EdgeInsets.symmetric(horizontal: 16),
+//                       child: Row(
+//                         mainAxisAlignment: MainAxisAlignment.center,
+//                         children: [
+//                           const Icon(
+//                             Icons.assignment_turned_in_rounded,
+//                             color: Colors.white,
+//                             size: 20,
+//                           ),
+//                           const SizedBox(width: AppSpacing.sm),
+//                           Flexible(
+//                             child: FittedBox(
+//                               fit: BoxFit.scaleDown,
+//                               child: Text(
+//                                 AppStrings.of(
+//                                   'post_assessment',
+//                                   ref.watch(languageProvider).languageId,
+//                                 ),
+//                                 style: AppText.button,
+//                               ),
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
 class _PostAssessmentBar extends ConsumerWidget {
   final int moduleId;
   final String moduleName;
@@ -859,47 +1140,32 @@ class _PostAssessmentBar extends ConsumerWidget {
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppGloss.radiusSm),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.assessmentAction.withValues(alpha: 0.40),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
-              ),
-              const BoxShadow(
-                color: Color(0x33000000),
-                blurRadius: 6,
-                offset: Offset(0, 2),
-              ),
-            ],
+            borderRadius: BorderRadius.circular(AppGloss.radius),
+            boxShadow: AppGloss.buttonGlow,
           ),
           child: Material(
             color: Colors.transparent,
-            borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+            borderRadius: BorderRadius.circular(AppGloss.radius),
             child: InkWell(
               onTap: () => context.push(
                 AppRoutes.moduleAssessmentPath(moduleId),
                 extra: moduleName,
               ),
-              borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+              borderRadius: BorderRadius.circular(AppGloss.radius),
               child: Container(
                 height: 48,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0xFF12B981), AppColors.assessmentAction],
-                  ),
-                  borderRadius: BorderRadius.circular(AppGloss.radiusSm),
+                  gradient: AppColors.brandGradientRich,
+                  borderRadius: BorderRadius.circular(AppGloss.radius),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.25),
+                    color: Colors.white.withValues(alpha: 0.35),
                   ),
                 ),
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    AppGloss.sheen(r: AppGloss.radiusSm),
+                    AppGloss.sheen(r: AppGloss.radius),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Row(

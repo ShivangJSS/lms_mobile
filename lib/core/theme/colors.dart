@@ -34,18 +34,39 @@ class AppColors {
     stops: [0.0, 0.55, 1.0],
   );
 
+  // /// Top-lit gradient for glossy primary buttons.
+  // static const LinearGradient buttonGloss = LinearGradient(
+  //   begin: Alignment.topCenter,
+  //   end: Alignment.bottomCenter,
+  //   colors: [Color(0xFF853180), Color(0xFF6A1E62)],
+  // );
+  //
+  // /// Disabled button gradient (kept a gradient so the shape stays consistent).
+  // static const LinearGradient buttonGlossDisabled = LinearGradient(
+  //   begin: Alignment.topCenter,
+  //   end: Alignment.bottomCenter,
+  //   // colors: [Color(0xFFC9C0D1), Color(0xFFB4A9BF)],
+  //   colors: [Color(0xFFB57DB4), Color(0xFF8F518D)],
+  // );
+
   /// Top-lit gradient for glossy primary buttons.
   static const LinearGradient buttonGloss = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFF853180), Color(0xFF6A1E62)],
+    colors: [
+      Color(0xFF6E1865),
+      Color(0xFF4A0E44),
+    ],
   );
 
-  /// Disabled button gradient (kept a gradient so the shape stays consistent).
+  /// Disabled button gradient (rich plum tint matching app theme).
   static const LinearGradient buttonGlossDisabled = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFFC9C0D1), Color(0xFFB4A9BF)],
+    colors: [
+      Color(0xFF8F4B89),
+      Color(0xFF6A3165),
+    ],
   );
 
   /// Subtle full-page background wash, replacing the flat [background].

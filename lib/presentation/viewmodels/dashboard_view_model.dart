@@ -43,6 +43,51 @@ class DashboardViewModel extends StateNotifier<DashboardState> {
     loadDashboard();
   }
 
+  // Future<void> loadDashboard() async {
+  //   state = state.copyWith(
+  //     isLoading: true,
+  //     error: null,
+  //   );
+  //
+  //   try {
+  //     final repository = ref.read(dashboardRepositoryProvider);
+  //
+  //     // The backend resolves the participant from the bearer token, so
+  //     // there is no need to fetch the current user first.
+  //     final stats = await repository.getDashboardStats();
+  //
+  //     // Tips are decoration — a failure there must not blank the dashboard.
+  //     List<DashboardTip> tips = const [];
+  //
+  //     try {
+  //       tips = await repository.getTips(
+  //         languageId: ref.read(languageProvider).languageId,
+  //       );
+  //     } catch (_) {}
+  //
+  //     state = state.copyWith(
+  //       isLoading: false,
+  //       stats: stats,
+  //       tips: tips,
+  //     );
+  //   } on DioException catch (e) {
+  //     state = state.copyWith(
+  //       isLoading: false,
+  //       error: _messageFor(e),
+  //     );
+  //   } on SocketException {
+  //     state = state.copyWith(
+  //       isLoading: false,
+  //       error: "No internet connection",
+  //     );
+  //   } catch (e) {
+  //     state = state.copyWith(
+  //       isLoading: false,
+  //       error: e.toString(),
+  //     );
+  //   }
+  // }
+
   Future<void> loadDashboard() async {
     state = state.copyWith(
       isLoading: true,
@@ -52,18 +97,34 @@ class DashboardViewModel extends StateNotifier<DashboardState> {
     try {
       final repository = ref.read(dashboardRepositoryProvider);
 
-      // The backend resolves the participant from the bearer token, so
-      // there is no need to fetch the current user first.
+      // The backend resolves the participant from the bearer token.
       final stats = await repository.getDashboardStats();
 
-      // Tips are decoration — a failure there must not blank the dashboard.
       List<DashboardTip> tips = const [];
 
       try {
+        final currentLangId = ref.read(languageProvider).languageId;
+
         tips = await repository.getTips(
-          languageId: ref.read(languageProvider).languageId,
+          languageId: currentLangId,
         );
-      } catch (_) {}
+
+        // Fallback to English tips if the current language has no tips.
+        if (tips.isEmpty && currentLangId != 1) {
+          tips = await repository.getTips(
+            languageId: 1,
+          );
+        }
+      } catch (_) {
+        // Fallback to English tips if fetching tips fails.
+        try {
+          tips = await repository.getTips(
+            languageId: 1,
+          );
+        } catch (_) {
+          // Ignore tip-fetching errors.
+        }
+      }
 
       state = state.copyWith(
         isLoading: false,
@@ -78,7 +139,7 @@ class DashboardViewModel extends StateNotifier<DashboardState> {
     } on SocketException {
       state = state.copyWith(
         isLoading: false,
-        error: "No internet connection",
+        error: 'No internet connection',
       );
     } catch (e) {
       state = state.copyWith(

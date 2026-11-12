@@ -1,3 +1,101 @@
+// import 'package:flutter/material.dart';
+//
+// import '../../core/localization/app_strings.dart';
+// import '../../core/theme/colors.dart';
+// import '../../core/theme/glossy.dart';
+//
+// class ProgressCard extends StatelessWidget {
+//   final double progress;
+//   final String progressText;
+//   final String message;
+//   final int languageId;
+//
+//   const ProgressCard({
+//     super.key,
+//     required this.progress,
+//     required this.progressText,
+//     required this.message,
+//     required this.languageId,
+//   });
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       decoration: AppGloss.card(r: AppGloss.radiusLg),
+//       clipBehavior: Clip.antiAlias,
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.stretch,
+//         children: [
+//           // Glossy brand-gradient header band with a wet sheen highlight.
+//           Stack(
+//             children: [
+//               Container(
+//                 width: double.infinity,
+//                 padding: const EdgeInsets.symmetric(vertical: 14),
+//                 decoration: const BoxDecoration(
+//                   gradient: AppColors.brandGradientRich,
+//                 ),
+//                 child: Text(
+//                   AppStrings.of('your_progress', languageId),
+//                   textAlign: TextAlign.center,
+//                   style: const TextStyle(
+//                     color: Colors.white,
+//                     fontSize: 18,
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
+//               ),
+//               AppGloss.sheen(r: 0),
+//             ],
+//           ),
+//           Padding(
+//             padding: const EdgeInsets.all(20.0),
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Row(
+//                   children: [
+//                     Expanded(
+//                       child: ClipRRect(
+//                         borderRadius: BorderRadius.circular(10),
+//                         child: LinearProgressIndicator(
+//                           value: progress,
+//                           minHeight: 16,
+//                           backgroundColor: AppColors.tintedPanel,
+//                           valueColor: const AlwaysStoppedAnimation<Color>(
+//                             AppColors.progressGreen,
+//                           ),
+//                         ),
+//                       ),
+//                     ),
+//                     const SizedBox(width: 16),
+//                     Text(
+//                       progressText,
+//                       style: const TextStyle(
+//                         fontSize: 20,
+//                         fontWeight: FontWeight.bold,
+//                         color: AppColors.primary,
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//                 const SizedBox(height: 16),
+//                 Text(
+//                   message,
+//                   style: const TextStyle(
+//                     fontSize: 16,
+//                     color: AppColors.textPrimary,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
 import 'package:flutter/material.dart';
 
 import '../../core/localization/app_strings.dart';
@@ -21,12 +119,16 @@ class ProgressCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: AppGloss.card(r: AppGloss.radiusLg),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppGloss.radiusLg),
+        boxShadow: AppGloss.lifted,
+      ),
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Glossy brand-gradient header band with a wet sheen highlight.
+          // Glossy brand-gradient header band with smooth top corners.
           Stack(
             children: [
               Container(
@@ -34,6 +136,9 @@ class ProgressCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: const BoxDecoration(
                   gradient: AppColors.brandGradientRich,
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(AppGloss.radiusLg),
+                  ),
                 ),
                 child: Text(
                   AppStrings.of('your_progress', languageId),
@@ -45,7 +150,7 @@ class ProgressCard extends StatelessWidget {
                   ),
                 ),
               ),
-              AppGloss.sheen(r: 0),
+              AppGloss.sheen(r: AppGloss.radiusLg),
             ],
           ),
           Padding(

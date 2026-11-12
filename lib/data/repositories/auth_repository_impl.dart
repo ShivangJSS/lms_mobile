@@ -12,10 +12,37 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this.dataSource);
 
   @override
+  // Future<ParticipantModel> login(
+  //     String username,
+  //     String password,
+  //     ) async {
+  //   final response = await dataSource.login(
+  //     LoginRequest(
+  //       username: username,
+  //       password: password,
+  //     ),
+  //   );
+  //
+  //   // Save JWT Tokens
+  //   await TokenStorage.saveTokens(
+  //     accessToken: response.accessToken,
+  //     refreshToken: response.refreshToken,
+  //   );
+  //
+  //   if (response.participant == null) {
+  //     throw Exception("Participant data not found");
+  //   }
+  //
+  //   _currentUser = response.participant!;
+  //
+  //   return _currentUser!;
+  // }
+
+  @override
   Future<ParticipantModel> login(
-      String username,
-      String password,
-      ) async {
+    String username,
+    String password,
+  ) async {
     final response = await dataSource.login(
       LoginRequest(
         username: username,
@@ -23,17 +50,20 @@ class AuthRepositoryImpl implements AuthRepository {
       ),
     );
 
-    // Save JWT Tokens
+    // Save JWT tokens
     await TokenStorage.saveTokens(
       accessToken: response.accessToken,
       refreshToken: response.refreshToken,
     );
 
-    if (response.participant == null) {
-      throw Exception("Participant data not found");
-    }
+    // Get participant from login response
+    var participant = response.participant;
 
-    _currentUser = response.participant!;
+    // Fallback: Fetch profile if participant is missing
+    participant ??= await dataSource.getCurrentUser();
+
+    // Store current user
+    _currentUser = participant;
 
     return _currentUser!;
   }

@@ -14,6 +14,8 @@ import '../../viewmodels/login_view_model.dart';
 import '../../widgets/app_drawer.dart';
 import '../../widgets/did_you_know_card.dart';
 import '../../widgets/progress_card.dart';
+import '../../../core/network/media_url.dart';
+import '../../../core/services/token_storage.dart';
 
 final bottomNavIndexProvider = StateProvider<int>((ref) => 0);
 
@@ -28,6 +30,8 @@ class HomeScreen extends ConsumerWidget {
     final navIndex = ref.watch(bottomNavIndexProvider);
 
     final userName = loginState.user?.participantName ?? 'User';
+    final userImage = mediaUrl(loginState.user?.images,
+        folder: 'participants'); // <--- ADD THIS LINE
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -54,6 +58,24 @@ class HomeScreen extends ConsumerWidget {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
+        // actions: [
+        //   Padding(
+        //     padding: const EdgeInsets.only(right: 16.0),
+        //     child: GestureDetector(
+        //       onTap: () => context.push(AppRoutes.profile),
+        //       child: Container(
+        //         padding: const EdgeInsets.all(3),
+        //         decoration: AppGloss.glass(r: 40, opacity: 0.20),
+        //         child: const CircleAvatar(
+        //           radius: 16,
+        //           backgroundColor: Colors.white,
+        //           child: Icon(Icons.person, color: AppColors.primary, size: 20),
+        //         ),
+        //       ),
+        //     ),
+        //   ),
+        // ],
+
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
@@ -61,11 +83,33 @@ class HomeScreen extends ConsumerWidget {
               onTap: () => context.push(AppRoutes.profile),
               child: Container(
                 padding: const EdgeInsets.all(3),
-                decoration: AppGloss.glass(r: 40, opacity: 0.20),
-                child: const CircleAvatar(
+                decoration: AppGloss.glass(
+                  r: 40,
+                  opacity: 0.20,
+                ),
+                child: CircleAvatar(
                   radius: 16,
                   backgroundColor: Colors.white,
-                  child: Icon(Icons.person, color: AppColors.primary, size: 20),
+                  child: userImage == null
+                      ? const Icon(
+                          Icons.person,
+                          color: AppColors.primary,
+                          size: 20,
+                        )
+                      : ClipOval(
+                          child: Image.network(
+                            userImage,
+                            headers: TokenStorage.mediaHeaders,
+                            width: 32,
+                            height: 32,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.person,
+                              color: AppColors.primary,
+                              size: 20,
+                            ),
+                          ),
+                        ),
                 ),
               ),
             ),
@@ -91,7 +135,10 @@ class HomeScreen extends ConsumerWidget {
                     padding: const EdgeInsets.fromLTRB(AppSpacing.md,
                         AppSpacing.md, AppSpacing.md, AppSpacing.md),
                     children: [
-                      _WelcomeCard(userName: userName, languageId: lang),
+                      _WelcomeCard(
+                          userName: userName,
+                          userImage: userImage,
+                          languageId: lang),
                       const SizedBox(height: AppSpacing.md),
                       if (dashboardState.stats != null) ...[
                         IntrinsicHeight(
@@ -255,11 +302,93 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
+// class _WelcomeCard extends StatelessWidget {
+//   final String userName;
+//   final int languageId;
+//
+//   const _WelcomeCard({required this.userName, required this.languageId});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       decoration: BoxDecoration(
+//         gradient: AppColors.brandGradientRich,
+//         borderRadius: BorderRadius.circular(AppGloss.radiusLg),
+//         boxShadow: AppGloss.lifted,
+//       ),
+//       clipBehavior: Clip.antiAlias,
+//       child: Stack(
+//         children: [
+//           // Soft decorative circles bleeding off the edges for depth.
+//           Positioned(top: -34, right: -26, child: _circle(130)),
+//           Positioned(bottom: -46, left: -30, child: _circle(120)),
+//           AppGloss.sheen(r: AppGloss.radiusLg),
+//           Padding(
+//             padding: const EdgeInsets.all(AppSpacing.lg),
+//             child: Row(
+//               crossAxisAlignment: CrossAxisAlignment.center,
+//               children: [
+//                 // Frosted glass avatar badge.
+//                 Container(
+//                   height: 54,
+//                   width: 54,
+//                   alignment: Alignment.center,
+//                   decoration: AppGloss.glass(r: 40, opacity: 0.22),
+//                   child: const Icon(
+//                     Icons.waving_hand_rounded,
+//                     color: Colors.white,
+//                     size: 26,
+//                   ),
+//                 ),
+//                 const SizedBox(width: AppSpacing.md),
+//                 Expanded(
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       Text(
+//                         '${AppStrings.of('welcome', languageId)} $userName',
+//                         style: AppText.sectionTitle,
+//                       ),
+//                       const SizedBox(height: AppSpacing.xs),
+//                       Text(
+//                         AppStrings.of('welcome_subtitle', languageId),
+//                         style: AppText.bodySmall.copyWith(
+//                           color: Colors.white.withValues(alpha: 0.88),
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+//
+//   static Widget _circle(double size) {
+//     return Container(
+//       height: size,
+//       width: size,
+//       decoration: BoxDecoration(
+//         shape: BoxShape.circle,
+//         color: Colors.white.withValues(alpha: 0.07),
+//       ),
+//     );
+//   }
+// }
+
 class _WelcomeCard extends StatelessWidget {
   final String userName;
+  final String? userImage;
   final int languageId;
 
-  const _WelcomeCard({required this.userName, required this.languageId});
+  const _WelcomeCard({
+    required this.userName,
+    this.userImage,
+    required this.languageId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -273,25 +402,51 @@ class _WelcomeCard extends StatelessWidget {
       child: Stack(
         children: [
           // Soft decorative circles bleeding off the edges for depth.
-          Positioned(top: -34, right: -26, child: _circle(130)),
-          Positioned(bottom: -46, left: -30, child: _circle(120)),
+          Positioned(
+            top: -34,
+            right: -26,
+            child: _circle(130),
+          ),
+          Positioned(
+            bottom: -46,
+            left: -30,
+            child: _circle(120),
+          ),
           AppGloss.sheen(r: AppGloss.radiusLg),
           Padding(
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Frosted glass avatar badge.
+                // User profile photo or fallback waving hand icon.
                 Container(
                   height: 54,
                   width: 54,
                   alignment: Alignment.center,
-                  decoration: AppGloss.glass(r: 40, opacity: 0.22),
-                  child: const Icon(
-                    Icons.waving_hand_rounded,
-                    color: Colors.white,
-                    size: 26,
+                  decoration: AppGloss.glass(
+                    r: 40,
+                    opacity: 0.22,
                   ),
+                  child: userImage == null
+                      ? const Icon(
+                          Icons.waving_hand_rounded,
+                          color: Colors.white,
+                          size: 26,
+                        )
+                      : ClipOval(
+                          child: Image.network(
+                            userImage!,
+                            headers: TokenStorage.mediaHeaders,
+                            width: 54,
+                            height: 54,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.waving_hand_rounded,
+                              color: Colors.white,
+                              size: 26,
+                            ),
+                          ),
+                        ),
                 ),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
@@ -304,7 +459,10 @@ class _WelcomeCard extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        AppStrings.of('welcome_subtitle', languageId),
+                        AppStrings.of(
+                          'welcome_subtitle',
+                          languageId,
+                        ),
                         style: AppText.bodySmall.copyWith(
                           color: Colors.white.withValues(alpha: 0.88),
                         ),
